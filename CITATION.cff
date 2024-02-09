@@ -1,0 +1,15 @@
+cff-version: 1.2.0
+message: If you use this software, please cite it using the metadata from this file.
+type: software
+title: 'piamValidation: Validation Tools for PIK-PIAM'
+version: 0.0.2
+date-released: '2024-02-09'
+abstract: The piamValidation package provides validation tools for the Potsdam Integrated
+  Assessment Modelling environment.
+authors:
+- family-names: Weigmann
+  given-names: Pascal
+  email: pascal.weigmann@pik-potsdam.de
+license: LGPL-3.0
+repository-code: https://github.com/pik-piam/piamValidation
+

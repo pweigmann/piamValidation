@@ -1,7 +1,7 @@
 Type: Package
 Package: piamValidation
 Title: Validation Tools for PIK-PIAM
-Version: 0.0.1
+Version: 0.0.2
 Date: 2024-02-09
 Authors@R:
     person("Pascal", "Weigmann", , "pascal.weigmann@pik-potsdam.de", role = c("aut", "cre"))
@@ -11,4 +11,4 @@ URL: https://github.com/pik-piam/piamValidation
 Suggests:
     testthat
 Encoding: UTF-8
-RoxygenNote: 7.2.1
+RoxygenNote: 7.3.1
