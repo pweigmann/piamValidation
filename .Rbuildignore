@@ -3,3 +3,5 @@
 ^Makefile$
 ^workflow$
 ^.*CITATION.cff$
+^.*\.Rproj$
+^\.Rproj\.user$

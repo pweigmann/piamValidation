@@ -9,6 +9,13 @@ R package **piamValidation**, version **0.0.2**
 The piamValidation package provides validation tools for the Potsdam Integrated Assessment Modelling environment.
 
 
+## How to use
+
+The following categories/metrics require allow the following columns in the cfg:
+
+
+
+
 ## Installation
 
 For installation of the most recent package version an additional repository has to be added in R:

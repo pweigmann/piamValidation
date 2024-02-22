@@ -1,0 +1,21 @@
+category;model;scenario;variable;region;period;min_red;min_yel;max_yel;max_red;metric;ref_period;ref_model;ref_scenario
+1;;;Emi|CO2|Energy;World;;;;0.05;0.1;relative;;EDGAR6;
+1;;;Emi|CO2|Energy;DEU;;;;0.1;0.2;relative;;EDGAR6;
+1;;;PE|Coal;;;;;;0.1;relative;;BP, IEA;
+1;;;PE|Coal;World;;;;;0.2;relative;;BP, IEA;
+1;;;PE|Oil;;;;;;2;absolute;;;
+1;;;PE|Oil;World;;;;;5;absolute;;;
+1;;Bal;FE|Electricity;;;;;;0.1;relative;;;
+1;;Bal;FE|Electricity;World;;;;;0.2;relative;;;
+2;;;Price|Carbon;;2030;;;300;600;absolute;;;
+2;;;Price|Carbon;;2050;;;;1000;absolute;;;
+2;;;Price|Carbon;DEU;2030;50;100;400;800;absolute;;;
+2;;;Price|Carbon;DEU;2050;100;150;600;1200;absolute;;;
+2;;;Price|Carbon;LAM, MEA, SSA, OAS, IND;2030, 2050;;;;200;absolute;;;
+2;;Bal;Emi|GHG;DEU, USA, JPN, REF, CHA, CAZ, EUR;2050;-2000;-1000;0;500;absolute;;;
+2;;Bal;Emi|GHG;LAM, MEA, SSA, OAS, IND;2060;-2000;-1000;0;500;absolute;;;
+2;;Bal;Temperature|Global Mean;;2100;;;1.5;1.55;absolute;;;
+2;;;Emi|CO2;;2030;-0.5;-0.3;;;relative;2020;;
+2;;;FE;;2030, 2040;-0.4;-0.2;;;relative;2020;;
+2;;Bal;Price|Secondary Energy|Electricity;;;5.56;;;;absolute;;;
+3;;;Cap|Electricity|Solar|PV;;;;;0.5;1;relative;;;
