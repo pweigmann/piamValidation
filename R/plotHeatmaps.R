@@ -1,13 +1,5 @@
-
-
-validationHeatmap <- function(d, var, cat, metric, interactive = T) {
-
-  # possible extension: when giving multiple vars, plot as facets in same row
-
-  d <- filter(d, variable == var)
-
-  d$period <- as.character(d$period)
-
+# construct tooltips for interactive plots
+appendTooltip <- function(df) {
   # text for tooltip, category 1
   if (cat == 1) {
     d <- d %>%
@@ -57,6 +49,20 @@ validationHeatmap <- function(d, var, cat, metric, interactive = T) {
       )
       )
   }
+
+  return(df)
+}
+
+
+validationHeatmap <- function(d, var, cat, metric, interactive = T) {
+
+  # possible extension: when giving multiple vars, plot as facets in same row
+
+  d <- filter(d, variable == var)
+
+  d$period <- as.character(d$period)
+
+
 
   # classic ggplot, with text in aes
   p <- ggplot(d, aes(x = region, y = period, fill=check, text=text)) +

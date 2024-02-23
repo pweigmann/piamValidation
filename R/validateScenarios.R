@@ -1,3 +1,5 @@
+#' @importFrom dplyr filter select mutate summarise group_by %>%
+
 # import data
 # supported formats:
 # - .mif
@@ -7,6 +9,8 @@
 # dev helpers
 #configName <- "validationConfig.csv"
 #usethis::use_data(configName, internal = T)
+
+
 
 importData <- function() {
   # for dev purposes
@@ -50,7 +54,8 @@ importReferenceData <- function() {
 # - category: "historic" or "scenario"
 # - can be empty, contain one element or multiple:
 #   - model, scenario, region, period
-importConfig <- function(configName) {
+# ...
+loadConfig <- function(configName) {
   path <- system.file(paste0("config/", configName) , package = "piamValidation")
   cfg <- read.csv2(path, na.strings = "")
   return(cfg)
@@ -71,85 +76,6 @@ cleanConfig <- function(cfg) {
 }
 
 
-combineData <- function(data, hist, cfg) {
-
-  # dimensions of data
-  by <- c("variable", "region", "period", "scenario")
-
-  # full dimensions and important slices
-  all_reg <- unique(data$region)
-  all_per <- unique(data$period)  # not a factor, convert?
-  all_per <- all_per[all_per <= 2100]
-  hist_per <- c(2005, 2010, 2015, 2020)
-  all_sce <- unique(data$scenario)
-
-  # revert the sorting of factors for better plots
-  # data$region <- factor(data$region, levels = rev(levels(data$region)))
-
-  # define colors here or later
-  colors <- c(green = "#008450", yellow = "#EFB700", red = "#B81D13", grey = "#808080")
-
-  ### here, category specifics start
-
-  # category 1 data objects
-  d1 <- data.frame()
-  c1 <- cfg[cfg$category == 1, ]
-
-  # assemble data by row of cfg
-  for (i in 1:nrow(c1)) {
-    # create filters
-    # check whether regions, periods, scenarios are specified
-    # TODO: extend to support excluding elements, multiple elements
-    reg <- if (is.na(c1[i, "region"]))   all_reg else strsplit(c1[i, "region"], split = ", |,")[[1]]
-    per <- if (is.na(c1[i, "period"]))  hist_per else strsplit(as.character(c1[i, "period"]), split = ", |,")[[1]]
-    sce <- if (is.na(c1[i, "scenario"])) all_sce else strsplit(c1[i, "scenario"], split = ", |, ")[[1]]
-
-    # filter data for each row in cfg
-    # REMIND data for line i
-    d <- data %>%
-      filter(variable == c1[i, "variable"],
-             region %in% reg,
-             period %in% per,
-             scenario %in% sce)
-    # here?: skip if empty
-
-    # historical data for line i
-    h <- hist %>%
-      filter(variable == c1[i, "variable"],
-             region %in% reg,
-             period %in% per) %>%
-      mutate(ref_value = value, ref_model = model) %>%
-      select(-c("scenario", "unit", "value", "model"))
-    # remove NA here?
-
-    # in case one or more sources are specified, filter for them
-    if (!is.na(c1[i, "ref_model"])) {
-      h <- filter(h, ref_model %in% strsplit(c1[i, "ref_model"], split = ", |,")[[1]])
-    }
-
-    # in case of multiple sources, calculate mean (using all available sources)
-    if (length(unique(h$ref_model)) > 1) {
-      h_mean <- group_by(h, period, region) %>%
-        summarise(ref_value = mean(ref_value, na.rm = TRUE))
-      h <- mutate(h_mean, variable = c1[i, "variable"], ref_model = "multiple")
-    }
-
-    # Merge REMIND, historical and config data
-    # (works as long as we only have one set of thresholds per cfg row)
-    d <- merge(d, h) %>%
-      mutate(min_red = c1[i, ]$min_red,
-             min_yel = c1[i, ]$min_yel,
-             max_yel = c1[i, ]$max_yel,
-             max_red = c1[i, ]$max_red,
-             metric  = c1[i, ]$metric)
-
-    d1 <- rbind(d1, d)
-  }
-
-  return(df)
-}
-
-
 evaluateThreshold <- function(df) {
 
   return(df)
@@ -158,19 +84,27 @@ evaluateThreshold <- function(df) {
 
 
 # bringing it all together
+# TODO: introduce file path and name as argument
 validateScenario <- function() {
 
   data <- importData()
 
   hist <- importReferenceData()
 
-  cfg <- importConfig(configName)
+  cfg <- loadConfig(configName)
 
-  cfg <- cleanConfig()
+  cfg <- cleanConfig(cfg)
 
-  df <- combineData(data, cfg)
 
-  evaluateThreshold(df)
+  # combine data for each row of the config and bind together
+  df <- data.frame()
+  for (i in 1:nrow(cfg)) {
+    # TODO: hist should be optional, validation should work without "historical"
+    d <- combineData(data, hist, cfg[i, ])
+    df <- rbind(df, d)
+  }
+
+  df <- evaluateThreshold(df)
 
   df <- createTooltip(df)
 
