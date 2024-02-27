@@ -11,9 +11,10 @@ resolveDuplicates <- function(df) {
                                        "region", "period", "category", "metric")]), ]
 
   # here all instances of the data that was duplicated is removed
-  no_dupl <- dplyr::anti_join(df, duplicates_all, by = c("model", "scenario", "variable",
+  no_dupl <- dplyr::anti_join(df, duplicates, by = c("model", "scenario", "variable",
                                                          "region", "period", "category", "metric"))
 
+  # reattach one instance to get a complete data set without duplicates
   df <- rbind(no_dupl, duplicates)
 
   # different approach: allows partial overwriting

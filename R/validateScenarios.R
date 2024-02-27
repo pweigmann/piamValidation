@@ -85,7 +85,7 @@ evaluateThreshold <- function(df) {
 
 # bringing it all together
 # TODO: introduce file path and name as argument
-validateScenario <- function() {
+validateScenarios <- function() {
 
   data <- importData()
 
@@ -99,14 +99,17 @@ validateScenario <- function() {
   # combine data for each row of the config and bind together
   df <- data.frame()
   for (i in 1:nrow(cfg)) {
-    # TODO: hist should be optional, validation should work without "historical"
-    d <- combineData(data, hist, cfg[i, ])
-    df <- rbind(df, d)
+    # TODO: hist should only be needed if category "historical" is in config
+    # validation generally should work without hist data
+    df_row <- combineData(data, hist, cfg[i, ])
+    df <- rbind(df, df_row)
   }
 
-  df <- evaluateThreshold(df)
+  df <- resolveDuplicates(df)
 
-  df <- createTooltip(df)
+  df <- evaluateThresholds(df)
+
+  df <- appendTooltips(df)
 
   return(df)
 }

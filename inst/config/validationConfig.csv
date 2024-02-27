@@ -19,4 +19,4 @@ scenario;;;Emi|CO2;;2030;-0.5;-0.3;;;relative;yes;2020;;
 scenario;;;Emi|CO2;;2030;-0.6;-0.4;;;relative;yes;2015;;
 scenario;;;FE;;2030, 2040;-0.4;-0.2;;;relative;yes;2020;;
 scenario;;Bal;Price|Secondary Energy|Electricity;;;5.56;;;;absolute;yes;;;
-scenario;;;Cap|Electricity|Solar|PV;;;;;0.5;1;relative;yes;;;
+scenario;;;New Cap|Electricity|Solar|PV;;;;;0.5;1;growthrate;yes;;;

@@ -1,6 +1,7 @@
 #' @importFrom dplyr filter select mutate summarise group_by %>%
 
 # for one row of cfg: filter and merge relevant scenario data with cfg
+# results in one df that contains scenario data, reference data and thresholds
 combineData <- function(data, hist, cfg_row) {
 
   # shorten as it will be used a lot

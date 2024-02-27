@@ -1,67 +1,38 @@
-# construct tooltips for interactive plots
-appendTooltip <- function(df) {
-  # text for tooltip, category 1
-  if (cat == 1) {
-    d <- d %>%
-      mutate(text = paste0(region, "\n",
-                           period, "\n",
-                           "Value: ", round(value,2), "\n",
-                           "Ref_Value: ", round(ref_value,2), "\n",
-                           "Ref_Source: ", ref_model, "\n",
-                           "Thresholds: \n",
-                           ifelse(metric == "relative",
-                                  paste0("Max: ", max_yel*100, "% / ", max_red*100, "%"),
-                                  paste0("Max: ", max_yel, " / ", max_red))
-      )
-      )
-  }
+#' @importFrom dplyr filter select mutate %>%
+#' @import ggplot2
+#' @importFrom ggthemes theme_tufte
+#' @importFrom plotly ggplotly
 
-  # text for tooltip, category 2
-  if (cat == 2) {
-    d <- d %>%
-      mutate(text = paste0(region, "\n",
-                           period, "\n",
-                           "Value: ", round(value,2), "\n",
-                           ifelse(metric == "relative",
-                                  paste0("Ref Value: ", round(ref_value,2), "\n",
-                                         "Rel Deviation: ", round(check_value,2)*100, "% \n",
-                                         "Thresholds: \n",
-                                         "Min: ", min_yel*100, "% / ", min_red*100,"% \n",
-                                         "Max: ", max_yel*100, "% / ", max_red*100, "%"),
-                                  # for metric == "absolute"
-                                  paste0("Thresholds: \n",
-                                         "Min: ", min_yel, " / ", min_red,"\n",
-                                         "Max: ", max_yel, " / ", max_red)
-                           )
-      )
-      )
-  }
-
-  if (cat == 3) {
-    d <- d %>%
-      mutate(text = paste0(region, "\n",
-                           period, "\n",
-                           "Avg. growth/yr: ", round(check_value,2)*100, "% \n",
-                           "Absolute value: ", round(value,2), " \n",
-                           "Thresholds: \n",
-                           paste0("Min: ", min_yel*100, "% / ", min_red*100, "% \n",
-                                  "Max: ", max_yel*100, "% / ", max_red*100, "%")
-      )
-      )
-  }
-
-  return(df)
-}
-
-
-validationHeatmap <- function(d, var, cat, metric, interactive = T) {
+# takes the output of "validateScenarios()" and plots heatmaps per variable
+validationHeatmap <- function(df, var, cat, met, interactive = T) {
 
   # possible extension: when giving multiple vars, plot as facets in same row
 
-  d <- filter(d, variable == var)
+  # prepare data slice
+  d <- df %>%
+    filter(variable == var,
+           category == cat,
+           metric == met)
+
+  if (nrow(d) == 0) {
+
+    df <- df %>% mutate(cm = paste(category, metric, sep = "-"))
+    unique(df[df$variable == "PE|Coal", "cm"])
+
+    stop(paste0(
+    "No data found for variable in this category and metric.\n
+    variable ", var ," is available for the following category-metric
+    combinations: ", unique(df[df$variable == "PE|Coal", "cm"]
+                )
+      )
+    )
+  }
 
   d$period <- as.character(d$period)
-
+  colors <- c(green  = "#008450",
+              yellow = "#EFB700",
+              red    = "#B81D13",
+              grey   = "#808080")
 
 
   # classic ggplot, with text in aes
@@ -70,9 +41,9 @@ validationHeatmap <- function(d, var, cat, metric, interactive = T) {
     scale_fill_manual(values = colors, breaks = colors) +
     facet_grid(scenario~.)
   # make it beautiful
-  # from https://www.r-bloggers.com/2016/02/making-faceted-heatmaps-with-ggplot2/
+  # from https://www.r-bloggers.com/2016/02/making-faceted-heatmaps-with-ggplot2
   p <- p + labs(x=NULL, y=NULL, title=paste0(var, " [", d$unit[1], "]"))
-  p <- p + theme_tufte(base_family="Helvetica")
+  p <- p + theme_tufte(base_family="Helvetica")  # creates warnings
   p <- p + theme(axis.ticks=element_blank())
   p <- p + theme(axis.text=element_text(size=7))
   p <- p + coord_equal()
