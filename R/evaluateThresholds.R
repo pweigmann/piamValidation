@@ -1,6 +1,8 @@
 #' @importFrom dplyr filter select mutate summarise group_by %>%
 
-evaluateThresholds <- function(df) {
+# cleanInf = TRUE: choose to replace "Inf" and "-Inf" which were introduced
+# for ease of calculations with "-"
+evaluateThresholds <- function(df, cleanInf = TRUE) {
 
   # perform evaluation for each category and metric separately
   # (shortcuts are possible but will decrease readability of the code for minor

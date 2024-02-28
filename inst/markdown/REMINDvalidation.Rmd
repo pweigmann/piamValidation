@@ -1,0 +1,139 @@
+---
+title: "piamValidation: REMIND"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: hide
+params:
+  gdx: "fulldata.gdx"
+  warning: false
+  message: false
+  figWidth: 8
+---
+
+```{r include=FALSE}
+devtools::load_all(".")
+library(knitr)
+library(ggplot2)
+library(ggthemes)
+library(plotly)
+
+knitr::opts_chunk$set(
+  echo = FALSE,
+  error = TRUE,
+  #fig.width = params$figWidth,
+  message = params$message,
+  warning = params$warning
+)
+```
+
+## Import and Prepare Data
+
+
+```{r}
+# Data Preparation
+df <- validateScenarios()
+
+```
+## Plots
+
+### Historic - Relative
+Relative deviation to historical reference data. Absolute numbers, so no 
+difference is made between being above or below the reference value.
+```{r}
+c <- "historic"
+m <- "relative"
+d <- df[df$category == c & df$metric == m, ]
+
+if (nrow(d) > 0) {
+  vars <- unique(d$variable)
+  plot_list <- htmltools::tagList()
+    for (i in 1:length(vars)) {
+      plot_list[[i]] <- validationHeatmap(d, vars[i], cat = c, met = m)
+    }
+  plot_list
+}
+```
+
+### Historic - Difference
+Difference to historical reference data
+```{r}
+c <- "historic"
+m <- "difference"
+d <- df[df$category == c & df$metric == m, ]
+
+if (nrow(d) > 0) {
+  vars <- unique(d$variable)
+  plot_list <- htmltools::tagList()
+    for (i in 1:length(vars)) {
+      plot_list[[i]] <- validationHeatmap(d, vars[i], cat = c, met = m)
+    }
+  plot_list
+}
+```
+
+### Scenario - Relative
+```{r}
+c <- "scenario"
+m <- "relative"
+d <- df[df$category == c & df$metric == m, ]
+
+if (nrow(d) > 0) {
+  vars <- unique(d$variable)
+  plot_list <- htmltools::tagList()
+    for (i in 1:length(vars)) {
+      plot_list[[i]] <- validationHeatmap(d, vars[i], cat = c, met = m)
+    }
+  plot_list
+}
+```
+
+### Scenario - Difference
+```{r}
+c <- "scenario"
+m <- "difference"
+d <- df[df$category == c & df$metric == m, ]
+
+if (nrow(d) > 0) {
+  vars <- unique(d$variable)
+  plot_list <- htmltools::tagList()
+    for (i in 1:length(vars)) {
+      plot_list[[i]] <- validationHeatmap(d, vars[i], cat = c, met = m)
+    }
+  plot_list
+}
+```
+
+### Scenario - Absolute
+```{r}
+c <- "scenario"
+m <- "absolute"
+d <- df[df$category == c & df$metric == m, ]
+
+if (nrow(d) > 0) {
+  vars <- unique(d$variable)
+  plot_list <- htmltools::tagList()
+    for (i in 1:length(vars)) {
+      plot_list[[i]] <- validationHeatmap(d, vars[i], cat = c, met = m)
+    }
+  plot_list
+}
+```
+
+
+### Scenario - Growthrate
+```{r}
+c <- "scenario"
+m <- "growthrate"
+d <- df[df$category == c & df$metric == m, ]
+
+if (nrow(d) > 0) {
+  vars <- unique(d$variable)
+  plot_list <- htmltools::tagList()
+    for (i in 1:length(vars)) {
+      plot_list[[i]] <- validationHeatmap(d, vars[i], cat = c, met = m)
+    }
+  plot_list
+}
+```

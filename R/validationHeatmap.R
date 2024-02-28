@@ -2,6 +2,7 @@
 #' @import ggplot2
 #' @importFrom ggthemes theme_tufte
 #' @importFrom plotly ggplotly
+#' @export
 
 # takes the output of "validateScenarios()" and plots heatmaps per variable
 validationHeatmap <- function(df, var, cat, met, interactive = T) {
@@ -16,13 +17,12 @@ validationHeatmap <- function(df, var, cat, met, interactive = T) {
 
   if (nrow(d) == 0) {
 
-    df <- df %>% mutate(cm = paste(category, metric, sep = "-"))
-    unique(df[df$variable == "PE|Coal", "cm"])
+    df$cm <- paste(category, metric, sep = "-")
 
     stop(paste0(
     "No data found for variable in this category and metric.\n
     variable ", var ," is available for the following category-metric
-    combinations: ", unique(df[df$variable == "PE|Coal", "cm"]
+    combinations: ", unique(df[df$variable == var, "cm"]
                 )
       )
     )
@@ -58,7 +58,8 @@ validationHeatmap <- function(df, var, cat, met, interactive = T) {
   }
   fig <- ggplotly(p, tooltip="text")
 
-  # improve plotly layout, kinda works but very manual
+  # improve plotly layout, kinda works but very manual,
+  # TODO: can this be extended to a general useful function?
   #fig <- fig %>% subplot(heights = 0.3) %>%
   #   layout(title = list(y=0.64))
   if (interactive) {

@@ -1,22 +1,12 @@
 #' @importFrom dplyr filter select mutate summarise group_by %>%
 
-# import data
-# supported formats:
-# - .mif
-# -
-
-
-# dev helpers
-#configName <- "validationConfig.csv"
-#usethis::use_data(configName, internal = T)
-
-
-
 importData <- function() {
   # for dev purposes
   if (file.exists("mif.rds")) {
+    cat("loading scenario data from cache\n")
     data <- readRDS("mif.rds")
   } else {
+    cat("importing scenario data from file(s)\n")
     path <- "C:/Users/pascalwe/Data/vs/"
     data <- remind2::deletePlus(quitte::read.quitte(
       c(paste0(path, "REMIND_generic_Bal.mif"),
@@ -37,8 +27,11 @@ importData <- function() {
 importReferenceData <- function() {
   # for dev purposes
   if (file.exists("hist.rds")) {
+    cat("loading reference data from cache\n")
     hist <- readRDS("hist.rds")
   } else {
+    cat("importing reference data from file\n")
+    path <- "C:/Users/pascalwe/Data/vs/"
     hist <- quitte::read.quitte(paste0(path, "historical.mif"))
     hist <- filter(hist, period >= 1990)
     saveRDS(hist, "hist.rds")
@@ -56,7 +49,7 @@ importReferenceData <- function() {
 #   - model, scenario, region, period
 # ...
 loadConfig <- function(configName) {
-  path <- system.file(paste0("config/", configName) , package = "piamValidation")
+  path <- system.file(paste0("config/", configName), package = "piamValidation")
   cfg <- read.csv2(path, na.strings = "")
   return(cfg)
 }
@@ -75,16 +68,9 @@ cleanConfig <- function(cfg) {
   return(cfg)
 }
 
-
-evaluateThreshold <- function(df) {
-
-  return(df)
-}
-
-
-
 # bringing it all together
-# TODO: introduce file path and name as argument
+# TODO: introduce file paths and names as arguments
+#' @export
 validateScenarios <- function() {
 
   data <- importData()

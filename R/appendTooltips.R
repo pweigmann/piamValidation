@@ -8,9 +8,10 @@ appendTooltips <- function(df) {
     df[df$category == "historic" & df$metric == "relative", ] %>%
     mutate(text = paste0(region, "\n",
                          period, "\n",
-                         "Value: ", round(value,2), "\n",
-                         "Ref_Value: ", round(ref_value,2), "\n",
+                         "Value: ", round(value, 2), "\n",
+                         "Ref_Value: ", round(ref_value, 2), "\n",
                          "Ref_Source: ", ref_model, "\n",
+                         "Deviation:", round(check_value, 2)*100, "%\n",
                          "Thresholds: \n",
                          paste0("Max: ", max_yel*100, "% / ", max_red*100, "%")
     )
