@@ -4,7 +4,7 @@
 #' @export
 validateScenarios <- function(scenarioPath, referencePath, configName) {
 
-  data <- importData(scenarioPath)
+  data <- importScenarioData(scenarioPath)
 
   hist <- importReferenceData(referencePath)
 
@@ -17,7 +17,7 @@ validateScenarios <- function(scenarioPath, referencePath, configName) {
   df <- data.frame()
   for (i in 1:nrow(cfg)) {
     # TODO: hist should only be needed if category "historical" is in config
-    # validation generally should work without hist data
+    #       validation generally should work without hist data
     df_row <- combineData(data, hist, cfg[i, ])
     df <- rbind(df, df_row)
   }

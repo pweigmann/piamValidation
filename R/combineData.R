@@ -16,6 +16,7 @@ combineData <- function(data, hist, cfg_row) {
 
   # create filters
   # check whether regions, periods, scenarios are specified
+  # TODO: add model
   reg <- if (is.na(c$region))   all_reg else
     strsplit(c$region, split = ", |,")[[1]]
   sce <- if (is.na(c$scenario)) all_sce else
@@ -92,21 +93,34 @@ combineData <- function(data, hist, cfg_row) {
 
       # get reference values for these metrics
     } else if (c$metric %in% c("relative", "difference")) {
-      # TODO: only works for ref_period, add support for model/scenario as ref
       # TODO: support choosing ref_period AND model/scenario?
-      ref <- data %>%
-        filter(variable == c$variable,
-               region %in% reg,
-               period == c$ref_period,
-               scenario %in% sce) %>%
-        mutate(ref_value = value, ref_period = period) %>%
-        select(-c(period, value))
-      df <- merge(d, ref)
 
-      # add columns which are not used in this category, fill NA
-      df <- df %>%
-        mutate(ref_model = NA,
-               ref_scenario = NA)
+      # if a reference period should be used, same scenario, same model
+      if (!is.na(c$ref_period)) {
+        ref <- data %>%
+          filter(variable == c$variable,
+                 region %in% reg,
+                 period == c$ref_period,
+                 scenario %in% sce) %>%
+          mutate(ref_value = value, ref_period = period) %>%
+          select(-c(period, value)) %>%
+          # add columns which are not used in this category, fill NA
+          mutate(ref_model = NA, ref_scenario = NA)
+
+        # if a reference scenario should be used, same period, same model
+      } else if (!is.na(c$ref_scenario)) {
+        ref <- data %>%
+          filter(variable == c$variable,
+                 region %in% reg,
+                 period %in% per,
+                 scenario == c$ref_scenario) %>%
+          mutate(ref_value = value, ref_scenario = scenario) %>%
+          select(-c(scenario, value)) %>%
+          # add columns which are not used in this category, fill NA
+          mutate(ref_model = NA, ref_period = NA)
+      }
+
+      df <- merge(d, ref)
 
     } else {
       # TODO: have this warning here or earlier when cleaning config?

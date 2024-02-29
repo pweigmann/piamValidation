@@ -22,8 +22,8 @@ appendTooltips <- function(df) {
     df[df$category == "historic" & df$metric == "difference", ] %>%
     mutate(text = paste0(region, "\n",
                          period, "\n",
-                         "Value: ", round(value,2), "\n",
-                         "Ref_Value: ", round(ref_value,2), "\n",
+                         "Value: ", round(value, 2), "\n",
+                         "Ref_Value: ", round(ref_value, 2), "\n",
                          "Ref_Source: ", ref_model, "\n",
                          "Thresholds: \n",
                          "Max: ", max_yel, " / ", max_red
@@ -35,9 +35,13 @@ appendTooltips <- function(df) {
     df[df$category == "scenario" & df$metric == "relative", ] %>%
     mutate(text = paste0(region, "\n",
                          period, "\n",
-                         "Value: ", round(value,2), "\n",
-                         "Ref Value: ", round(ref_value,2), "\n",
-                         "Rel Deviation: ", round(check_value,2)*100, "% \n",
+                         "Value: ", round(value, 2), "\n",
+                         "Ref ", ifelse(!is.na(ref_period),
+                                               paste("Period:", ref_period),
+                                               paste("Scenario:", ref_scenario)
+                                               ), "\n",
+                         "Ref Value: ", round(ref_value, 2), "\n",
+                         "Rel Deviation: ", round(check_value, 2)*100, "% \n",
                          "Thresholds: \n",
                          "Min: ", min_yel*100, "% / ", min_red*100,"% \n",
                          "Max: ", max_yel*100, "% / ", max_red*100, "%"
@@ -49,9 +53,9 @@ appendTooltips <- function(df) {
     df[df$category == "scenario" & df$metric == "difference", ] %>%
     mutate(text = paste0(region, "\n",
                          period, "\n",
-                         "Value: ", round(value,2), "\n",
-                         "Ref Value: ", round(ref_value,2), "\n",
-                         "Difference: ", round(check_value,2), "\n",
+                         "Value: ", round(value, 2), "\n",
+                         "Ref Value: ", round(ref_value, 2), "\n",
+                         "Difference: ", round(check_value, 2), "\n",
                          "Thresholds: \n",
                          "Min: ", min_yel, " / ", min_red,"\n",
                          "Max: ", max_yel, " / ", max_red
@@ -63,7 +67,7 @@ appendTooltips <- function(df) {
     df[df$category == "scenario" & df$metric == "absolute", ] %>%
     mutate(text = paste0(region, "\n",
                          period, "\n",
-                         "Value: ", round(value,2), "\n",
+                         "Value: ", round(value, 2), "\n",
                          "Thresholds: \n",
                          "Min: ", min_yel, " / ", min_red,"\n",
                          "Max: ", max_yel, " / ", max_red

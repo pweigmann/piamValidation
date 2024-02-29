@@ -41,9 +41,14 @@ mifs <- c(paste0(path, "REMIND_generic_Bal.mif"),
 
 hmif <- paste0(path, "historical.mif")
 
-cfg <- "validationConfig.csv"
+config <- "validationConfig.csv"
 
-df <- validateScenarios(mifs, hmif, cfg)
+
+data <- importScenarioData(mifs)
+hist <- importReferenceData(hmif)
+cfg <- getConfig(config) %>% cleanConfig()
+
+df <- validateScenarios(mifs, hmif, config)
 df <- appendTooltips(df)
 
 ```

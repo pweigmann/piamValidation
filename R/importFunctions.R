@@ -1,8 +1,8 @@
 #' @importFrom dplyr filter select mutate summarise group_by %>%
 
-# scenarioData: one or multiple paths to .mif or .csv file(s) containing
+# scenarioPath: one or multiple paths to .mif or .csv file(s) containing
 #               scenario data in IAM format
-importData <- function(scenarioPath) {
+importScenarioData <- function(scenarioPath) {
   # for dev purposes use cache
   if (file.exists("mif.rds")) {
     cat("loading scenario data from cache\n")
@@ -48,6 +48,7 @@ getConfig <- function(configName) {
   # TODO: check if config is available, otherwise is it a local file? if yes load that one
   path <- system.file(paste0("config/", configName), package = "piamValidation")
   cfg <- read.csv2(path, na.strings = "")
+  cat(paste0("loading config file: ", configName, "\n"))
   return(cfg)
 }
 
