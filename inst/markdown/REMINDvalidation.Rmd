@@ -20,6 +20,7 @@ library(knitr)
 library(ggplot2)
 library(ggthemes)
 library(plotly)
+library(kableExtra)
 
 knitr::opts_chunk$set(
   echo = FALSE,
@@ -43,16 +44,32 @@ hmif <- paste0(path, "historical.mif")
 
 config <- "validationConfig.csv"
 
-
-data <- importScenarioData(mifs)
-hist <- importReferenceData(hmif)
-cfg <- getConfig(config) %>% cleanConfig()
+# debugging
+# data <- importScenarioData(mifs)
+# hist <- importReferenceData(hmif)
+# cfg <- getConfig(config) %>% cleanConfig()
 
 df <- validateScenarios(mifs, hmif, config)
 df <- appendTooltips(df)
-
 ```
-## Plots
+## Validation
+
+### Summary
+```{r}
+# find "critical == yes" data points, that are red/yellow
+colors <- c(green  = "#008450",
+            yellow = "#EFB700",
+            red    = "#B81D13",
+            grey   = "#808080")
+dt <- dplyr::count(df, critical, check)
+kbl(dt) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), 
+                full_width = F) %>%
+  column_spec(2, color = colors[dt$check],
+              background = colors[dt$check])
+```
+
+## Heatmaps by Category
 
 ### Historic - Relative
 Relative deviation to historical reference data. Absolute numbers, so no 
@@ -91,7 +108,11 @@ if (nrow(d) > 0) {
 
 ### Scenario - Relative
 Relative deviation to data point from either:
-- scenario
+
+- period (same scenario/model)
+- scenario (same period/model)
+- model (same period/scenario - Not supported yet)
+
 ```{r}
 c <- "scenario"
 m <- "relative"

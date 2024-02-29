@@ -11,13 +11,13 @@ scenario;;;Price|Carbon;;2030;;;300;600;absolute;yes;;;
 scenario;;;Price|Carbon;;2050;;;;1000;absolute;yes;;;
 scenario;;;Price|Carbon;DEU;2030;50;100;400;800;absolute;yes;;;
 scenario;;;Price|Carbon;DEU;2050;100;150;600;1200;absolute;yes;;;
-scenario;;;Price|Carbon;LAM, MEA, SSA, OAS, IND;2030, 2050;;;;200;absolute;yes;;;
+scenario;;;Price|Carbon;LAM, MEA, SSA, OAS, IND;2030, 2050;;;;200;absolute;no;;;
 scenario;;Bal;Emi|GHG;DEU, USA, JPN, REF, CHA, CAZ, EUR;2050;-2000;-1000;0;500;absolute;yes;;;
-scenario;;Bal;Emi|GHG;LAM, MEA, SSA, OAS, IND;2060;-2000;-1000;0;500;absolute;yes;;;
+scenario;;Bal;Emi|GHG;LAM, MEA, SSA, OAS, IND;2060;-2000;-1000;0;500;absolute;no;;;
 scenario;;Bal;Temperature|Global Mean;;2100;;;1.5;1.55;absolute;yes;;;
 scenario;;;Emi|CO2;;2030;-0.5;-0.3;;;relative;yes;2020;;
 scenario;;;Emi|CO2;;2030;-0.6;-0.4;;;relative;yes;2015;;
-scenario;;;FE;;2030, 2040;-0.4;-0.2;;;relative;yes;2020;;
+scenario;;;FE;;2030, 2040;-0.4;-0.2;;;relative;no;2020;;
 scenario;;Bal;Price|Secondary Energy|Electricity;;;5.56;;;;absolute;yes;;;
 scenario;;;New Cap|Electricity|Solar|PV;;;;;0.5;1;growthrate;yes;;;
 scenario;;Bal;Price|Carbon;;2030, 2040, 2050;1;;;;relative;yes;;;NPi

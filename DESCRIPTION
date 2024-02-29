@@ -12,6 +12,7 @@ Imports:
     dplyr (>= 1.1.1),
     ggplot2,
     ggthemes,
+    kableExtra,
     plotly,
     quitte (>= 0.3123.0),
     readxl,

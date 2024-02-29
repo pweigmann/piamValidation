@@ -92,5 +92,8 @@ evaluateThresholds <- function(df, cleanInf = TRUE) {
                         )
            )
 
+  # after evaluation, "Inf" can be removed again
+  if (cleanInf) df[df == "Inf" | df == "-Inf"] <- NA
+
   return(df)
 }

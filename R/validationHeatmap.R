@@ -15,17 +15,16 @@ validationHeatmap <- function(df, var, cat, met, interactive = T) {
            category == cat,
            metric == met)
 
+  # warn if no data is found for combination of var, cat and met
   if (nrow(d) == 0) {
-
     df$cm <- paste(category, metric, sep = "-")
-
-    stop(paste0(
-    "No data found for variable in this category and metric.\n
-    variable ", var ," is available for the following category-metric
-    combinations: ", unique(df[df$variable == var, "cm"]
-                )
+    warning(
+      paste0(
+        "No data found for variable in this category and metric.\n
+        variable ", var ," is available for the following category-metric
+        combinations: ", unique(df[df$variable == var, "cm"])
+        )
       )
-    )
   }
 
   d$period <- as.character(d$period)
@@ -42,10 +41,12 @@ validationHeatmap <- function(df, var, cat, met, interactive = T) {
     facet_grid(scenario~.)
   # make it beautiful
   # from https://www.r-bloggers.com/2016/02/making-faceted-heatmaps-with-ggplot2
-  p <- p + labs(x=NULL, y=NULL, title=paste0(var, " [", d$unit[1], "]"))
-  p <- p + theme_tufte(base_family="Helvetica")  # creates warnings
-  p <- p + theme(axis.ticks=element_blank())
-  p <- p + theme(axis.text=element_text(size=7))
+  p <- p + labs(x = NULL, y = NULL, title = paste0(var,
+                                                   " [", d$unit[1], "] - ",
+                                                   cat, "/", met))
+  p <- p + theme_tufte(base_family = "Helvetica")  # creates warnings
+  p <- p + theme(axis.ticks = element_blank())
+  p <- p + theme(axis.text = element_text(size = 7))
   p <- p + coord_equal()
   p <- p + theme(legend.position = "none")
 
@@ -56,12 +57,13 @@ validationHeatmap <- function(df, var, cat, met, interactive = T) {
   if("World" %in% d$region) {
     p <- p + geom_vline(xintercept = 1.5, linewidth = 0.8, color = "white")
   }
-  fig <- ggplotly(p, tooltip="text")
+  fig <- ggplotly(p, tooltip = "text")
 
-  # improve plotly layout, kinda works but very manual,
-  # TODO: can this be extended to a general useful function?
+  # improve plotly layout, kinda works but very manual
+  # TODO: can this be extended to a general, useful function?
   #fig <- fig %>% subplot(heights = 0.3) %>%
   #   layout(title = list(y=0.64))
+
   if (interactive) {
     return(fig)
   } else {
