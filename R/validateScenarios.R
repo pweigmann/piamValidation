@@ -1,83 +1,14 @@
 #' @importFrom dplyr filter select mutate summarise group_by %>%
 
-importData <- function() {
-  # for dev purposes
-  if (file.exists("mif.rds")) {
-    cat("loading scenario data from cache\n")
-    data <- readRDS("mif.rds")
-  } else {
-    cat("importing scenario data from file(s)\n")
-    path <- "C:/Users/pascalwe/Data/vs/"
-    data <- remind2::deletePlus(quitte::read.quitte(
-      c(paste0(path, "REMIND_generic_Bal.mif"),
-        paste0(path, "REMIND_generic_NPi.mif"))
-        )
-      )
-    saveRDS(data, "mif.rds")
-  }
-
-  # change ordering of factors, put last element ("World") first
-  # TODO: will not work if World is not last
-  new_order <- c(tail(levels(data$region), 1), head(levels(data$region), -1))
-  data$region <- factor(data$region, levels = new_order)
-
-  return(data)
-}
-
-importReferenceData <- function() {
-  # for dev purposes
-  if (file.exists("hist.rds")) {
-    cat("loading reference data from cache\n")
-    hist <- readRDS("hist.rds")
-  } else {
-    cat("importing reference data from file\n")
-    path <- "C:/Users/pascalwe/Data/vs/"
-    hist <- quitte::read.quitte(paste0(path, "historical.mif"))
-    hist <- filter(hist, period >= 1990)
-    saveRDS(hist, "hist.rds")
-  }
-
-  # remove all historical data before 1990
-  hist <- filter(hist, period >= 1990)
-
-  return(hist)
-}
-
-# required columns:
-# - category: "historic" or "scenario"
-# - can be empty, contain one element or multiple:
-#   - model, scenario, region, period
-# ...
-loadConfig <- function(configName) {
-  path <- system.file(paste0("config/", configName), package = "piamValidation")
-  cfg <- read.csv2(path, na.strings = "")
-  return(cfg)
-}
-
-
-cleanConfig <- function(cfg) {
-  # fill empty threshold columns with Infinity for easier evaluation
-  cfg <- cfg %>%
-    mutate(min_red = as.numeric(ifelse(is.na(min_red), -Inf, min_red)),
-           min_yel = as.numeric(ifelse(is.na(min_yel), -Inf, min_yel)),
-           max_yel = as.numeric(ifelse(is.na(max_yel),  Inf, max_yel)),
-           max_red = as.numeric(ifelse(is.na(max_red),  Inf, max_red))
-           )
-
-  # insert tests here to check if there are forbidden fields in config
-  return(cfg)
-}
-
 # bringing it all together
-# TODO: introduce file paths and names as arguments
 #' @export
-validateScenarios <- function() {
+validateScenarios <- function(scenarioPath, referencePath, configName) {
 
-  data <- importData()
+  data <- importData(scenarioPath)
 
-  hist <- importReferenceData()
+  hist <- importReferenceData(referencePath)
 
-  cfg <- loadConfig(configName)
+  cfg <- getConfig(configName)
 
   cfg <- cleanConfig(cfg)
 
@@ -94,8 +25,6 @@ validateScenarios <- function() {
   df <- resolveDuplicates(df)
 
   df <- evaluateThresholds(df)
-
-  df <- appendTooltips(df)
 
   return(df)
 }

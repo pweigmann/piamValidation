@@ -6,7 +6,9 @@ output:
     toc_float: true
     code_folding: hide
 params:
-  gdx: "fulldata.gdx"
+  mif: ""
+  ref: ""
+  cfg: ""
   warning: false
   message: false
   figWidth: 8
@@ -33,7 +35,16 @@ knitr::opts_chunk$set(
 
 ```{r}
 # Data Preparation
-df <- validateScenarios()
+path <- "C:/Users/pascalwe/Data/vs/"
+mifs <- c(paste0(path, "REMIND_generic_Bal.mif"),
+          paste0(path, "REMIND_generic_NPi.mif"))
+
+hmif <- paste0(path, "historical.mif")
+
+cfg <- "validationConfig.csv"
+
+df <- validateScenarios(mifs, hmif, cfg)
+df <- appendTooltips(df)
 
 ```
 ## Plots
@@ -57,7 +68,7 @@ if (nrow(d) > 0) {
 ```
 
 ### Historic - Difference
-Difference to historical reference data
+Absolute difference to historical reference data
 ```{r}
 c <- "historic"
 m <- "difference"
@@ -74,6 +85,8 @@ if (nrow(d) > 0) {
 ```
 
 ### Scenario - Relative
+Relative deviation to data point from either:
+- scenario
 ```{r}
 c <- "scenario"
 m <- "relative"

@@ -93,7 +93,7 @@ combineData <- function(data, hist, cfg_row) {
       # get reference values for these metrics
     } else if (c$metric %in% c("relative", "difference")) {
       # TODO: only works for ref_period, add support for model/scenario as ref
-      # TODO: support choosing ref_period AND model/scenario
+      # TODO: support choosing ref_period AND model/scenario?
       ref <- data %>%
         filter(variable == c$variable,
                region %in% reg,
