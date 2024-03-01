@@ -1,0 +1,201 @@
+---
+title: "piamValidation: COMMITED"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: hide
+params:
+  mif: ""
+  ref: ""
+  cfg: ""
+  warning: false
+  message: false
+  figWidth: 8
+---
+
+```{r include=FALSE}
+devtools::load_all(".")
+library(knitr)
+library(ggplot2)
+library(ggthemes)
+library(plotly)
+library(kableExtra)
+
+knitr::opts_chunk$set(
+  echo = FALSE,
+  error = TRUE,
+  #fig.width = params$figWidth,
+  message = params$message,
+  warning = params$warning
+)
+```
+
+## Import and Prepare Data
+
+
+```{r}
+# Data Preparation
+path <- "C:/Users/pascalwe/Data/vs/"
+mifs <- c(paste0(path, "REMIND_generic_Bal.mif"),
+          paste0(path, "REMIND_generic_NPi.mif"))
+
+hmif <- paste0(path, "historical.mif")
+
+config <- "validationConfig_COMMITED.csv"
+
+cfg <- getConfig(config)
+data <- importScenarioData(mifs)
+
+
+# expandConfig <- function(cfg, data, firstLevelOnly = TRUE)
+to_expand <- cfg[grepl("\\*", cfg$variable), ]
+all_vars <- unique(data$variable)
+firstLevelOnly <- TRUE
+
+cfg_new <- dplyr::anti_join(cfg, to_expand)
+for (i in 1:nrow(to_expand)) {
+  var <- gsub("\\|\\*", "\\\\\\|", to_expand$variable[i])
+  selected_vars <- all_vars[grepl(var, all_vars)]
+
+  #
+  # all variables that don't have a "|" in the substring following the given part
+  if (firstLevelOnly == TRUE) {
+    selected_vars <- selected_vars[!grepl("\\|", gsub(var, "", selected_vars))]
+    }
+  
+  c <- cfg[i,] %>%
+    slice(rep(1, each = length(selected_vars)))
+  c$variable <- selected_vars
+  cfg_new <- rbind(cfg_new, c)
+}
+
+cfg <- cfg_new
+
+cfg <- cleanConfig(cfg)
+
+
+# combine data for each row of the config and bind together
+df <- data.frame()
+for (i in 1:nrow(cfg)) {
+  # TODO: hist should only be needed if category "historical" is in config
+  #       validation generally should work without hist data
+  df_row <- combineData(data, hist, cfg[i, ])
+  df <- rbind(df, df_row)
+}
+
+df <- resolveDuplicates(df)
+
+df <- evaluateThresholds(df)
+
+df <- appendTooltips(df)
+
+```
+
+## Heatmaps by Category
+
+### Historic - Relative
+Relative deviation to historical reference data. Absolute numbers, so no 
+difference is made between being above or below the reference value.
+```{r}
+c <- "historic"
+m <- "relative"
+d <- df[df$category == c & df$metric == m, ]
+
+if (nrow(d) > 0) {
+  vars <- unique(d$variable)
+  plot_list <- htmltools::tagList()
+    for (i in 1:length(vars)) {
+      plot_list[[i]] <- validationHeatmap(d, vars[i], cat = c, met = m)
+    }
+  plot_list
+}
+```
+
+### Historic - Difference
+Absolute difference to historical reference data
+```{r}
+c <- "historic"
+m <- "difference"
+d <- df[df$category == c & df$metric == m, ]
+
+if (nrow(d) > 0) {
+  vars <- unique(d$variable)
+  plot_list <- htmltools::tagList()
+    for (i in 1:length(vars)) {
+      plot_list[[i]] <- validationHeatmap(d, vars[i], cat = c, met = m)
+    }
+  plot_list
+}
+```
+
+### Scenario - Relative
+Relative deviation to data point from either:
+
+- period (same scenario/model)
+- scenario (same period/model)
+- model (same period/scenario - Not supported yet)
+
+```{r}
+c <- "scenario"
+m <- "relative"
+d <- df[df$category == c & df$metric == m, ]
+
+if (nrow(d) > 0) {
+  vars <- unique(d$variable)
+  plot_list <- htmltools::tagList()
+    for (i in 1:length(vars)) {
+      plot_list[[i]] <- validationHeatmap(d, vars[i], cat = c, met = m)
+    }
+  plot_list
+}
+```
+
+### Scenario - Difference
+```{r}
+c <- "scenario"
+m <- "difference"
+d <- df[df$category == c & df$metric == m, ]
+
+if (nrow(d) > 0) {
+  vars <- unique(d$variable)
+  plot_list <- htmltools::tagList()
+    for (i in 1:length(vars)) {
+      plot_list[[i]] <- validationHeatmap(d, vars[i], cat = c, met = m)
+    }
+  plot_list
+}
+```
+
+### Scenario - Absolute
+```{r}
+c <- "scenario"
+m <- "absolute"
+d <- df[df$category == c & df$metric == m, ]
+
+if (nrow(d) > 0) {
+  vars <- unique(d$variable)
+  plot_list <- htmltools::tagList()
+    for (i in 1:length(vars)) {
+      plot_list[[i]] <- validationHeatmap(d, vars[i], cat = c, met = m)
+    }
+  plot_list
+}
+```
+
+
+### Scenario - Growthrate
+```{r}
+c <- "scenario"
+m <- "growthrate"
+d <- df[df$category == c & df$metric == m, ]
+
+if (nrow(d) > 0) {
+  vars <- unique(d$variable)
+  plot_list <- htmltools::tagList()
+    for (i in 1:length(vars)) {
+      plot_list[[i]] <- validationHeatmap(d, vars[i], cat = c, met = m)
+    }
+  plot_list
+}
+```
