@@ -1,23 +1,23 @@
-category;model;scenario;variable;region;period;min_red;min_yel;max_yel;max_red;metric;critical;ref_period;ref_model;ref_scenario
-historic;;;Emi|CO2|Energy;World;;;;0.05;0.1;relative;yes;;EDGAR6;
-historic;;;Emi|CO2|Energy;DEU;;;;0.1;0.2;relative;yes;;EDGAR6;
-historic;;;PE|Coal;;;;;;0.1;relative;yes;;BP, IEA;
-historic;;;PE|Coal;World;;;;;0.2;relative;yes;;BP, IEA;
-historic;;;PE|Oil;;;;;;2;difference;yes;;;
-historic;;;PE|Oil;World;;;;;5;difference;yes;;;
-historic;;Bal;FE|Electricity;;;;;;0.1;relative;yes;;;
-historic;;Bal;FE|Electricity;World;;;;;0.2;relative;yes;;;
-scenario;;;Price|Carbon;;2030;;;300;600;absolute;yes;;;
-scenario;;;Price|Carbon;;2050;;;;1000;absolute;yes;;;
-scenario;;;Price|Carbon;DEU;2030;50;100;400;800;absolute;yes;;;
-scenario;;;Price|Carbon;DEU;2050;100;150;600;1200;absolute;yes;;;
-scenario;;;Price|Carbon;LAM, MEA, SSA, OAS, IND;2030, 2050;;;;200;absolute;no;;;
-scenario;;Bal;Emi|GHG;DEU, USA, JPN, REF, CHA, CAZ, EUR;2050;-2000;-1000;0;500;absolute;yes;;;
-scenario;;Bal;Emi|GHG;LAM, MEA, SSA, OAS, IND;2060;-2000;-1000;0;500;absolute;no;;;
-scenario;;Bal;Temperature|Global Mean;;2100;;;1.5;1.55;absolute;yes;;;
-scenario;;;Emi|CO2;;2030;-0.5;-0.3;;;relative;yes;2020;;
-scenario;;;Emi|CO2;;2030;-0.6;-0.4;;;relative;yes;2015;;
-scenario;;;FE;;2030, 2040;-0.4;-0.2;;;relative;no;2020;;
-scenario;;Bal;Price|Secondary Energy|Electricity;;;5.56;;;;absolute;yes;;;
-scenario;;;New Cap|Electricity|Solar|PV;;;;;0.5;1;growthrate;yes;;;
-scenario;;Bal;Price|Carbon;;2030, 2040, 2050;1;;;;relative;yes;;;NPi
+category;metric;critical;variable;model;scenario;region;period;min_red;min_yel;max_yel;max_red;ref_model;ref_scenario;ref_period;source/link to discussion
+historic;relative;yes;Emi|CO2|Energy;;;World;;;;0.05;0.1;EDGAR6;;;
+historic;relative;yes;Emi|CO2|Energy;;;DEU;;;;0.1;0.2;EDGAR6;;;
+historic;relative;yes;PE|Coal;;;;;;;;0.1;BP, IEA;;;
+historic;relative;yes;PE|Coal;;;World;;;;;0.2;BP, IEA;;;
+historic;difference;yes;PE|Oil;;;;;;;;2;;;;
+historic;difference;yes;PE|Oil;;;World;;;;;5;;;;
+historic;relative;yes;FE|Electricity;;Bal;;;;;;0.1;;;;
+historic;relative;yes;FE|Electricity;;Bal;World;;;;;0.2;;;;
+scenario;absolute;yes;Price|Carbon;;;;2030;;;300;600;;;;
+scenario;absolute;yes;Price|Carbon;;;;2050;;;;1000;;;;
+scenario;absolute;yes;Price|Carbon;;;DEU;2030;50;100;400;800;;;;
+scenario;absolute;yes;Price|Carbon;;;DEU;2050;100;150;600;1200;;;;
+scenario;absolute;no;Price|Carbon;;;LAM, MEA, SSA, OAS, IND;2030, 2050;;;;200;;;;
+scenario;absolute;yes;Emi|GHG;;Bal;DEU, USA, JPN, REF, CHA, CAZ, EUR;2050;-2000;-1000;0;500;;;;
+scenario;absolute;no;Emi|GHG;;Bal;LAM, MEA, SSA, OAS, IND;2060;-2000;-1000;0;500;;;;
+scenario;absolute;yes;Temperature|Global Mean;;Bal;;2100;;;1.5;1.55;;;;
+scenario;relative;yes;Emi|CO2;;;;2030;-0.5;-0.3;;;;;2020;
+scenario;relative;yes;Emi|CO2;;;;2030;-0.6;-0.4;;;;;2015;
+scenario;relative;no;FE;;;;2030, 2040;-0.4;-0.2;;;;;2020;
+scenario;absolute;yes;Price|Secondary Energy|Electricity;;Bal;;;5.56;;;;;;;
+scenario;growthrate;yes;New Cap|Electricity|Solar|PV;;;;;;;0.5;1;;;;
+scenario;relative;yes;Price|Carbon;;Bal;;2030, 2040, 2050;1;;;;;NPi;;

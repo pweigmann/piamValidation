@@ -17,6 +17,7 @@ params:
 ```{r include=FALSE}
 devtools::load_all(".")
 library(knitr)
+library(dplyr)
 library(ggplot2)
 library(ggthemes)
 library(plotly)
@@ -44,12 +45,7 @@ hmif <- paste0(path, "historical.mif")
 
 config <- "validationConfig.csv"
 
-# debugging
-# data <- importScenarioData(mifs)
-# hist <- importReferenceData(hmif)
-# cfg <- getConfig(config) %>% cleanConfig()
-
-df <- validateScenarios(mifs, hmif, config)
+df <- validateScenarios(mifs, config, referencePath = hmif)
 df <- appendTooltips(df)
 ```
 ## Validation

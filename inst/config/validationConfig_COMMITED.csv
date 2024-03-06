@@ -1,5 +1,3 @@
-category;metric;critical;model;scenario;variable;region;period;min_red;min_yel;max_yel;max_red;ref_period;ref_model;ref_scenario;source/link to discussion
-historic;relative;yes;;;PE|*;;;;;0.05;0.1;;;;
-historic;relative;yes;;;Emi|*;;;;;0.05;0.1;;;;
-historic;relative;yes;;;SE|*;;;;;0.05;0.1;;;;
-historic;relative;yes;;;FE;;;;;0.05;0.1;;;;
+category;metric;critical;variable;model;scenario;region;period;min_red;min_yel;max_yel;max_red;ref_model;ref_scenario;ref_period;source/link to discussion
+historic;relative;yes;Emi|CO2|*;;;;2010:2200;;;0.05;0.1;;;;
+historic;relative;yes;FE;;;;2020:2050;;;0.05;0.1;;;;

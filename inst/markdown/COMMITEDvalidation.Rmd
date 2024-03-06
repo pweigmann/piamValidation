@@ -42,53 +42,31 @@ mifs <- c(paste0(path, "REMIND_generic_Bal.mif"),
 
 hmif <- paste0(path, "historical.mif")
 
-config <- "validationConfig_COMMITED.csv"
+configName <- "validationConfig_COMMITED.csv"
 
-cfg <- getConfig(config)
-data <- importScenarioData(mifs)
+data <- importScenarioData(scenarioPath)
 
+hist <- importReferenceData(referencePath)
 
-# expandConfig <- function(cfg, data, firstLevelOnly = TRUE)
-to_expand <- cfg[grepl("\\*", cfg$variable), ]
-all_vars <- unique(data$variable)
-firstLevelOnly <- TRUE
+cfg <- getConfig(configName) %>%
+  cleanConfig()
 
-cfg_new <- dplyr::anti_join(cfg, to_expand)
-for (i in 1:nrow(to_expand)) {
-  var <- gsub("\\|\\*", "\\\\\\|", to_expand$variable[i])
-  selected_vars <- all_vars[grepl(var, all_vars)]
-
-  #
-  # all variables that don't have a "|" in the substring following the given part
-  if (firstLevelOnly == TRUE) {
-    selected_vars <- selected_vars[!grepl("\\|", gsub(var, "", selected_vars))]
-    }
-  
-  c <- cfg[i,] %>%
-    slice(rep(1, each = length(selected_vars)))
-  c$variable <- selected_vars
-  cfg_new <- rbind(cfg_new, c)
-}
-
-cfg <- cfg_new
-
-cfg <- cleanConfig(cfg)
-
+cfg <- expandPeriods(cfg, data) %>%
+  expandVariables(data)
 
 # combine data for each row of the config and bind together
 df <- data.frame()
 for (i in 1:nrow(cfg)) {
   # TODO: hist should only be needed if category "historical" is in config
   #       validation generally should work without hist data
-  df_row <- combineData(data, hist, cfg[i, ])
+  df_row <- combineData(data, cfg[i, ], ref_data = hist)
   df <- rbind(df, df_row)
+  cat(paste0("Combined row ", i, " of ", nrow(cfg), "\n"))
 }
 
 df <- resolveDuplicates(df)
 
 df <- evaluateThresholds(df)
-
-df <- appendTooltips(df)
 
 ```
 

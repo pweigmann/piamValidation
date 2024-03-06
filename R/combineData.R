@@ -2,7 +2,7 @@
 
 # for one row of cfg: filter and merge relevant scenario data with cfg
 # results in one df that contains scenario data, reference data and thresholds
-combineData <- function(data, hist, cfg_row) {
+combineData <- function(data, cfg_row, ref_data = NULL) {
 
   # shorten as it will be used a lot
   c <- cfg_row
@@ -33,7 +33,7 @@ combineData <- function(data, hist, cfg_row) {
 
   # filter scenario data for row in cfg
   d <- data %>%
-    filter(variable == c$variable,
+    dplyr::filter(variable == c$variable,
            region %in% reg,
            period %in% per,
            scenario %in% sce)
@@ -52,7 +52,7 @@ combineData <- function(data, hist, cfg_row) {
   if (c$category == "historic") {
     # historic data for relevant variable and dimensions (all sources)
     h <- hist %>%
-      filter(variable == c$variable,
+      dplyr::filter(variable == c$variable,
              region %in% reg,
              period %in% per) %>%
       mutate(ref_value = value, ref_model = model) %>%
@@ -62,7 +62,7 @@ combineData <- function(data, hist, cfg_row) {
 
     # in case one or more sources are specified, filter for them
     if (!is.na(c$ref_model)) {
-      h <- filter(
+      h <- dplyr::filter(
         h, ref_model %in% strsplit(c$ref_model, split = ", |,")[[1]]
       )
     }
@@ -98,7 +98,7 @@ combineData <- function(data, hist, cfg_row) {
       # if a reference period should be used, same scenario, same model
       if (!is.na(c$ref_period)) {
         ref <- data %>%
-          filter(variable == c$variable,
+          dplyr::filter(variable == c$variable,
                  region %in% reg,
                  period == c$ref_period,
                  scenario %in% sce) %>%
@@ -110,7 +110,7 @@ combineData <- function(data, hist, cfg_row) {
         # if a reference scenario should be used, same period, same model
       } else if (!is.na(c$ref_scenario)) {
         ref <- data %>%
-          filter(variable == c$variable,
+          dplyr::filter(variable == c$variable,
                  region %in% reg,
                  period %in% per,
                  scenario == c$ref_scenario) %>%
