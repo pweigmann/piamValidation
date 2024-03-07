@@ -11,7 +11,7 @@ combineData <- function(data, cfg_row, ref_data = NULL) {
   all_reg <- unique(data$region)
   all_per <- unique(data$period)  # not a factor, convert?
   all_per <- all_per[all_per <= 2100]
-  hist_per <- c(2005, 2010, 2015, 2020)
+  ref_per <- c(2005, 2010, 2015, 2020)
   all_sce <- unique(data$scenario)
 
   # create filters
@@ -24,7 +24,7 @@ combineData <- function(data, cfg_row, ref_data = NULL) {
 
   # empty "period" field means different years for historic or scenario category
   if (c$category == "historic") {
-    per <- if (is.na(c$period))  hist_per else
+    per <- if (is.na(c$period))  ref_per else
       strsplit(as.character(c$period), split = ", |,")[[1]]
   } else {
     per <- if (is.na(c$period))  all_per else
@@ -33,7 +33,7 @@ combineData <- function(data, cfg_row, ref_data = NULL) {
 
   # filter scenario data for row in cfg
   d <- data %>%
-    dplyr::filter(variable == c$variable,
+    filter(variable == c$variable,
            region %in% reg,
            period %in% per,
            scenario %in% sce)
@@ -51,34 +51,39 @@ combineData <- function(data, cfg_row, ref_data = NULL) {
   # depending on category: filter and attach reference values if they are needed
   if (c$category == "historic") {
     # historic data for relevant variable and dimensions (all sources)
-    h <- hist %>%
-      dplyr::filter(variable == c$variable,
+    h <- ref_data %>%
+      filter(variable %in% c$variable,
              region %in% reg,
              period %in% per) %>%
       mutate(ref_value = value, ref_model = model) %>%
       select(-c("scenario", "unit", "value", "model"))
 
-    # TODO: insert test here if ref_model exists and has data to compare to
+    # TODO: test here if ref_model exists and has data to compare to
+    if (nrow(h) == 0) {
+      cat(paste0("No reference data for variable ", c$variable, " found.\n"))
+      df <- data.frame()
+    } else {
 
-    # in case one or more sources are specified, filter for them
-    if (!is.na(c$ref_model)) {
-      h <- dplyr::filter(
-        h, ref_model %in% strsplit(c$ref_model, split = ", |,")[[1]]
-      )
+      # in case one or more sources are specified, filter for them
+      if (!is.na(c$ref_model)) {
+        h <- filter(
+          h, ref_model %in% strsplit(c$ref_model, split = ", |,")[[1]]
+        )
+      }
+
+      # in case of multiple sources, calculate mean (using all available sources)
+      if (length(unique(h$ref_model)) > 1) {
+        h_mean <- group_by(h, period, region) %>%
+          summarise(ref_value = mean(ref_value, na.rm = TRUE))
+        h <- mutate(h_mean, variable = c$variable, ref_model = "multiple")
+      }
+
+      # merge with historical data adds columns ref_value and ref_model
+      df <- merge(d, h)
+
+      # add columns which are not used in this category, fill NA
+      df <- df %>% mutate(ref_period = NA, ref_scenario = NA)
     }
-
-    # in case of multiple sources, calculate mean (using all available sources)
-    if (length(unique(h$ref_model)) > 1) {
-      h_mean <- group_by(h, period, region) %>%
-        summarise(ref_value = mean(ref_value, na.rm = TRUE))
-      h <- mutate(h_mean, variable = c$variable, ref_model = "multiple")
-    }
-
-    # merge with historical data adds columns ref_value and ref_model
-    df <- merge(d, h)
-
-    # add columns which are not used in this category, fill NA
-    df <- df %>% mutate(ref_period = NA, ref_scenario = NA)
 
     # filter and attach reference values if they are needed; scenario data
   } else if (c$category == "scenario") {
@@ -98,19 +103,19 @@ combineData <- function(data, cfg_row, ref_data = NULL) {
       # if a reference period should be used, same scenario, same model
       if (!is.na(c$ref_period)) {
         ref <- data %>%
-          dplyr::filter(variable == c$variable,
+          filter(variable %in% c$variable,
                  region %in% reg,
-                 period == c$ref_period,
+                 period %in% c$ref_period,
                  scenario %in% sce) %>%
           mutate(ref_value = value, ref_period = period) %>%
           select(-c(period, value)) %>%
           # add columns which are not used in this category, fill NA
           mutate(ref_model = NA, ref_scenario = NA)
 
-        # if a reference scenario should be used, same period, same model
+      # if a reference scenario should be used, same period, same model
       } else if (!is.na(c$ref_scenario)) {
         ref <- data %>%
-          dplyr::filter(variable == c$variable,
+          filter(variable == c$variable,
                  region %in% reg,
                  period %in% per,
                  scenario == c$ref_scenario) %>%

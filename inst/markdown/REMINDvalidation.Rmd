@@ -21,7 +21,6 @@ library(dplyr)
 library(ggplot2)
 library(ggthemes)
 library(plotly)
-library(kableExtra)
 
 knitr::opts_chunk$set(
   echo = FALSE,
@@ -58,11 +57,11 @@ colors <- c(green  = "#008450",
             red    = "#B81D13",
             grey   = "#808080")
 dt <- dplyr::count(df, critical, check)
-kbl(dt) %>%
-  kable_styling(bootstrap_options = c("striped", "hover"), 
-                full_width = F) %>%
-  column_spec(2, color = colors[dt$check],
-              background = colors[dt$check])
+# kbl(dt) %>%
+#   kable_styling(bootstrap_options = c("striped", "hover"),
+#                 full_width = F) %>%
+#   column_spec(2, color = colors[dt$check],
+#               background = colors[dt$check])
 ```
 
 ## Heatmaps by Category

@@ -68,6 +68,8 @@ df <- resolveDuplicates(df)
 
 df <- evaluateThresholds(df)
 
+df <- appendTooltips(df)
+
 ```
 
 ## Heatmaps by Category
