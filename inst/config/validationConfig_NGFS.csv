@@ -1,8 +1,11 @@
 category;metric;critical;variable;model;scenario;region;period;min_red;min_yel;max_yel;max_red;ref_model;ref_scenario;ref_period;source/link to discussion
-scenario;relative;yes;Emissions|CO2;REMIND-MAgPIE 3.3-4.7;;;2020;;;0.5;1;GCAM 6.0 NGFS;;;
-scenario;relative;yes;Emissions|CO2;REMIND-MAgPIE 3.3-4.7;;World;2020;;;0.3;0.5;GCAM 6.0 NGFS;;;
-scenario;relative;yes;Final Energy;GCAM 6.0 NGFS;;;2030:2050;;;0.5;1;REMIND-MAgPIE 3.3-4.7;;;
-scenario;absolute;yes;Emissions|CO2;;o_1p5c;;2050;;;0;100;;;;
-scenario;absolute;yes;Emissions|CO2;;o_2c;;2050;;;1000;2000;;;;
-scenario;absolute;yes;AR6 climate diagnostics|Surface Temperature (GSAT)|MAGICCv7.5.3|50.0th Percentile;;o_1p5c;;2100;;;1.5;1.55;;;;
-scenario;absolute;yes;AR6 climate diagnostics|Surface Temperature (GSAT)|MAGICCv7.5.3|50.0th Percentile;;o_2c;;2100;;;2;2.1;;;;
+scenario;relative;yes;Emissions|*;REMIND-MAgPIE 3.3-4.7;;;;;;50;100;GCAM 6.0 NGFS;;;
+scenario;relative;yes;Emissions|*;REMIND-MAgPIE 3.3-4.7;;World;;;;30;50;GCAM 6.0 NGFS;;;
+scenario;relative;yes;Final Energy|*;REMIND-MAgPIE 3.3-4.7;;;;;;50;100;GCAM 6.0 NGFS;;;
+scenario;relative;yes;Final Energy|*;REMIND-MAgPIE 3.3-4.7;;World;;;;30;50;GCAM 6.0 NGFS;;;
+scenario;relative;yes;Secondary Energy|*;REMIND-MAgPIE 3.3-4.7;;;;;;50;100;GCAM 6.0 NGFS;;;
+scenario;relative;yes;Secondary Energy|*;REMIND-MAgPIE 3.3-4.7;;World;;;;30;50;GCAM 6.0 NGFS;;;
+scenario;relative;yes;Primary Energy|*;REMIND-MAgPIE 3.3-4.7;;;;;;50;100;GCAM 6.0 NGFS;;;
+scenario;relative;yes;Primary Energy|*;REMIND-MAgPIE 3.3-4.7;;World;;;;30;50;GCAM 6.0 NGFS;;;
+scenario;relative;yes;Carbon Sequestration|*;REMIND-MAgPIE 3.3-4.7;;;;;;50;100;GCAM 6.0 NGFS;;;
+scenario;relative;yes;Carbon Sequestration|*;REMIND-MAgPIE 3.3-4.7;;World;;;;30;50;GCAM 6.0 NGFS;;;

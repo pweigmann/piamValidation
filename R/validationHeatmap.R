@@ -38,7 +38,7 @@ validationHeatmap <- function(df, var, cat, met, interactive = T, compareModels 
   p <- ggplot(d, aes(x = region, y = period, fill=check, text=text)) +
     geom_tile(color="white", linewidth=0.0) +
     scale_fill_manual(values = colors, breaks = colors) +
-    facet_grid(scenario~model)
+    facet_grid(model~scenario)
 
   # make it beautiful
   # from https://www.r-bloggers.com/2016/02/making-faceted-heatmaps-with-ggplot2
