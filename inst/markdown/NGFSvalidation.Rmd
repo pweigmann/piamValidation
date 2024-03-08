@@ -1,5 +1,5 @@
 ---
-title: "piamValidation: COMMITED"
+title: "piamValidation: NGFS"
 output:
   html_document:
     toc: true
@@ -20,7 +20,6 @@ library(knitr)
 library(ggplot2)
 library(ggthemes)
 library(plotly)
-library(kableExtra)
 
 knitr::opts_chunk$set(
   echo = FALSE,
@@ -36,17 +35,12 @@ knitr::opts_chunk$set(
 
 ```{r}
 # Data Preparation
-path <- "C:/Users/pascalwe/Data/vs/"
-mifs <- c(paste0(path, "REMIND_generic_Bal.mif"),
-          paste0(path, "REMIND_generic_NPi.mif"))
+path <- "C:/Users/pascalwe/Data/NGFS/phase5/"
+snapshot <- "1709886115166-snapshot-24/snapshot_all_regions.csv"
+configName <- "validationConfig_NGFS.csv"
 
-hmif <- paste0(path, "historical.mif")
-
-configName <- "validationConfig_COMMITED.csv"
-
+scenarioPath <- paste0(path, snapshot)
 data <- importScenarioData(scenarioPath)
-
-hist <- importReferenceData(referencePath)
 
 cfg <- getConfig(configName) %>%
   cleanConfig()
@@ -59,7 +53,7 @@ df <- data.frame()
 for (i in 1:nrow(cfg)) {
   # TODO: hist should only be needed if category "historical" is in config
   #       validation generally should work without hist data
-  df_row <- combineData(data, cfg[i, ], ref_data = hist)
+  df_row <- combineData(data, cfg[i, ])
   df <- rbind(df, df_row)
   cat(paste0("Combined row ", i, " of ", nrow(cfg), "\n"))
 }

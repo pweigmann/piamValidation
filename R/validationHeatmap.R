@@ -5,7 +5,7 @@
 #' @export
 
 # takes the output of "validateScenarios()" and plots heatmaps per variable
-validationHeatmap <- function(df, var, cat, met, interactive = T) {
+validationHeatmap <- function(df, var, cat, met, interactive = T, compareModels = T) {
 
   # possible extension: when giving multiple vars, plot as facets in same row
 
@@ -38,7 +38,8 @@ validationHeatmap <- function(df, var, cat, met, interactive = T) {
   p <- ggplot(d, aes(x = region, y = period, fill=check, text=text)) +
     geom_tile(color="white", linewidth=0.0) +
     scale_fill_manual(values = colors, breaks = colors) +
-    facet_grid(scenario~.)
+    facet_grid(scenario~model)
+
   # make it beautiful
   # from https://www.r-bloggers.com/2016/02/making-faceted-heatmaps-with-ggplot2
   p <- p + labs(x = NULL, y = NULL, title = paste0(var,
@@ -47,6 +48,7 @@ validationHeatmap <- function(df, var, cat, met, interactive = T) {
   p <- p + theme_tufte(base_family = "Helvetica")  # creates warnings
   p <- p + theme(axis.ticks = element_blank())
   p <- p + theme(axis.text = element_text(size = 7))
+  p <- p + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
   p <- p + coord_equal()
   p <- p + theme(legend.position = "none")
 

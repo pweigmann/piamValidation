@@ -9,7 +9,7 @@ evaluateThresholds <- function(df, cleanInf = TRUE) {
   # performance improvements)
 
   # calculate values that will be compared to thresholds
-  # historic - relative
+  # historic - relative ####
   his_rel <- df[df$category == "historic" & df$metric == "relative", ] %>%
     mutate(check_value = ifelse(
       is.na(ref_value),
@@ -19,12 +19,12 @@ evaluateThresholds <- function(df, cleanInf = TRUE) {
       )
     )
 
-  # historic - difference
+  # historic - difference ####
   his_dif <- df[df$category == "historic" & df$metric == "difference", ] %>%
     # absolute difference to reference
     mutate(check_value = abs(value - ref_value))
 
-  # scenario - relative
+  # scenario - relative ####
   sce_rel <- df[df$category == "scenario" & df$metric == "relative", ] %>%
     mutate(check_value = ifelse(
       is.na(ref_value),
@@ -34,7 +34,7 @@ evaluateThresholds <- function(df, cleanInf = TRUE) {
       )
     )
 
-  # scenario - difference
+  # scenario - difference ####
   sce_dif <- df[df$category == "scenario" & df$metric == "difference", ] %>%
     mutate(check_value = ifelse(
       is.na(ref_value),
@@ -44,11 +44,11 @@ evaluateThresholds <- function(df, cleanInf = TRUE) {
       )
     )
 
-  # scenario - absolute
+  # scenario - absolute ####
   sce_abs <- df[df$category == "scenario" & df$metric == "absolute", ] %>%
     mutate(check_value = value)
 
-  # scenario - growthrate
+  # scenario - growthrate ####
   # calculate average growth rate of the last 5 years between 2010 and 2060
   # TODO: in case of a need to look further than 2060, split df and add
   # calculations for 10-year step periods
@@ -73,7 +73,9 @@ evaluateThresholds <- function(df, cleanInf = TRUE) {
   df <- do.call("rbind",
                 list(his_rel, his_dif, sce_rel, sce_dif, sce_abs, sce_gro))
 
+  # evaluation ####
   # perform comparison to thresholds for whole data.frame at once
+  # TODO: not as robust as previously thought. Partially fails if only max_red is given
   df <- df %>%
     mutate(check = ifelse(is.na(check_value),
                         "grey",
@@ -92,7 +94,7 @@ evaluateThresholds <- function(df, cleanInf = TRUE) {
                         )
            )
 
-  # after evaluation, "Inf" can be removed again
+  # after evaluation, "Inf" can be removed
   if (cleanInf) df[df == "Inf" | df == "-Inf"] <- NA
 
   return(df)

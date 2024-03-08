@@ -35,13 +35,16 @@ appendTooltips <- function(df) {
     df[df$category == "scenario" & df$metric == "relative", ] %>%
     mutate(text = paste0(region, "\n",
                          period, "\n",
+                         ifelse(!is.na(ref_model), paste("Model:", model, "\n")),
                          "Value: ", round(value, 2), "\n",
                          "Ref ", ifelse(!is.na(ref_period),
                                                paste("Period:", ref_period),
-                                               paste("Scenario:", ref_scenario)
+                                        ifelse(!is.na(ref_scenario),
+                                               paste("Scenario:", ref_scenario),
+                                               paste("Model:", ref_model))
                                                ), "\n",
                          "Ref Value: ", round(ref_value, 2), "\n",
-                         "Rel Deviation: ", round(check_value)*100, "% \n",
+                         "Rel Deviation: ", round(check_value, 2)*100, "% \n",
                          "Thresholds (yel/red): \n",
                          "Min: ", min_yel*100, "% / ", min_red*100,"% \n",
                          "Max: ", max_yel*100, "% / ", max_red*100, "%")

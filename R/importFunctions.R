@@ -18,6 +18,9 @@ importScenarioData <- function(scenarioPath) {
   new_order <- c(tail(levels(data$region), 1), head(levels(data$region), -1))
   data$region <- factor(data$region, levels = new_order)
 
+  # remove rows without values
+  data <- data[!is.na(data$value),]
+
   return(data)
 }
 

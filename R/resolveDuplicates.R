@@ -7,18 +7,28 @@ resolveDuplicates <- function(df) {
 
   # check for duplicates
   # these are the duplicates that are from the lower rows and should be kept
-  duplicates <- df[duplicated(df[c("model", "scenario", "variable",
-                                       "region", "period", "category", "metric")]), ]
+  duplicates <- df[duplicated(df[c("model",
+                                   "scenario",
+                                   "variable",
+                                   "region",
+                                   "period",
+                                   "category",
+                                   "metric")]), ]
 
-  # here all instances of the data that was duplicated is removed
-  no_dupl <- dplyr::anti_join(df, duplicates, by = c("model", "scenario", "variable",
-                                                         "region", "period", "category", "metric"))
+  # here, all instances of the data that was duplicated are removed
+  no_dupl <- dplyr::anti_join(df, duplicates, by = c("model",
+                                                     "scenario",
+                                                     "variable",
+                                                     "region",
+                                                     "period",
+                                                     "category",
+                                                     "metric"))
 
   # reattach one instance to get a complete data set without duplicates
   df <- rbind(no_dupl, duplicates)
 
   # different approach: allows partial overwriting
-  # chosen to not use this anymore, less robust
+  # chosen to not use this anymore, less robust and unclear if more intuitive
 
   # these are missing the duplicated entries that were in the lower rows
   # no_dupl <- dplyr::anti_join(df, duplicates_all)

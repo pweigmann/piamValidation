@@ -8,19 +8,23 @@ combineData <- function(data, cfg_row, ref_data = NULL) {
   c <- cfg_row
 
   # full dimensions and important slices
+  all_mod <- unique(data$model)
+  all_sce <- unique(data$scenario)
   all_reg <- unique(data$region)
   all_per <- unique(data$period)  # not a factor, convert?
   all_per <- all_per[all_per <= 2100]
   ref_per <- c(2005, 2010, 2015, 2020)
-  all_sce <- unique(data$scenario)
 
-  # create filters
-  # check whether regions, periods, scenarios are specified
-  # TODO: add model
-  reg <- if (is.na(c$region))   all_reg else
-    strsplit(c$region, split = ", |,")[[1]]
+
+  # create filters ####
+  # check whether regions, periods, scenarios are specified, else use all
+  mod <- if (is.na(c$model)) all_mod else
+    strsplit(c$model, split = ", |, ")[[1]]
   sce <- if (is.na(c$scenario)) all_sce else
     strsplit(c$scenario, split = ", |, ")[[1]]
+  reg <- if (is.na(c$region))   all_reg else
+    strsplit(c$region, split = ", |,")[[1]]
+
 
   # empty "period" field means different years for historic or scenario category
   if (c$category == "historic") {
@@ -31,23 +35,26 @@ combineData <- function(data, cfg_row, ref_data = NULL) {
       strsplit(as.character(c$period), split = ", |,")[[1]]
   }
 
-  # filter scenario data for row in cfg
+  # apply filters ####
+  # filter scenario data according to each row in cfg
   d <- data %>%
-    filter(variable == c$variable,
-           region %in% reg,
-           period %in% per,
-           scenario %in% sce)
+    filter(variable %in% c$variable,  # alternative approach for multiple variables could be used here
+           model    %in% mod,
+           scenario %in% sce,
+           region   %in% reg,
+           period   %in% per)
 
-  # attach respective cfg information to data slice
+  # attach cfg information to data slice, which is independent of category
   d <- d %>%
-    mutate(min_red = c$min_red,  # could be set to NA as it is not used
-           min_yel = c$min_yel,  # could be set to NA as it is not used
-           max_yel = c$max_yel,
-           max_red = c$max_red,
+    mutate(min_red  = c$min_red,
+           min_yel  = c$min_yel,
+           max_yel  = c$max_yel,
+           max_red  = c$max_red,
            category = c$category,
            metric   = c$metric,
            critical = c$critical)
 
+  # historic ####
   # depending on category: filter and attach reference values if they are needed
   if (c$category == "historic") {
     # historic data for relevant variable and dimensions (all sources)
@@ -58,7 +65,7 @@ combineData <- function(data, cfg_row, ref_data = NULL) {
       mutate(ref_value = value, ref_model = model) %>%
       select(-c("scenario", "unit", "value", "model"))
 
-    # TODO: test here if ref_model exists and has data to compare to
+    # test whether ref_model exists and has data to compare to
     if (nrow(h) == 0) {
       cat(paste0("No reference data for variable ", c$variable, " found.\n"))
       df <- data.frame()
@@ -85,44 +92,64 @@ combineData <- function(data, cfg_row, ref_data = NULL) {
       df <- df %>% mutate(ref_period = NA, ref_scenario = NA)
     }
 
-    # filter and attach reference values if they are needed; scenario data
+  # scenario ####
+  # filter and attach reference values if they are needed; scenario data
   } else if (c$category == "scenario") {
 
     # no reference values needed for these metrics, fill NA
     if (c$metric %in% c("absolute", "growthrate")) {
       df <- d %>%
-        mutate(ref_value = NA,
-               ref_model = NA,
-               ref_period = NA,
-               ref_scenario = NA)
+        mutate(ref_value    = NA,
+               ref_model    = NA,
+               ref_scenario = NA,
+               ref_period   = NA)
 
-      # get reference values for these metrics
+
+    # get reference values for these metrics
+    # TODO: support choosing ref_period AND model/scenario?
     } else if (c$metric %in% c("relative", "difference")) {
-      # TODO: support choosing ref_period AND model/scenario?
 
-      # if a reference period should be used, same scenario, same model
-      if (!is.na(c$ref_period)) {
+      # if a reference model should be used, same scenario, same period
+      if (!is.na(c$model)) {
         ref <- data %>%
           filter(variable %in% c$variable,
-                 region %in% reg,
-                 period %in% c$ref_period,
-                 scenario %in% sce) %>%
-          mutate(ref_value = value, ref_period = period) %>%
-          select(-c(period, value)) %>%
+                 model    %in% c$ref_model, # expects exactly one model for now
+                 scenario %in% sce,
+                 region   %in% reg,
+                 period   %in% per) %>%
+
+          mutate(ref_value = value, ref_model = model) %>%
+          select(-c(model, value)) %>%
           # add columns which are not used in this category, fill NA
-          mutate(ref_model = NA, ref_scenario = NA)
+          mutate(ref_scenario = NA, ref_period = NA)
 
       # if a reference scenario should be used, same period, same model
       } else if (!is.na(c$ref_scenario)) {
         ref <- data %>%
-          filter(variable == c$variable,
-                 region %in% reg,
-                 period %in% per,
-                 scenario == c$ref_scenario) %>%
+          filter(variable %in% c$variable,
+                 model    %in% mod,
+                 scenario %in% c$ref_scenario,  # expects exactly one scenario
+                 region   %in% reg,
+                 period   %in% per) %>%
+
           mutate(ref_value = value, ref_scenario = scenario) %>%
           select(-c(scenario, value)) %>%
           # add columns which are not used in this category, fill NA
           mutate(ref_model = NA, ref_period = NA)
+
+      # if a reference period should be used, same scenario, same model
+      } else if (!is.na(c$ref_period)) {
+        ref <- data %>%
+          filter(variable %in% c$variable,
+                 model    %in% mod,
+                 scenario %in% sce,
+                 region   %in% reg,
+                 period   %in% c$ref_period) %>% # expects exactly one period
+
+          mutate(ref_value = value, ref_period = period) %>%
+          select(-c(period, value)) %>%
+          # add columns which are not used in this category, fill NA
+          mutate(ref_model = NA, ref_scenario = NA)
       }
 
       df <- merge(d, ref)
