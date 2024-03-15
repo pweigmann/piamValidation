@@ -1,5 +1,6 @@
 #' @importFrom dplyr filter select mutate summarise group_by %>%
-
+#' @importFrom tibble as_tibble
+#' @importFrom readxl read_excel excel_sheets
 # scenarioPath: one or multiple paths to .mif or .csv file(s) containing
 #               scenario data in IAM format
 importScenarioData <- function(scenarioPath) {
@@ -9,13 +10,12 @@ importScenarioData <- function(scenarioPath) {
     data <- readRDS("mif.rds")
   } else {
     cat("importing scenario data from file(s)\n")
-    data <- remind2::deletePlus(quitte::as.quitte(scenarioPath))
+    data <- remind2::deletePlus(quitte::as.quitte(scenarioPath, na.rm = TRUE))
     saveRDS(data, "mif.rds")
   }
 
-  # change ordering of factors, put last element ("World") first
-  # TODO: will not work if World is not last, put somewhere else?
-  new_order <- c(tail(levels(data$region), 1), head(levels(data$region), -1))
+  # change ordering of factors, global elements first
+  new_order <- unique(intersect(c("World", "GLO", levels(data$region)), levels(data$region)))
   data$region <- factor(data$region, levels = new_order)
 
   # remove rows without values
@@ -50,7 +50,12 @@ importReferenceData <- function(referencePath) {
 getConfig <- function(configName) {
   path <- system.file(paste0("config/", configName), package = "piamValidation")
   if (! file.exists(path) && file.exists(configName)) path <- configName
-  cfg <- read.csv2(path, na.strings = "")
+  if (grepl("\\.xlsx$", path)) {
+    cfg <- read_excel(path = path, sheet = if ("config" %in% excel_sheets(path)) "config" else 1)
+    cfg <- filter(cfg, ! grepl("^#", cfg[[1]]))
+  } else {
+    cfg <- as_tibble(read.csv2(path, na.strings = "", comment.char = "#"))
+  }
   message("loading config file: ", configName, "\n")
   return(cfg)
 }

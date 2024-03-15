@@ -1,7 +1,8 @@
 test_that("expandVariables works", {
   varinconfig <- function(data, varentry, expectedvars) {
     configfile <- file.path(tempdir(), "config.csv")
-    configheader <- "category;metric;critical;variable;model;scenario;region;period;min_red;min_yel;max_yel;max_red;ref_model;ref_scenario;ref_period;"
+    configheader <- paste0("category;metric;critical;variable;model;scenario;region;period;",
+                           "min_red;min_yel;max_yel;max_red;ref_model;ref_scenario;ref_period;")
     configstring <- paste0("scenario;relative;yes;", varentry, ";m;s;r;2005;;;10;100;refmodel1;;;")
     writeLines(c(configheader, configstring), configfile)
     cfg <- expandVariables(getConfig(configfile), data)
@@ -39,5 +40,4 @@ test_that("expandVariables works", {
   varinconfig(data, "Final Energy|**", NULL)
   varinconfig(data, "Emi|**", c(depth1, depth2CO, depth2BC, depth3CO))
   varinconfig(data, "Em**", c("Emi", depth1, depth2CO, depth2BC, depth3CO))
-})  
-
+})
