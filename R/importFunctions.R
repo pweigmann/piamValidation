@@ -48,10 +48,10 @@ importReferenceData <- function(referencePath) {
 #   - model, scenario, region, period
 # ...
 getConfig <- function(configName) {
-  # TODO: check if config is available, otherwise is it a local file? if yes load that one
   path <- system.file(paste0("config/", configName), package = "piamValidation")
+  if (! file.exists(path) && file.exists(configName)) path <- configName
   cfg <- read.csv2(path, na.strings = "")
-  cat(paste0("loading config file: ", configName, "\n"))
+  message("loading config file: ", configName, "\n")
   return(cfg)
 }
 
@@ -101,8 +101,7 @@ expandPeriods <- function(cfg, data) {
 
 # takes config entries specifying a set of variables via "*" and expands it so
 # that every variable corresponds to one row in cfg
-# TODO: support "firstLevelOnly = TRUE" to not grab all sub-variables but just
-#       one level
+# * matches everything until the next |, while ** matches including |
 expandVariables <- function(cfg, data) {
   # create the expanded config, starting with the not-to-expand rows,
   # then appending the rows with expanded variable names
@@ -111,13 +110,20 @@ expandVariables <- function(cfg, data) {
 
   if (length(var_expand > 0)) {
     all_vars <- unique(data$variable)
-    for (i in 1:nrow(var_expand)) {
+    for (i in seq(nrow(var_expand))) {
       # prepare strings for grepping by adding escape characters and "."
-      var <- gsub("\\*", "\\.\\*", var_expand$variable[i])
-      var <- gsub("\\|", "\\\\|", var)
-      selected_vars <- all_vars[grepl(var, all_vars)]
-      cat(paste0(var_expand$variable[i], " was expanded into ",
-                 length(selected_vars), " sub-variables.\n"))
+      vartoexpand <- var_expand$variable[i]
+      # escape |
+      vargrep <- gsub("|", "\\|", vartoexpand, fixed = TRUE)
+      # convert * into "everything except |"
+      vargrep <- gsub("*", "[^\\|]*", vargrep, fixed = TRUE)
+      # convert what was ** back to .*
+      vargrep <- gsub("[^\\|]*[^\\|]*", ".*", vargrep, fixed = TRUE)
+      # make sure you match the full variable, not just a part
+      vargrep <- paste0("^", vargrep, "$")
+      selected_vars <- all_vars[grepl(vargrep, all_vars)]
+      message(var_expand$variable[i], " was expanded into ",
+              length(selected_vars), " sub-variables.")
 
       # take the original row for the current set of variables and repeat it
       # once for each sub-variable, overwrite with sub-variable names
