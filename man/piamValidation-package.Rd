@@ -2,9 +2,9 @@
 % Please edit documentation in R/piamValidation-package.R
 \docType{package}
 \name{piamValidation-package}
-\alias{piamValidation}
 \alias{piamValidation-package}
-\title{piamValidation: Validation Tools for PIK-PIAM}
+\alias{piamValidation}
+\title{Validation Tools for PIK-PIAM}
 \description{
 The piamValidation package provides validation tools for the Potsdam Integrated Assessment Modelling environment.
 }
@@ -18,5 +18,9 @@ Useful links:
 \author{
 \strong{Maintainer}: Pascal Weigmann \email{pascal.weigmann@pik-potsdam.de}
 
+Authors:
+\itemize{
+  \item Oliver Richters
 }
-\keyword{internal}
+
+}

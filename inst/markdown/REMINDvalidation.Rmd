@@ -1,0 +1,174 @@
+---
+title: "piamValidation: REMIND"
+date: "`r format(Sys.Date())`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: hide
+params:
+  mif: ""
+  ref: ""
+  cfg: ""
+  warning: false
+  message: false
+  figWidth: 8
+---
+
+```{r include=FALSE}
+devtools::load_all(".")
+library(knitr)
+library(dplyr)
+library(ggplot2)
+library(ggthemes)
+library(plotly)
+
+knitr::opts_chunk$set(
+  echo = FALSE,
+  error = TRUE,
+  #fig.width = params$figWidth,
+  message = params$message,
+  warning = params$warning
+)
+```
+
+## Import and Prepare Data
+
+
+```{r, message = FALSE}
+# Data Preparation
+path <- "C:/Users/pascalwe/Data/vs/"
+mifs <- c(paste0(path, "REMIND_generic_Bal.mif"),
+          paste0(path, "REMIND_generic_NPi.mif"))
+
+hmif <- paste0(path, "historical.mif")
+
+config <- "validationConfig.csv"
+
+df <- validateScenarios(mifs, config, referencePath = hmif)
+df <- appendTooltips(df)
+```
+## Validation
+
+### Summary
+```{r}
+# find "critical == yes" data points, that are red/yellow
+colors <- c(green  = "#008450",
+            yellow = "#EFB700",
+            red    = "#B81D13",
+            grey   = "#808080")
+dt <- dplyr::count(df, critical, check)
+# kbl(dt) %>%
+#   kable_styling(bootstrap_options = c("striped", "hover"),
+#                 full_width = F) %>%
+#   column_spec(2, color = colors[dt$check],
+#               background = colors[dt$check])
+```
+
+## Heatmaps by Category
+
+### Historic - Relative
+Relative deviation to historical reference data. Absolute numbers, so no 
+difference is made between being above or below the reference value.
+```{r}
+c <- "historic"
+m <- "relative"
+d <- df[df$category == c & df$metric == m, ]
+
+if (nrow(d) > 0) {
+  vars <- unique(d$variable)
+  plot_list <- htmltools::tagList()
+    for (i in 1:length(vars)) {
+      plot_list[[i]] <- validationHeatmap(d, vars[i], cat = c, met = m)
+    }
+  plot_list
+}
+```
+
+### Historic - Difference
+Absolute difference to historical reference data
+```{r}
+c <- "historic"
+m <- "difference"
+d <- df[df$category == c & df$metric == m, ]
+
+if (nrow(d) > 0) {
+  vars <- unique(d$variable)
+  plot_list <- htmltools::tagList()
+    for (i in 1:length(vars)) {
+      plot_list[[i]] <- validationHeatmap(d, vars[i], cat = c, met = m)
+    }
+  plot_list
+}
+```
+
+### Scenario - Relative
+Relative deviation to data point from either:
+
+- period (same scenario/model)
+- scenario (same period/model)
+- model (same period/scenario - Not supported yet)
+
+```{r}
+c <- "scenario"
+m <- "relative"
+d <- df[df$category == c & df$metric == m, ]
+
+if (nrow(d) > 0) {
+  vars <- unique(d$variable)
+  plot_list <- htmltools::tagList()
+    for (i in 1:length(vars)) {
+      plot_list[[i]] <- validationHeatmap(d, vars[i], cat = c, met = m)
+    }
+  plot_list
+}
+```
+
+### Scenario - Difference
+```{r}
+c <- "scenario"
+m <- "difference"
+d <- df[df$category == c & df$metric == m, ]
+
+if (nrow(d) > 0) {
+  vars <- unique(d$variable)
+  plot_list <- htmltools::tagList()
+    for (i in 1:length(vars)) {
+      plot_list[[i]] <- validationHeatmap(d, vars[i], cat = c, met = m)
+    }
+  plot_list
+}
+```
+
+### Scenario - Absolute
+```{r}
+c <- "scenario"
+m <- "absolute"
+d <- df[df$category == c & df$metric == m, ]
+
+if (nrow(d) > 0) {
+  vars <- unique(d$variable)
+  plot_list <- htmltools::tagList()
+    for (i in 1:length(vars)) {
+      plot_list[[i]] <- validationHeatmap(d, vars[i], cat = c, met = m)
+    }
+  plot_list
+}
+```
+
+
+### Scenario - Growthrate
+```{r}
+c <- "scenario"
+m <- "growthrate"
+d <- df[df$category == c & df$metric == m, ]
+
+if (nrow(d) > 0) {
+  vars <- unique(d$variable)
+  plot_list <- htmltools::tagList()
+    for (i in 1:length(vars)) {
+      plot_list[[i]] <- validationHeatmap(d, vars[i], cat = c, met = m)
+    }
+  plot_list
+}
+```
