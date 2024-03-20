@@ -1,10 +1,8 @@
 #' @importFrom dplyr filter select mutate summarise group_by %>%
 
-# bringing it all together
-# keepNA
+# performs the validation checks from a config on a scenario dataset
 #' @export
-validateScenarios <- function(scenarioPath, configName, referencePath = NULL,
-                              keepNA = TRUE) {
+validateScenarios <- function(scenarioPath, configName, referencePath = NULL) {
 
   data <- importScenarioData(scenarioPath)
 
@@ -12,7 +10,7 @@ validateScenarios <- function(scenarioPath, configName, referencePath = NULL,
 
   cfg <- configName %>%
     getConfig() %>%
-    cleanConfig() %>%
+    fillInf() %>%
     expandPeriods(data) %>%
     expandVariables(data)
 
@@ -22,10 +20,9 @@ validateScenarios <- function(scenarioPath, configName, referencePath = NULL,
   for (i in 1:nrow(cfg)) {
     # TODO: hist should only be needed if category "historical" is in config
     #       validation generally should work without hist data
-    # TODO: optimize performance
     df_row <- combineData(data, cfg[i, ], ref_data = hist)
     df <- rbind(df, df_row)
-    cat(paste0("Combined row ", i, " of ", nrow(cfg), "\n"))
+    cat(paste0("Combined config row ", i, " of ", nrow(cfg), "\n"))
   }
 
   df <- resolveDuplicates(df)

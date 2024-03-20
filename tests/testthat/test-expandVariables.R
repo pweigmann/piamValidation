@@ -1,20 +1,26 @@
 test_that("expandVariables works", {
   varinconfig <- function(data, varentry, expectedvars) {
     configfile <- file.path(tempdir(), "config.csv")
-    configheader <- paste0("category;metric;critical;variable;model;scenario;region;period;",
-                           "min_red;min_yel;max_yel;max_red;ref_model;ref_scenario;ref_period;")
-    configstring <- paste0("scenario;relative;yes;", varentry, ";m;s;r;2005;;;10;100;refmodel1;;;")
+    configheader <- paste0(
+      "category;metric;critical;variable;model;scenario;region;period;",
+      "min_red;min_yel;max_yel;max_red;ref_model;ref_scenario;ref_period;")
+
+    configstring <- paste0("scenario;relative;yes;",
+                           varentry,
+                           ";m;s;r;2005;;;10;100;refmodel1;;;")
     writeLines(c(configheader, configstring), configfile)
     cfg <- expandVariables(getConfig(configfile), data)
     missing <- setdiff(expectedvars, cfg$variable)
     if (length(missing) > 0) {
-      warning("For ", varentry, ", the following variables are expected but missing:\n",
+      warning("For ", varentry,
+              ", the following variables are expected but missing:\n",
               paste0(missing, collapse = ", "))
     }
     expect_true(length(missing) == 0)
     toomuch <- setdiff(cfg$variable, expectedvars)
     if (length(toomuch) > 0) {
-      warning("For ", varentry, ", the following variables were not expected but matched:\n",
+      warning("For ", varentry,
+              ", the following variables were not expected but matched:\n",
               paste0(toomuch, collapse = ", "))
     }
     expect_true(length(toomuch) == 0)
@@ -27,7 +33,7 @@ test_that("expandVariables works", {
   depth3CO <- c("Emi|CO|Trans|Gas", "Emi|CO|Trans|Oil")
   whatever <- c("Emi", "Final Energy", "CO|Trans")
   data$variable <- c(depth1, depth2CO, depth2BC, depth3CO, whatever)
- 
+
   # first argument is what is stated in the config, second what should be matched
   varinconfig(data, "Final Energy", "Final Energy")
   varinconfig(data, "Em*", "Emi")

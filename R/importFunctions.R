@@ -1,57 +1,44 @@
 #' @importFrom dplyr filter select mutate summarise group_by %>%
 #' @importFrom tibble as_tibble
 #' @importFrom readxl read_excel excel_sheets
+
 # scenarioPath: one or multiple paths to .mif or .csv file(s) containing
 #               scenario data in IAM format
 importScenarioData <- function(scenarioPath) {
-  # for dev purposes use cache
-  if (file.exists("mif.rds")) {
-    cat("loading scenario data from cache\n")
-    data <- readRDS("mif.rds")
-  } else {
-    cat("importing scenario data from file(s)\n")
-    data <- remind2::deletePlus(quitte::as.quitte(scenarioPath, na.rm = TRUE))
-    saveRDS(data, "mif.rds")
-  }
+  data <- remind2::deletePlus(quitte::as.quitte(scenarioPath, na.rm = TRUE))
 
   # change ordering of factors, global elements first
-  new_order <- unique(intersect(c("World", "GLO", levels(data$region)), levels(data$region)))
+  new_order <- unique(intersect(c("World", "GLO",
+                                  levels(data$region)), levels(data$region)))
   data$region <- factor(data$region, levels = new_order)
 
   # remove rows without values
-  data <- data[!is.na(data$value),]
+  data <- data[!is.na(data$value), ]
 
   return(data)
 }
 
+# import historical or other reference data for comparison
 importReferenceData <- function(referencePath) {
-  # for dev purposes use cache
-  if (file.exists("hist.rds")) {
-    cat("loading reference data from cache\n")
-    hist <- readRDS("hist.rds")
-  } else {
-    cat("importing reference data from file\n")
-    hist <- quitte::as.quitte(referencePath)
-    hist <- dplyr::filter(hist, period >= 1990)
-    saveRDS(hist, "hist.rds")
-  }
+  ref <- quitte::as.quitte(referencePath)
 
-  # remove all historical data before 1990, (only historic?)
-  hist <- dplyr::filter(hist, period >= 1990)
+  # remove all historical data before 1990
+  ref <- dplyr::filter(ref, period >= 1990)
 
-  return(hist)
+  return(ref)
 }
 
-# required columns:
-# - category: "historic" or "scenario"
-# - can be empty, contain one element or multiple:
-#   - model, scenario, region, period
-# ...
+# see README for rules on how to fill the config
 getConfig <- function(configName) {
   path <- system.file(paste0("config/", configName), package = "piamValidation")
   if (! file.exists(path) && file.exists(configName)) path <- configName
+
+  # config can be .xlsx or .csv, use "config" sheet in .xlsx if available
   if (grepl("\\.xlsx$", path)) {
-    cfg <- read_excel(path = path, sheet = if ("config" %in% excel_sheets(path)) "config" else 1)
+    cfg <- read_excel(
+      path = path,
+      sheet = if ("config" %in% excel_sheets(path)) "config" else 1
+      )
     cfg <- filter(cfg, ! grepl("^#", cfg[[1]]))
   } else {
     cfg <- as_tibble(read.csv2(path, na.strings = "", comment.char = "#"))
@@ -60,17 +47,15 @@ getConfig <- function(configName) {
   return(cfg)
 }
 
-
-cleanConfig <- function(cfg) {
-  # fill empty threshold columns with Infinity for easier evaluation
+# fill empty threshold columns with Infinity for easier evaluation
+fillInf <- function(cfg) {
   cfg <- cfg %>%
     mutate(min_red = as.numeric(ifelse(is.na(min_red), -Inf, min_red)),
            min_yel = as.numeric(ifelse(is.na(min_yel), -Inf, min_yel)),
            max_yel = as.numeric(ifelse(is.na(max_yel),  Inf, max_yel)),
            max_red = as.numeric(ifelse(is.na(max_red),  Inf, max_red))
-    )
+           )
 
-  # insert tests here to check if there are forbidden fields in config
   return(cfg)
 }
 
@@ -82,6 +67,7 @@ expandPeriods <- function(cfg, data) {
 
   # iterate through rows with ":"
   for (i in per_expand_idx) {
+    # check format and compatibility of data and ref periods
     if (nchar(cfg[i, "period"]) != 9) {
       stop("Invalid range detected. Make sure to enter years as YYYY:YYYY.\n")
     } else {
@@ -118,7 +104,7 @@ expandVariables <- function(cfg, data) {
     for (i in seq(nrow(var_expand))) {
       # prepare strings for grepping by adding escape characters and "."
       vartoexpand <- var_expand$variable[i]
-      # escape |
+      # escape "|"
       vargrep <- gsub("|", "\\|", vartoexpand, fixed = TRUE)
       # convert * into "everything except |"
       vargrep <- gsub("*", "[^\\|]*", vargrep, fixed = TRUE)

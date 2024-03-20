@@ -35,7 +35,7 @@ knitr::opts_chunk$set(
 ## Import and Prepare Data
 
 
-```{r}
+```{r, message = FALSE}
 # Data Preparation
 path <- "C:/Users/pascalwe/Data/vs/"
 mifs <- c(paste0(path, "REMIND_generic_Bal.mif"),

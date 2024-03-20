@@ -1,14 +1,12 @@
 #' @importFrom dplyr filter select mutate summarise group_by %>%
 
-# cleanInf = TRUE: choose to replace "Inf" and "-Inf" which were introduced
-# for ease of calculations with "-"
+# cleanInf = TRUE: replace "Inf" and "-Inf" which were introduced
+#                  for ease of calculations with "-"
 evaluateThresholds <- function(df, cleanInf = TRUE) {
 
-  # perform evaluation for each category and metric separately
-  # (shortcuts are possible but will decrease readability of the code for minor
-  # performance improvements)
+  # first calculate values that will be compared to thresholds for each category
+  # ("check_value") and metric separately, then perform evaluation for all together
 
-  # calculate values that will be compared to thresholds
   # historic - relative ####
   his_rel <- df[df$category == "historic" & df$metric == "relative", ] %>%
     mutate(check_value = ifelse(

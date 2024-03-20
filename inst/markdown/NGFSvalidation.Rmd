@@ -30,49 +30,28 @@ knitr::opts_chunk$set(
   warning = params$warning
 )
 
-rmarkdown::render('my_markdown_report.Rmd',
-                   output_file = paste('report.', Sys.Date(), 
-                                       '.pdf', sep=''))
+# rmarkdown::render('my_markdown_report.Rmd',
+#                    output_file = paste('report.', Sys.Date(), 
+#                                        '.pdf', sep=''))
 ```
 
 ## Import and Prepare Data
 
 
-```{r}
+```{r, message = FALSE}
 # Data Preparation
 path <- "C:/Users/pascalwe/Data/NGFS/phase5/"
 snapshot <- "1709886115166-snapshot-24/snapshot_all_regions.csv"
-configName <- "validationConfig_NGFS.csv"
+config <- "validationConfig_NGFS.csv"
 
 scenarioPath <- paste0(path, snapshot)
-data <- importScenarioData(scenarioPath)
 
-cfg <- getConfig(configName) %>%
-  cleanConfig()
-
-cfg <- expandPeriods(cfg, data) %>%
-  expandVariables(data)
-
-# combine data for each row of the config and bind together
-df <- data.frame()
-for (i in 1:nrow(cfg)) {
-  # TODO: hist should only be needed if category "historical" is in config
-  #       validation generally should work without hist data
-  df_row <- combineData(data, cfg[i, ])
-  df <- rbind(df, df_row)
-  cat(paste0("Combined row ", i, " of ", nrow(cfg), "\n"))
-}
-
-df <- resolveDuplicates(df)
-
-df <- evaluateThresholds(df)
-
+df <- validateScenarios(scenarioPath, config)
 df <- appendTooltips(df)
 
 # remove all-green rows (all regions green)
 df_noGreen <- df[df$check != "green", ]
 df_noGreennoGrey <- df[df$check %in% c("red", "yellow"), ]
-df <- df_noGreennoGrey
 ```
 
 ## Heatmaps by Category

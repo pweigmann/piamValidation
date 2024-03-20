@@ -78,7 +78,7 @@ combineData <- function(data, cfg_row, ref_data = NULL) {
         )
       }
 
-      # in case of multiple sources, calculate mean (using all available sources)
+      # in case of multiple sources, use mean (of all available sources)
       if (length(unique(h$ref_model)) > 1) {
         h_mean <- group_by(h, period, region) %>%
           summarise(ref_value = mean(ref_value, na.rm = TRUE))

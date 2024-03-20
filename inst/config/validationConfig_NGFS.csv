@@ -1,7 +1,7 @@
 category;metric;critical;variable;model;scenario;region;period;min_red;min_yel;max_yel;max_red;ref_model;ref_scenario;ref_period;source/link to discussion
 scenario;relative;yes;Emissions|*;REMIND-MAgPIE 3.3-4.7;;;;;;50;100;GCAM 6.0 NGFS;;;
 scenario;relative;yes;Emissions|*;REMIND-MAgPIE 3.3-4.7;;World;;;;30;50;GCAM 6.0 NGFS;;;
-scenario;relative;yes;Final Energy|*;REMIND-MAgPIE 3.3-4.7;;;;;;50;100;GCAM 6.0 NGFS;;;
+scenario;relative;yes;Final Energy|*|Chemicals|*;REMIND-MAgPIE 3.3-4.7;;;;;;50;100;GCAM 6.0 NGFS;;;
 scenario;relative;yes;Final Energy|*;REMIND-MAgPIE 3.3-4.7;;World;;;;30;50;GCAM 6.0 NGFS;;;
 scenario;relative;yes;Secondary Energy|*;REMIND-MAgPIE 3.3-4.7;;;;;;50;100;GCAM 6.0 NGFS;;;
 scenario;relative;yes;Secondary Energy|*;REMIND-MAgPIE 3.3-4.7;;World;;;;30;50;GCAM 6.0 NGFS;;;
