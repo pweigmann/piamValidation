@@ -2,12 +2,13 @@
 appendTooltips <- function(df) {
 
   df$text <- NA
+  region <- period <- NULL
 
   # historic - relative
   df[df$category == "historic" & df$metric == "relative", ] <-
     df[df$category == "historic" & df$metric == "relative", ] %>%
-    mutate(text = paste0(region, "\n",
-                         period, "\n",
+    mutate(text = paste0(.data$region, "\n",
+                         .data$period, "\n",
                          "Value: ", round(value, 2), "\n",
                          "Ref_Value: ", round(ref_value, 2), "\n",
                          "Ref_Source: ", ref_model, "\n",

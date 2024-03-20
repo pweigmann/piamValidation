@@ -1,6 +1,10 @@
-#' @importFrom dplyr filter select mutate summarise group_by %>%
-# yellowFail: if set to TRUE a yellow check result of a critical variable will
-#             lead to the scenario not passing as validated
+#' returns information on whether scenarios passed critical validation checks
+#'
+#' @param data data.frame as returned from ``validateScenarios()``
+#' @param yellowFail if set to TRUE a yellow check result of a critical
+#'        variable will lead to the scenario not passing as validated
+#'
+#' @importFrom dplyr %>%
 #' @export
 validationPass <- function(data, yellowFail = FALSE) {
 
@@ -8,11 +12,9 @@ validationPass <- function(data, yellowFail = FALSE) {
 
   # see if any critical variables have failed per scenario and model
   pass <- data %>%
-    filter(check %in% fail_color, critical == "yes") %>%
-    group_by(model, scenario) %>%
-    summarize(pass = n() == 0,
-              n_fail = n()
-              )
+    dplyr::filter(check %in% fail_color, critical == "yes") %>%
+    dplyr::group_by(model, scenario) %>%
+    dplyr::summarize(pass = dplyr::n() == 0, n_fail = dplyr::n())
 
   return(pass)
 }

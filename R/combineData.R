@@ -2,7 +2,7 @@
 
 # for one row of cfg: filter and merge relevant scenario data with cfg
 # results in one df that contains scenario data, reference data and thresholds
-combineData <- function(data, cfg_row, ref_data = NULL) {
+combineData <- function(data, cfgRow, refData = NULL) {
 
   # shorten as it will be used a lot
   c <- cfg_row

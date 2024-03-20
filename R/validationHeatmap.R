@@ -1,28 +1,38 @@
+#' takes the output of "validateScenarios()" and plots heatmaps per variable
+#'
+#' @param data data.frame as returned by ``validateScenarios()``
+#' @param var variable to be plotted
+#' @param cat choose category from "historical" or "scenario"
+#' @param met choose metric from "relative", "difference", "absolute" or
+#'        "growthrate"
+#' @param interactive return plots as interactive plotly plots by default
+#' @param compareModels if TRUE, plots compare models instead of scenarios
+#'
 #' @importFrom dplyr filter select mutate %>%
 #' @import ggplot2
 #' @importFrom ggthemes theme_tufte
 #' @importFrom plotly ggplotly
 #' @export
 
-# takes the output of "validateScenarios()" and plots heatmaps per variable
-validationHeatmap <- function(df, var, cat, met, interactive = T, compareModels = T) {
+validationHeatmap <- function(data, var, cat, met,
+                              interactive = T, compareModels = T) {
 
   # possible extension: when giving multiple vars, plot as facets in same row
 
   # prepare data slice
-  d <- df %>%
+  d <- data %>%
     filter(variable == var,
            category == cat,
            metric == met)
 
   # warn if no data is found for combination of var, cat and met
   if (nrow(d) == 0) {
-    df$cm <- paste(category, metric, sep = "-")
+    data$cm <- paste(category, metric, sep = "-")
     warning(
       paste0(
         "No data found for variable in this category and metric.\n
         variable ", var ," is available for the following category-metric
-        combinations: ", unique(df[df$variable == var, "cm"])
+        combinations: ", unique(data[data$variable == var, "cm"])
         )
       )
   }

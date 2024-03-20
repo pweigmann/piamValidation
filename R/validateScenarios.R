@@ -1,6 +1,11 @@
-#' @importFrom dplyr filter select mutate summarise group_by %>%
-
-# performs the validation checks from a config on a scenario dataset
+#' performs the validation checks from a config on a scenario dataset
+#'
+#' @param scenarioPath one or multiple path(s) to scenario data in .mif or .csv
+#'        format
+#' @param configName select config from inst/config
+#' @param referencePath in case of historic comparison, choose path to ref data
+#'
+#' @importFrom dplyr filter select mutate group_by %>%
 #' @export
 validateScenarios <- function(scenarioPath, configName, referencePath = NULL) {
 
@@ -20,7 +25,7 @@ validateScenarios <- function(scenarioPath, configName, referencePath = NULL) {
   for (i in 1:nrow(cfg)) {
     # TODO: hist should only be needed if category "historical" is in config
     #       validation generally should work without hist data
-    df_row <- combineData(data, cfg[i, ], ref_data = hist)
+    df_row <- combineData(data, cfg[i, ], refData = hist)
     df <- rbind(df, df_row)
     cat(paste0("Combined config row ", i, " of ", nrow(cfg), "\n"))
   }

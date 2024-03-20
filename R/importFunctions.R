@@ -1,6 +1,6 @@
-#' @importFrom dplyr filter select mutate summarise group_by %>%
-#' @importFrom tibble as_tibble
+#' @importFrom dplyr filter select mutate %>%
 #' @importFrom readxl read_excel excel_sheets
+#' @importFrom utils read.csv2
 
 # scenarioPath: one or multiple paths to .mif or .csv file(s) containing
 #               scenario data in IAM format
@@ -41,7 +41,8 @@ getConfig <- function(configName) {
       )
     cfg <- filter(cfg, ! grepl("^#", cfg[[1]]))
   } else {
-    cfg <- as_tibble(read.csv2(path, na.strings = "", comment.char = "#"))
+    cfg <- tibble::as_tibble(
+      read.csv2(path, na.strings = "", comment.char = "#"))
   }
   message("loading config file: ", configName, "\n")
   return(cfg)
