@@ -1,10 +1,12 @@
-ValidationKey: '198020'
+ValidationKey: '217833'
 AutocreateReadme: yes
 AcceptedWarnings:
 - 'Warning: package ''.*'' was built under R version'
 - 'Warning: namespace ''.*'' is not available and has been replaced'
+- .*qpdf.* is needed for checks on size reduction of PDFs
 AcceptedNotes:
 - no visible binding for global variable
-- 'Found the following hidden files and directories:'
+- Found the following hidden files and directories: ~
+- All declared Imports should be used.
 allowLinterWarnings: yes
 enforceVersionUpdate: no

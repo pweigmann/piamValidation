@@ -1,0 +1,35 @@
+---
+title: "validateScenarios"
+author: "Pascal Weigmann"
+date: "2024-03-21"
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+    number_sections: true
+vignette: >
+  %\VignetteIndexEntry{validateScenarios}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE
+)
+```
+
+```{r setup}
+library(piamValidation)
+```
+
+# Overview
+
+The function `validateScenarios()` takes performs validation checks on IAM scenario data based on thresholds provided in a tailored
+config file. These checks either analyse the agreement with historical reference data or expectations on the projected data.
+
+
+# Usage
+
+wip
