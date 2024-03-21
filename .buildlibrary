@@ -7,6 +7,6 @@ AcceptedWarnings:
 AcceptedNotes:
 - no visible binding for global variable
 - Found the following hidden files and directories: ~
-- Namespaces in Imports field not imported from: ~
+- All declared Imports should be used.
 allowLinterWarnings: yes
 enforceVersionUpdate: no
