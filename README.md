@@ -1,8 +1,8 @@
 # Validation Tools for PIK-PIAM
 
-R package **piamValidation**, version **0.1.0**
+R package **piamValidation**, version **0.1.1**
 
-[![CRAN status](https://www.r-pkg.org/badges/version/piamValidation)](https://cran.r-project.org/package=piamValidation)  [![R build status](https://github.com/pik-piam/piamValidation/workflows/check/badge.svg)](https://github.com/pik-piam/piamValidation/actions) [![codecov](https://codecov.io/gh/pik-piam/piamValidation/branch/master/graph/badge.svg)](https://app.codecov.io/gh/pik-piam/piamValidation) 
+[![CRAN status](https://www.r-pkg.org/badges/version/piamValidation)](https://cran.r-project.org/package=piamValidation)  [![R build status](https://github.com/pik-piam/piamValidation/workflows/check/badge.svg)](https://github.com/pik-piam/piamValidation/actions) [![codecov](https://codecov.io/gh/pik-piam/piamValidation/branch/master/graph/badge.svg)](https://app.codecov.io/gh/pik-piam/piamValidation) [![r-universe](https://pik-piam.r-universe.dev/badges/piamValidation)](https://pik-piam.r-universe.dev/builds)
 
 ## Purpose and Functionality
 
@@ -30,6 +30,14 @@ Package updates can be installed using `update.packages` (make sure that the add
 update.packages()
 ```
 
+## Tutorial
+
+The package comes with a vignette describing the basic functionality of the package and how to use it. You can load it with the following command (the package needs to be installed):
+
+```r
+vignette("validateScenarios") # validateScenarios
+```
+
 ## Questions / Problems
 
 In case of questions / problems please contact Pascal Weigmann <pascal.weigmann@pik-potsdam.de>.
@@ -38,7 +46,7 @@ In case of questions / problems please contact Pascal Weigmann <pascal.weigmann@
 
 To cite package **piamValidation** in publications use:
 
-Weigmann P, Richters O (2024). _piamValidation: Validation Tools for PIK-PIAM_. R package version 0.1.0, <URL: https://github.com/pik-piam/piamValidation>.
+Weigmann P, Richters O (2024). _piamValidation: Validation Tools for PIK-PIAM_. R package version 0.1.1, <URL: https://github.com/pik-piam/piamValidation>.
 
 A BibTeX entry for LaTeX users is
 
@@ -47,7 +55,7 @@ A BibTeX entry for LaTeX users is
   title = {piamValidation: Validation Tools for PIK-PIAM},
   author = {Pascal Weigmann and Oliver Richters},
   year = {2024},
-  note = {R package version 0.1.0},
+  note = {R package version 0.1.1},
   url = {https://github.com/pik-piam/piamValidation},
 }
 ```
