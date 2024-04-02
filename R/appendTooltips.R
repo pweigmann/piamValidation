@@ -12,7 +12,7 @@ appendTooltips <- function(df) {
                          "Value: ", round(value, 2), "\n",
                          "Ref_Value: ", round(ref_value, 2), "\n",
                          "Ref_Source: ", ref_model, "\n",
-                         "Deviation:", round(check_value)*100, "%\n",
+                         "Deviation:", round(check_value*100), "%\n",
                          "Thresholds (yel/red): \n",
                          paste0("Max: ", max_yel*100, "% / ", max_red*100, "%")
     )

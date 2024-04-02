@@ -36,9 +36,8 @@ knitr::opts_chunk$set(
 
 ```{r, message = FALSE}
 # Data Preparation
-path <- "C:/Users/pascalwe/Data/vs/"
-mifs <- c(paste0(path, "REMIND_generic_Bal.mif"),
-          paste0(path, "REMIND_generic_NPi.mif"))
+path <- "C:/Users/pascalwe/Data/ValidationPaper/"
+mifs <- paste0(path, "REMIND_generic_ELV_CurPol_T44.mif")
 
 hmif <- paste0(path, "historical.mif")
 

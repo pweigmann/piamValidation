@@ -1,5 +1,5 @@
 ---
-title: "piamValidation: NGFS"
+title: "piamValidation: REMIND"
 date: "`r format(Sys.Date())`"
 output:
   html_document:
@@ -8,16 +8,17 @@ output:
     code_folding: hide
 params:
   mif: ""
-  ref: ""
   cfg: ""
+  ref: ""
   warning: false
   message: false
   figWidth: 8
 ---
 
 ```{r include=FALSE}
-library(piamValidation)
+devtools::load_all(".")
 library(knitr)
+library(dplyr)
 library(ggplot2)
 library(ggthemes)
 library(plotly)
@@ -25,11 +26,9 @@ library(plotly)
 knitr::opts_chunk$set(
   echo = FALSE,
   error = TRUE,
-  #fig.width = params$figWidth,
   message = params$message,
   warning = params$warning
 )
-
 ```
 
 ## Import and Prepare Data
@@ -37,18 +36,24 @@ knitr::opts_chunk$set(
 
 ```{r, message = FALSE}
 # Data Preparation
-path <- "C:/Users/pascalwe/Data/NGFS/phase5/"
-snapshot <- "1709886115166-snapshot-24/snapshot_all_regions.csv"
-config <- "validationConfig_NGFS.csv"
-
-scenarioPath <- paste0(path, snapshot)
-
-df <- validateScenarios(scenarioPath, config)
+df <- validateScenarios(params$mif, params$cfg, ref = params$ref)
 df <- appendTooltips(df)
+```
+## Validation
 
-# remove all-green rows (all regions green)
-df_noGreen <- df[df$check != "green", ]
-df_noGreennoGrey <- df[df$check %in% c("red", "yellow"), ]
+### Summary
+```{r}
+# find "critical == yes" data points, that are red/yellow
+colors <- c(green  = "#008450",
+            yellow = "#EFB700",
+            red    = "#B81D13",
+            grey   = "#808080")
+dt <- dplyr::count(df, critical, check)
+# kbl(dt) %>%
+#   kable_styling(bootstrap_options = c("striped", "hover"),
+#                 full_width = F) %>%
+#   column_spec(2, color = colors[dt$check],
+#               background = colors[dt$check])
 ```
 
 ## Heatmaps by Category

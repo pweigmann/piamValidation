@@ -12,15 +12,12 @@ importScenarioData <- function(scenarioPath) {
                                   levels(data$region)), levels(data$region)))
   data$region <- factor(data$region, levels = new_order)
 
-  # remove rows without values
-  data <- data[!is.na(data$value), ]
-
   return(data)
 }
 
 # import historical or other reference data for comparison
 importReferenceData <- function(referencePath) {
-  ref <- quitte::as.quitte(referencePath)
+  ref <- quitte::as.quitte(referencePath, na.rm = TRUE)
 
   # remove all historical data before 1990
   ref <- dplyr::filter(ref, period >= 1990)
@@ -28,10 +25,15 @@ importReferenceData <- function(referencePath) {
   return(ref)
 }
 
+# get a validation config file either from "inst/config" (.csv) or by providing
+# a full path (.csv or .xlsx)
 # see README for rules on how to fill the config
 getConfig <- function(configName) {
-  path <- system.file(paste0("config/", configName), package = "piamValidation")
-  if (! file.exists(path) && file.exists(configName)) path <- configName
+  path <- system.file(paste0("config/validationConfig_", configName, ".csv"),
+                      package = "piamValidation")
+  if (!file.exists(path) && file.exists(configName)) path <- configName
+  if (path == "") stop("Config not found, please provide either full path to a
+                       config file or choose a config from 'inst/config'.")
 
   # config can be .xlsx or .csv, use "config" sheet in .xlsx if available
   if (grepl("\\.xlsx$", path)) {
