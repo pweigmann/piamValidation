@@ -5,7 +5,7 @@
 combineData <- function(data, cfgRow, refData = NULL) {
 
   # shorten as it will be used a lot
-  c <- cfg_row
+  c <- cfgRow
 
   # full dimensions and important slices
   all_mod <- unique(data$model)
@@ -58,7 +58,7 @@ combineData <- function(data, cfgRow, refData = NULL) {
   # depending on category: filter and attach reference values if they are needed
   if (c$category == "historic") {
     # historic data for relevant variable and dimensions (all sources)
-    h <- ref_data %>%
+    h <- refData %>%
       filter(variable %in% c$variable,
              region %in% reg,
              period %in% per) %>%
@@ -110,7 +110,7 @@ combineData <- function(data, cfgRow, refData = NULL) {
     } else if (c$metric %in% c("relative", "difference")) {
 
       # if a reference model should be used, same scenario, same period
-      if (!is.na(c$model)) {
+      if (!is.na(c$ref_model)) {
         ref <- data %>%
           filter(variable %in% c$variable,
                  model    %in% c$ref_model, # expects exactly one model for now

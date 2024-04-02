@@ -11,7 +11,11 @@ validateScenarios <- function(scenarioPath, configName, referencePath = NULL) {
 
   data <- importScenarioData(scenarioPath)
 
-  hist <- importReferenceData(referencePath)
+  if (!is.null(referencePath)) {
+    hist <- importReferenceData(referencePath)
+  } else {
+    hist <- NULL
+  }
 
   cfg <- configName %>%
     getConfig() %>%
@@ -19,6 +23,7 @@ validateScenarios <- function(scenarioPath, configName, referencePath = NULL) {
     expandPeriods(data) %>%
     expandVariables(data)
 
+  # TODO: filter data for relevant variables
 
   # combine data for each row of the config and bind together
   df <- data.frame()
