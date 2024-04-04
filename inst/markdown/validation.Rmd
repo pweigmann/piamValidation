@@ -9,7 +9,6 @@ output:
 params:
   mif: ""
   cfg: ""
-  ref: ""
   warning: false
   message: false
   figWidth: 8
@@ -36,7 +35,7 @@ knitr::opts_chunk$set(
 
 ```{r, message = FALSE}
 # Data Preparation
-df <- validateScenarios(params$mif, params$cfg, ref = params$ref)
+df <- validateScenarios(params$mif, params$cfg)
 df <- appendTooltips(df)
 ```
 ## Validation
@@ -62,15 +61,15 @@ dt <- dplyr::count(df, critical, check)
 Relative deviation to historical reference data. Absolute numbers, so no 
 difference is made between being above or below the reference value.
 ```{r}
-c <- "historic"
+historic <- TRUE
 m <- "relative"
-d <- df[df$category == c & df$metric == m, ]
+d <- filter(df, metric == m, ref_scenario == "historical")
 
 if (nrow(d) > 0) {
   vars <- unique(d$variable)
   plot_list <- htmltools::tagList()
     for (i in 1:length(vars)) {
-      plot_list[[i]] <- validationHeatmap(d, vars[i], cat = c, met = m)
+      plot_list[[i]] <- validationHeatmap(d, vars[i], met = m, historic)
     }
   plot_list
 }
@@ -79,15 +78,15 @@ if (nrow(d) > 0) {
 ### Historic - Difference
 Absolute difference to historical reference data
 ```{r}
-c <- "historic"
+historic <- TRUE
 m <- "difference"
-d <- df[df$category == c & df$metric == m, ]
+d <- filter(df, metric == m, ref_scenario == "historical")
 
 if (nrow(d) > 0) {
   vars <- unique(d$variable)
   plot_list <- htmltools::tagList()
     for (i in 1:length(vars)) {
-      plot_list[[i]] <- validationHeatmap(d, vars[i], cat = c, met = m)
+      plot_list[[i]] <- validationHeatmap(d, vars[i], met = m, historic)
     }
   plot_list
 }
@@ -101,15 +100,15 @@ Relative deviation to data point from either:
 - model (same period/scenario - Not supported yet)
 
 ```{r}
-c <- "scenario"
+historic <- FALSE
 m <- "relative"
-d <- df[df$category == c & df$metric == m, ]
+d <- filter(df, metric == m, ref_scenario != "historical" | is.na(ref_scenario))
 
 if (nrow(d) > 0) {
   vars <- unique(d$variable)
   plot_list <- htmltools::tagList()
     for (i in 1:length(vars)) {
-      plot_list[[i]] <- validationHeatmap(d, vars[i], cat = c, met = m)
+      plot_list[[i]] <- validationHeatmap(d, vars[i], met = m, historic)
     }
   plot_list
 }
@@ -117,15 +116,15 @@ if (nrow(d) > 0) {
 
 ### Scenario - Difference
 ```{r}
-c <- "scenario"
+historic <- FALSE
 m <- "difference"
-d <- df[df$category == c & df$metric == m, ]
+d <- filter(df, metric == m, ref_scenario != "historical" | is.na(ref_scenario))
 
 if (nrow(d) > 0) {
   vars <- unique(d$variable)
   plot_list <- htmltools::tagList()
     for (i in 1:length(vars)) {
-      plot_list[[i]] <- validationHeatmap(d, vars[i], cat = c, met = m)
+      plot_list[[i]] <- validationHeatmap(d, vars[i], met = m, historic)
     }
   plot_list
 }
@@ -133,15 +132,15 @@ if (nrow(d) > 0) {
 
 ### Scenario - Absolute
 ```{r}
-c <- "scenario"
+historic <- FALSE
 m <- "absolute"
-d <- df[df$category == c & df$metric == m, ]
+d <- filter(df, metric == m, ref_scenario != "historical" | is.na(ref_scenario))
 
 if (nrow(d) > 0) {
   vars <- unique(d$variable)
   plot_list <- htmltools::tagList()
     for (i in 1:length(vars)) {
-      plot_list[[i]] <- validationHeatmap(d, vars[i], cat = c, met = m)
+      plot_list[[i]] <- validationHeatmap(d, vars[i], met = m, historic)
     }
   plot_list
 }
@@ -150,15 +149,15 @@ if (nrow(d) > 0) {
 
 ### Scenario - Growthrate
 ```{r}
-c <- "scenario"
+historic <- FALSE
 m <- "growthrate"
-d <- df[df$category == c & df$metric == m, ]
+d <- filter(df, metric == m, ref_scenario != "historical" | is.na(ref_scenario))
 
 if (nrow(d) > 0) {
   vars <- unique(d$variable)
   plot_list <- htmltools::tagList()
     for (i in 1:length(vars)) {
-      plot_list[[i]] <- validationHeatmap(d, vars[i], cat = c, met = m)
+      plot_list[[i]] <- validationHeatmap(d, vars[i], met = m, historic)
     }
   plot_list
 }

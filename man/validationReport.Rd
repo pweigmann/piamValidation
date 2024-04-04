@@ -4,15 +4,13 @@
 \alias{validationReport}
 \title{perform validateScenarios and create an .html report using .Rmd templates}
 \usage{
-validationReport(mif, cfg, ref = NULL, report = "default")
+validationReport(mif, cfg, report = "default")
 }
 \arguments{
 \item{mif}{one or multiple path(s) to scenario data in .mif or .csv
 format}
 
 \item{cfg}{name of a config from inst/config}
-
-\item{ref}{in case of historic comparison, choose path to ref data}
 
 \item{report}{specify which .Rmd file should be used to create report}
 }

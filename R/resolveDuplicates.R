@@ -2,7 +2,7 @@
 # only the latest occurrence of a data point is kept (lowest row of config)
 resolveDuplicates <- function(df) {
 
-  # TODO: needs to be double checked for edge-cases
+  # TODO: needs to be double checked for edge-cases (ref_scen = "historical"?)
   #       might be easier or safer to handle categories separately
 
   # these are the duplicates that are from the lower rows and should be kept
@@ -11,7 +11,6 @@ resolveDuplicates <- function(df) {
                                    "variable",
                                    "region",
                                    "period",
-                                   "category",
                                    "metric")]), ]
 
   # here, all instances of the data that was duplicated are removed
@@ -20,7 +19,6 @@ resolveDuplicates <- function(df) {
                                                      "variable",
                                                      "region",
                                                      "period",
-                                                     "category",
                                                      "metric"))
 
   # reattach one instance to get a complete data set without duplicates

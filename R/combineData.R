@@ -2,7 +2,7 @@
 
 # for one row of cfg: filter and merge relevant scenario data with cfg
 # results in one df that contains scenario data, reference data and thresholds
-combineData <- function(data, cfgRow, refData = NULL) {
+combineData <- function(data, cfgRow, histData = NULL) {
 
   # shorten as it will be used a lot
   c <- cfgRow
@@ -13,6 +13,7 @@ combineData <- function(data, cfgRow, refData = NULL) {
   all_reg <- unique(data$region)
   all_per <- unique(data$period)  # not a factor, convert?
   all_per <- all_per[all_per <= 2100]
+  # TODO: take ref_per from ref_data for current var
   ref_per <- c(2005, 2010, 2015, 2020)
 
 
@@ -27,7 +28,7 @@ combineData <- function(data, cfgRow, refData = NULL) {
 
 
   # empty "period" field means different years for historic or scenario category
-  if (c$category == "historic") {
+  if (c$ref_scenario == "historical" && !is.na(c$ref_scenario == "historical")) {
     per <- if (is.na(c$period))  ref_per else
       strsplit(as.character(c$period), split = ", |,")[[1]]
   } else {
@@ -50,22 +51,21 @@ combineData <- function(data, cfgRow, refData = NULL) {
            min_yel  = c$min_yel,
            max_yel  = c$max_yel,
            max_red  = c$max_red,
-           category = c$category,
            metric   = c$metric,
            critical = c$critical)
 
   # historic ####
   # depending on category: filter and attach reference values if they are needed
-  if (c$category == "historic") {
+  if (c$ref_scenario == "historical" && !is.na(c$ref_scenario == "historical")) {
     # historic data for relevant variable and dimensions (all sources)
-    h <- refData %>%
+    h <- histData %>%
       filter(variable %in% c$variable,
              region %in% reg,
              period %in% per) %>%
       mutate(ref_value = value, ref_model = model) %>%
       select(-c("scenario", "unit", "value", "model"))
 
-    # test whether ref_model exists and has data to compare to
+    # test whether historical ref_model exists and has data to compare to
     if (nrow(h) == 0) {
       cat(paste0("No reference data for variable ", c$variable, " found.\n"))
       df <- data.frame()
@@ -88,13 +88,13 @@ combineData <- function(data, cfgRow, refData = NULL) {
       # merge with historical data adds columns ref_value and ref_model
       df <- merge(d, h)
 
-      # add columns which are not used in this category, fill NA
-      df <- df %>% mutate(ref_period = NA, ref_scenario = NA)
+      # add columns which are not used in this category
+      df <- df %>% mutate(ref_period = NA, ref_scenario = "historical")
     }
 
   # scenario ####
   # filter and attach reference values if they are needed; scenario data
-  } else if (c$category == "scenario") {
+  } else {
 
     # no reference values needed for these metrics, fill NA
     if (c$metric %in% c("absolute", "growthrate")) {
@@ -160,8 +160,6 @@ combineData <- function(data, cfgRow, refData = NULL) {
               'relative', 'difference' or 'growthrate'.")
     }
 
-  } else {
-    warning("'category' must be either 'historic' or 'scenario'.")
   }
 
   return(df)

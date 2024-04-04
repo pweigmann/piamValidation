@@ -4,17 +4,25 @@
 \alias{validationHeatmap}
 \title{takes the output of "validateScenarios()" and plots heatmaps per variable}
 \usage{
-validationHeatmap(data, var, cat, met, interactive = T, compareModels = T)
+validationHeatmap(
+  df,
+  var,
+  met,
+  historical = TRUE,
+  interactive = TRUE,
+  compareModels = FALSE
+)
 }
 \arguments{
-\item{data}{data.frame as returned by ``validateScenarios()``}
+\item{df}{data.frame as returned by ``validateScenarios()``
+and ``appendTooltips()``}
 
 \item{var}{variable to be plotted}
 
-\item{cat}{choose category from "historical" or "scenario"}
-
 \item{met}{choose metric from "relative", "difference", "absolute" or
 "growthrate"}
+
+\item{historical}{should this be a plot comparing to historical data}
 
 \item{interactive}{return plots as interactive plotly plots by default}
 
