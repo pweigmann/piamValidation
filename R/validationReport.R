@@ -3,7 +3,6 @@
 #' @param mif one or multiple path(s) to scenario data in .mif or .csv
 #'        format
 #' @param cfg name of a config from inst/config
-#' @param ref in case of historic comparison, choose path to ref data
 #' @param report specify which .Rmd file should be used to create report
 
 validationReport <- function(mif, cfg, report = "default") {

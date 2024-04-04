@@ -13,8 +13,6 @@ format}
 \item{cfg}{name of a config from inst/config}
 
 \item{report}{specify which .Rmd file should be used to create report}
-
-\item{ref}{in case of historic comparison, choose path to ref data}
 }
 \description{
 perform validateScenarios and create an .html report using .Rmd templates
