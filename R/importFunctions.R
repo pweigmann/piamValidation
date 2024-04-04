@@ -4,8 +4,10 @@
 
 # scenarioPath: one or multiple paths to .mif or .csv file(s) containing
 #               scenario data in IAM format
+# TODO: improve performance by using read.snapshot and filter for vars from cfg
 importScenarioData <- function(scenarioPath) {
-  data <- remind2::deletePlus(quitte::as.quitte(scenarioPath, na.rm = TRUE))
+  data <- remind2::deletePlus(quitte::as.quitte(scenarioPath, na.rm = TRUE)) %>%
+    filter(period >= 1990)
 
   # change ordering of factors, global elements first
   new_order <- unique(intersect(c("World", "GLO",
@@ -15,15 +17,15 @@ importScenarioData <- function(scenarioPath) {
   return(data)
 }
 
-# import historical or other reference data for comparison
-importReferenceData <- function(referencePath) {
-  ref <- quitte::as.quitte(referencePath, na.rm = TRUE)
-
-  # remove all historical data before 1990
-  ref <- dplyr::filter(ref, period >= 1990)
-
-  return(ref)
-}
+# # import historical or other reference data for comparison
+# importReferenceData <- function(referencePath) {
+#   ref <- quitte::as.quitte(referencePath, na.rm = TRUE)
+#
+#   # remove all historical data before 1990
+#   ref <- dplyr::filter(ref, period >= 1990)
+#
+#   return(ref)
+# }
 
 # get a validation config file either from "inst/config" (.csv) or by providing
 # a full path (.csv or .xlsx)
@@ -46,7 +48,7 @@ getConfig <- function(configName) {
     cfg <- tibble::as_tibble(
       read.csv2(path, na.strings = "", comment.char = "#"))
   }
-  message("loading config file: ", configName, "\n")
+  message("loading config file: ", path, "\n")
   return(cfg)
 }
 
@@ -65,14 +67,14 @@ fillInf <- function(cfg) {
 
 # replace period ranges using ":" with comma-separated list of years
 expandPeriods <- function(cfg, data) {
-  per_expand_idx <- grep("\\:", cfg$period)
+  per_expand_idx <- grep("\\-", cfg$period)
   all_per <- unique(data$period)
 
   # iterate through rows with ":"
   for (i in per_expand_idx) {
     # check format and compatibility of data and ref periods
     if (nchar(cfg[i, "period"]) != 9) {
-      stop("Invalid range detected. Make sure to enter years as YYYY:YYYY.\n")
+      stop("Invalid range detected. Make sure to enter years as YYYY-YYYY.\n")
     } else {
       # find scenario-years that are withing indicated range
       start <- substr(cfg[i, "period"], 1, 4)

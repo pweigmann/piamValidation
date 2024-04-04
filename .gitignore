@@ -5,3 +5,4 @@
 *.html
 .Rproj.user
 inst/doc
+output
