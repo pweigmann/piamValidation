@@ -28,7 +28,7 @@ validateScenarios <- function(scenarioPath, configName) {
     # TODO: validation generally should work without hist data
     df_row <- combineData(data, cfg[i, ], histData = hist)
     df <- rbind(df, df_row)
-    cat(paste0("Combined config row ", i, " of ", nrow(cfg), "\n"))
+    # cat(paste0("Combined config row ", i, " of ", nrow(cfg), "\n"))
   }
 
   df <- resolveDuplicates(df)
