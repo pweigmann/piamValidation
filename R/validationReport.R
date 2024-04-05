@@ -4,16 +4,14 @@
 #'        format
 #' @param cfg name of a config from inst/config
 #' @param report specify which .Rmd file should be used to create report
+#'
+#' @export
 
 validationReport <- function(mif, cfg, report = "default") {
 
   yamlParams <- list(mif = mif, cfg = cfg)
 
-  if (report == "default") {
-    report_name <- "validation"
-  } else {
-    report_name <- report
-  }
+  report_name <- paste0("validation_", report)
 
   output_path <- paste0(path.package("piamValidation"), "/output")
   if (!dir.exists(output_path)) dir.create(output_path)
@@ -21,7 +19,8 @@ validationReport <- function(mif, cfg, report = "default") {
   # create default report for given data
   rmarkdown::render(paste0("inst/markdown/", report_name, ".Rmd"),
                     params = yamlParams,
-                    output_file = paste0(output_path, "/", report_name, "_", cfg,
+                    output_file =
+                      paste0(output_path, "/", report_name, "Rep_", cfg, "Cfg",
                                         format(Sys.time(), "_%Y%m%d-%H%M%S"),
                                         ".html"))
 

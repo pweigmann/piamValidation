@@ -47,19 +47,13 @@ colors <- c(green  = "#008450",
             yellow = "#EFB700",
             red    = "#B81D13",
             grey   = "#808080")
-dt <- dplyr::count(df, critical, check)
-# kbl(dt) %>%
-#   kable_styling(bootstrap_options = c("striped", "hover"),
-#                 full_width = F) %>%
-#   column_spec(2, color = colors[dt$check],
-#               background = colors[dt$check])
+dplyr::count(df, critical, check)
 ```
 
 ## Heatmaps by Category
 
 ### Historic - Relative
-Relative deviation to historical reference data. Absolute numbers, so no 
-difference is made between being above or below the reference value.
+Relative deviation to historical reference data.
 ```{r}
 historic <- TRUE
 m <- "relative"

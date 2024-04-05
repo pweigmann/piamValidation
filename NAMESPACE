@@ -3,6 +3,7 @@
 export(validateScenarios)
 export(validationHeatmap)
 export(validationPass)
+export(validationReport)
 import(ggplot2)
 importFrom(dplyr,"%>%")
 importFrom(dplyr,filter)
