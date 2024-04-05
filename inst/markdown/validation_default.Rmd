@@ -1,5 +1,5 @@
 ---
-title: "piamValidation: REMIND"
+title: "piamValidation: default report"
 date: "`r format(Sys.Date())`"
 output:
   html_document:
@@ -32,6 +32,15 @@ knitr::opts_chunk$set(
 
 ## Import and Prepare Data
 
+Loading data from:
+
+```{r}
+for (m in params$mif) cat(paste0(m, "\n"))
+```
+
+Using config:
+
+`r params$cfg`
 
 ```{r, message = FALSE}
 # Data Preparation
@@ -91,7 +100,7 @@ Relative deviation to data point from either:
 
 - period (same scenario/model)
 - scenario (same period/model)
-- model (same period/scenario - Not supported yet)
+- model (same period/scenario)
 
 ```{r}
 historic <- FALSE

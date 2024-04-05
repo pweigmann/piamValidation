@@ -94,7 +94,7 @@ Relative deviation to data point from either:
 
 - period (same scenario/model)
 - scenario (same period/model)
-- model (same period/scenario - Not supported yet)
+- model (same period/scenario)
 
 ```{r}
 historic <- FALSE
