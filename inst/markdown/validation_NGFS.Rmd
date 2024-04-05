@@ -36,36 +36,32 @@ knitr::opts_chunk$set(
 
 
 ```{r, message = FALSE}
-# Data Preparation
-path <- "C:/Users/pascalwe/Data/NGFS/phase5/"
-snapshot <- "1709886115166-snapshot-24/snapshot_all_regions.csv"
-config <- "validationConfig_NGFS.csv"
-
-scenarioPath <- paste0(path, snapshot)
-
+# Data Preparatio
 df <- validateScenarios(scenarioPath, config)
 df <- appendTooltips(df)
 
 # remove all-green rows (all regions green)
 df_noGreen <- df[df$check != "green", ]
 df_noGreennoGrey <- df[df$check %in% c("red", "yellow"), ]
+
+df <- df_noGreennoGrey
 ```
+
 
 ## Heatmaps by Category
 
 ### Historic - Relative
-Relative deviation to historical reference data. Absolute numbers, so no 
-difference is made between being above or below the reference value.
+Relative deviation to historical reference data.
 ```{r}
-c <- "historic"
+historic <- TRUE
 m <- "relative"
-d <- df[df$category == c & df$metric == m, ]
+d <- filter(df, metric == m, ref_scenario == "historical")
 
 if (nrow(d) > 0) {
   vars <- unique(d$variable)
   plot_list <- htmltools::tagList()
     for (i in 1:length(vars)) {
-      plot_list[[i]] <- validationHeatmap(d, vars[i], cat = c, met = m)
+      plot_list[[i]] <- validationHeatmap(d, vars[i], met = m, historic, compareModels = TRUE)
     }
   plot_list
 }
@@ -74,15 +70,15 @@ if (nrow(d) > 0) {
 ### Historic - Difference
 Absolute difference to historical reference data
 ```{r}
-c <- "historic"
+historic <- TRUE
 m <- "difference"
-d <- df[df$category == c & df$metric == m, ]
+d <- filter(df, metric == m, ref_scenario == "historical")
 
 if (nrow(d) > 0) {
   vars <- unique(d$variable)
   plot_list <- htmltools::tagList()
     for (i in 1:length(vars)) {
-      plot_list[[i]] <- validationHeatmap(d, vars[i], cat = c, met = m)
+      plot_list[[i]] <- validationHeatmap(d, vars[i], met = m, historic, compareModels = TRUE)
     }
   plot_list
 }
@@ -96,15 +92,15 @@ Relative deviation to data point from either:
 - model (same period/scenario - Not supported yet)
 
 ```{r}
-c <- "scenario"
+historic <- FALSE
 m <- "relative"
-d <- df[df$category == c & df$metric == m, ]
+d <- filter(df, metric == m, ref_scenario != "historical" | is.na(ref_scenario))
 
 if (nrow(d) > 0) {
   vars <- unique(d$variable)
   plot_list <- htmltools::tagList()
     for (i in 1:length(vars)) {
-      plot_list[[i]] <- validationHeatmap(d, vars[i], cat = c, met = m)
+      plot_list[[i]] <- validationHeatmap(d, vars[i], met = m, historic, compareModels = TRUE)
     }
   plot_list
 }
@@ -112,15 +108,15 @@ if (nrow(d) > 0) {
 
 ### Scenario - Difference
 ```{r}
-c <- "scenario"
+historic <- FALSE
 m <- "difference"
-d <- df[df$category == c & df$metric == m, ]
+d <- filter(df, metric == m, ref_scenario != "historical" | is.na(ref_scenario))
 
 if (nrow(d) > 0) {
   vars <- unique(d$variable)
   plot_list <- htmltools::tagList()
     for (i in 1:length(vars)) {
-      plot_list[[i]] <- validationHeatmap(d, vars[i], cat = c, met = m)
+      plot_list[[i]] <- validationHeatmap(d, vars[i], met = m, historic, compareModels = TRUE)
     }
   plot_list
 }
@@ -128,15 +124,15 @@ if (nrow(d) > 0) {
 
 ### Scenario - Absolute
 ```{r}
-c <- "scenario"
+historic <- FALSE
 m <- "absolute"
-d <- df[df$category == c & df$metric == m, ]
+d <- filter(df, metric == m, ref_scenario != "historical" | is.na(ref_scenario))
 
 if (nrow(d) > 0) {
   vars <- unique(d$variable)
   plot_list <- htmltools::tagList()
     for (i in 1:length(vars)) {
-      plot_list[[i]] <- validationHeatmap(d, vars[i], cat = c, met = m)
+      plot_list[[i]] <- validationHeatmap(d, vars[i], met = m, historic, compareModels = TRUE)
     }
   plot_list
 }
@@ -145,15 +141,15 @@ if (nrow(d) > 0) {
 
 ### Scenario - Growthrate
 ```{r}
-c <- "scenario"
+historic <- FALSE
 m <- "growthrate"
-d <- df[df$category == c & df$metric == m, ]
+d <- filter(df, metric == m, ref_scenario != "historical" | is.na(ref_scenario))
 
 if (nrow(d) > 0) {
   vars <- unique(d$variable)
   plot_list <- htmltools::tagList()
     for (i in 1:length(vars)) {
-      plot_list[[i]] <- validationHeatmap(d, vars[i], cat = c, met = m)
+      plot_list[[i]] <- validationHeatmap(d, vars[i], met = m, historic, compareModels = TRUE)
     }
   plot_list
 }
