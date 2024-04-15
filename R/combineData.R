@@ -2,6 +2,7 @@
 
 # for one row of cfg: filter and merge relevant scenario data with cfg
 # results in one df that contains scenario data, reference data and thresholds
+# TODO performance: only pass data and histData for current cfgRow$variable
 combineData <- function(data, cfgRow, histData = NULL) {
 
   # shorten as it will be used a lot
@@ -113,7 +114,7 @@ combineData <- function(data, cfgRow, histData = NULL) {
       if (!is.na(c$ref_model)) {
         ref <- data %>%
           filter(variable %in% c$variable,
-                 model    %in% c$ref_model, # expects exactly one model for now
+                 model    %in% c$ref_model, # expects exactly one model
                  scenario %in% sce,
                  region   %in% reg,
                  period   %in% per) %>%
@@ -156,7 +157,7 @@ combineData <- function(data, cfgRow, histData = NULL) {
 
     } else {
       # TODO: have this warning here or earlier when cleaning config?
-      warning("'metric' for category 'scenario' must be either 'absolute',
+      warning("'metric' must be either 'absolute',
               'relative', 'difference' or 'growthrate'.")
     }
 

@@ -2,16 +2,16 @@
 % Please edit documentation in R/validateScenarios.R
 \name{validateScenarios}
 \alias{validateScenarios}
-\title{performs the validation checks from a config on a scenario dataset}
+\title{performs the validation checks from a config on a scenario data set}
 \usage{
-validateScenarios(scenarioPath, configName)
+validateScenarios(dataPath, config)
 }
 \arguments{
-\item{scenarioPath}{one or multiple path(s) to scenario data in .mif or .csv
-format, in case of historic comparison, append path to ref data}
+\item{dataPath}{one or multiple path(s) to scenario data in .mif or .csv
+format, in case of historic comparison, also path to reference data}
 
-\item{configName}{select config from inst/config}
+\item{config}{select config from inst/config}
 }
 \description{
-performs the validation checks from a config on a scenario dataset
+performs the validation checks from a config on a scenario data set
 }

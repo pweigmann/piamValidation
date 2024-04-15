@@ -26,8 +26,8 @@ library(piamValidation)
 
 # Overview
 
-The function `validateScenarios()` takes performs validation checks on IAM scenario data based on thresholds provided in a tailored
-config file. These checks either analyse the agreement with historical reference data or expectations on the projected data.
+The function `validateScenarios()` performs validation checks on IAM scenario data based on thresholds provided in a tailored
+config file. These checks either analyse the agreement with historical reference data or expectations on the scenario data.
 
 
 # Usage
