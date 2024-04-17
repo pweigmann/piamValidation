@@ -3,10 +3,11 @@
 #' @param dataPath one or multiple path(s) to scenario data in .mif or .csv
 #'        format, in case of historic comparison, also path to reference data
 #' @param config select config from inst/config
+#' @param outputFile give name of output file in case results should be exported
 #'
 #' @importFrom dplyr filter select mutate group_by %>%
 #' @export
-validateScenarios <- function(dataPath, config) {
+validateScenarios <- function(dataPath, config, outputFile = NULL) {
 
   data <- importScenarioData(dataPath)
 
@@ -39,6 +40,14 @@ validateScenarios <- function(dataPath, config) {
 
   # perform actual checks and write results in new columns of data.frame
   df <- evaluateThresholds(df)
+
+  # export df to file in case outputFile is specified
+  if (!is.null(outputFile)) {
+    output_path <- paste0(path.package("piamValidation"), "/output")
+    if (!dir.exists(output_path)) dir.create(output_path)
+    write.csv(df, paste0(output_path, "/", outputFile, ".csv"),
+               row.names = FALSE, quote = FALSE)
+  }
 
   return(df)
 }

@@ -29,7 +29,16 @@ library(piamValidation)
 The function `validateScenarios()` performs validation checks on IAM scenario data based on thresholds provided in a tailored
 config file. These checks either analyse the agreement with historical reference data or expectations on the scenario data.
 
+# Installation
+
+The package is available via the R package repository of PIK. 
+
+```{r installation}
+install.packages("piamValidation", repos = "https://rse.pik-potsdam.de/r/packages")
+```
 
 # Usage
 
 wip
+
+If you are unsure where on your computer the output folder is, use ``path.package("piamValidation")`` to find your package.

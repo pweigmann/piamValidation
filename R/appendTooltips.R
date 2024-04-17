@@ -15,7 +15,8 @@ appendTooltips <- function(df) {
                          "Value: ", round(value, 2), "\n",
                          "Ref ", ifelse(!is.na(ref_period),
                                                paste("Period:", ref_period),
-                                        ifelse(!is.na(ref_scenario),
+                                        ifelse(!is.na(ref_scenario) &&
+                                                 ref_scenario != "historical",
                                                paste("Scenario:", ref_scenario),
                                                paste("Model:", ref_model))
                                                ), "\n",

@@ -29,8 +29,10 @@ validationHeatmap <- function(df, var, met,
 
   if (historical) {
     d <- filter(d, ref_scenario == "historical")
+    plot_title <- paste0(var, " [", d$unit[1], "] - ", met, " (historical)")
   } else {
     d <- filter(d, (ref_scenario != "historical" | is.na(ref_scenario)))
+    plot_title <- paste0(var, " [", d$unit[1], "] - ", met)
   }
 
   # warn if no data is found for combination of var, cat and met
@@ -65,12 +67,12 @@ validationHeatmap <- function(df, var, met,
 
   # make it beautiful
   # from https://www.r-bloggers.com/2016/02/making-faceted-heatmaps-with-ggplot2
-  p <- p + labs(x = NULL, y = NULL, title = paste0(var,
-                                                   " [", d$unit[1], "] - ",
-                                                   met))
+  p <- p + labs(x = NULL,
+                y = NULL,
+                title = plot_title)
   p <- p + theme_tufte(base_family = "Helvetica")  # creates warnings
   p <- p + theme(axis.ticks = element_blank())
-  p <- p + theme(axis.text = element_text(size = 7))
+  p <- p + theme(axis.text = element_text(size = 10))
   p <- p + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
   p <- p + coord_equal()
   p <- p + theme(legend.position = "none")
