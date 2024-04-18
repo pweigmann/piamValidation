@@ -33,6 +33,7 @@ importScenarioData <- function(scenarioPath) {
 getConfig <- function(configName) {
   path <- system.file(paste0("config/validationConfig_", configName, ".csv"),
                       package = "piamValidation")
+  # if a full path is given instead of a configName in inst/config
   if (!file.exists(path) && file.exists(configName)) path <- configName
   if (path == "") stop("Config not found, please provide either full path to a
                        config file or choose a config from 'inst/config'.")

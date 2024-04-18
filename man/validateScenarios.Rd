@@ -4,13 +4,15 @@
 \alias{validateScenarios}
 \title{performs the validation checks from a config on a scenario data set}
 \usage{
-validateScenarios(dataPath, config)
+validateScenarios(dataPath, config, outputFile = NULL)
 }
 \arguments{
 \item{dataPath}{one or multiple path(s) to scenario data in .mif or .csv
 format, in case of historic comparison, also path to reference data}
 
 \item{config}{select config from inst/config}
+
+\item{outputFile}{give name of output file in case results should be exported}
 }
 \description{
 performs the validation checks from a config on a scenario data set

@@ -40,7 +40,7 @@ combineData <- function(data, cfgRow, histData = NULL) {
   # apply filters ####
   # filter scenario data according to each row in cfg
   d <- data %>%
-    filter(variable %in% c$variable,  # alternative approach for multiple variables could be used here
+    filter(variable %in% c$variable,
            model    %in% mod,
            scenario %in% sce,
            region   %in% reg,

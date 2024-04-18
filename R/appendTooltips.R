@@ -9,13 +9,10 @@ appendTooltips <- function(df) {
     df[df$metric == "relative", ] %>%
     mutate(text = paste0(region, "\n",
                          period, "\n",
-                         ifelse(!is.na(ref_model),
-                                paste("Model:", model, "\n"),
-                                ""),
                          "Value: ", round(value, 2), "\n",
                          "Ref ", ifelse(!is.na(ref_period),
                                                paste("Period:", ref_period),
-                                        ifelse(!is.na(ref_scenario) &&
+                                        ifelse(!is.na(ref_scenario) &
                                                  ref_scenario != "historical",
                                                paste("Scenario:", ref_scenario),
                                                paste("Model:", ref_model))
@@ -33,6 +30,13 @@ appendTooltips <- function(df) {
     mutate(text = paste0(region, "\n",
                          period, "\n",
                          "Value: ", round(value, 2), "\n",
+                         "Ref ", ifelse(!is.na(ref_period),
+                                        paste("Period:", ref_period),
+                                        ifelse(!is.na(ref_scenario) &
+                                                 ref_scenario != "historical",
+                                               paste("Scenario:", ref_scenario),
+                                               paste("Model:", ref_model))
+                         ), "\n",
                          "Ref Value: ", round(ref_value, 2), "\n",
                          "Difference: ", round(check_value, 2), "\n",
                          "Thresholds (yel/red): \n",

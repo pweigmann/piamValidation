@@ -1,15 +1,15 @@
 #' perform validateScenarios and create an .html report using .Rmd templates
 #'
-#' @param mif one or multiple path(s) to scenario data in .mif or .csv
+#' @param dataPath one or multiple path(s) to scenario data in .mif or .csv
 #'        format
-#' @param cfg name of a config from inst/config
+#' @param config name of a config from inst/config
 #' @param report specify which .Rmd file should be used to create report
 #'
 #' @export
 
-validationReport <- function(mif, cfg, report = "default") {
+validationReport <- function(dataPath, config, report = "default") {
 
-  yamlParams <- list(mif = mif, cfg = cfg)
+  yamlParams <- list(mif = dataPath, cfg = config)
 
   report_name <- paste0("validation_", report)
 
@@ -19,10 +19,9 @@ validationReport <- function(mif, cfg, report = "default") {
   # create default report for given data
   rmarkdown::render(paste0("inst/markdown/", report_name, ".Rmd"),
                     params = yamlParams,
-                    output_file =
-                      paste0(output_path, "/", report_name, "Rep_", cfg, "Cfg",
-                                        format(Sys.time(), "_%Y%m%d-%H%M%S"),
-                                        ".html"))
+                    output_file = paste0(output_path, "/", report_name,
+                                         format(Sys.time(), "_%Y%m%d-%H%M%S"),
+                                         ".html"))
 
 }
 

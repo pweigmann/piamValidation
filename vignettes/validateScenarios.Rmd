@@ -1,11 +1,6 @@
 ---
 title: "validateScenarios"
-author: "Pascal Weigmann"
-date: "2024-03-21"
-output: 
-  rmarkdown::html_vignette:
-    toc: true
-    number_sections: true
+output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{validateScenarios}
   %\VignetteEngine{knitr::rmarkdown}
@@ -15,14 +10,14 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>",
-  eval = FALSE
+  comment = "#>"
 )
 ```
 
 ```{r setup}
 library(piamValidation)
 ```
+
 
 # Overview
 
@@ -33,12 +28,29 @@ config file. These checks either analyse the agreement with historical reference
 
 The package is available via the R package repository of PIK. 
 
-```{r installation}
+```{r installation, eval = FALSE}
 install.packages("piamValidation", repos = "https://rse.pik-potsdam.de/r/packages")
 ```
 
 # Usage
 
-wip
+## Configuration File
+
+The config file is the place where the validation checks are defined. Filling
+the file comes with a few rules - depending on the type of check which is being 
+performed, different columns can or need to be filled.
+
+![Rules for writing the config file.](./config_rules.jpg)
+
+
+### Use Case 1: Comparison to historical data
+| metric   | critical | variable     | model | scenario | region | period | min_red | min_yel | max_yel | max_red | ref_model | ref_scenario | ref_period |
+|----------|----------|--------------|-------|----------|--------|--------|---------|---------|---------|---------|-----------|--------------|------------|
+| relative | yes      | Emi\|CO2\|Energy |       |          |        |        | -0.25   | -0.2    | 0.2     | 0.25    | EDGAR8    | historical   |            |
+| relative | yes      | Emi\|CO2\|Energy |       |          | World  |        | -0.2    | -0.1    | 0.1     | 0.2     | EDGAR8    | historical   |            |
+
+
+Test
+
 
 If you are unsure where on your computer the output folder is, use ``path.package("piamValidation")`` to find your package.
