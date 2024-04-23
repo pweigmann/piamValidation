@@ -4,7 +4,6 @@
 
 # scenarioPath: one or multiple paths to .mif or .csv file(s) containing
 #               scenario data in IAM format
-# TODO: improve performance by using read.snapshot and filter for vars from cfg
 importScenarioData <- function(scenarioPath) {
   data <- remind2::deletePlus(quitte::as.quitte(scenarioPath, na.rm = TRUE)) %>%
     filter(period >= 1990)
@@ -17,15 +16,6 @@ importScenarioData <- function(scenarioPath) {
   return(data)
 }
 
-# # import historical or other reference data for comparison
-# importReferenceData <- function(referencePath) {
-#   ref <- quitte::as.quitte(referencePath, na.rm = TRUE)
-#
-#   # remove all historical data before 1990
-#   ref <- dplyr::filter(ref, period >= 1990)
-#
-#   return(ref)
-# }
 
 # get a validation config file either from "inst/config" (.csv) or by providing
 # a full path (.csv or .xlsx)
@@ -34,7 +24,9 @@ getConfig <- function(configName) {
   path <- system.file(paste0("config/validationConfig_", configName, ".csv"),
                       package = "piamValidation")
   # if a full path is given instead of a configName in inst/config
-  if (!file.exists(path) && file.exists(configName)) path <- configName
+  if (!file.exists(path) && file.exists(normalizePath(configName))) {
+    path <- normalizePath(configName)
+  }
   if (path == "") stop("Config not found, please provide either full path to a
                        config file or choose a config from 'inst/config'.")
 

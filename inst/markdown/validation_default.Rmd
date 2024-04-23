@@ -35,12 +35,17 @@ knitr::opts_chunk$set(
 Loading data from:
 
 ```{r}
-for (m in params$mif) cat(paste0(m, "\n"))
+for (m in params$mif) cat(paste0(normalizePath(m), "\n"))
 ```
 
 Using config:
 
-`r params$cfg`
+
+```{r}
+cat(params$cfg, "\n")
+```
+
+Preparing data...
 
 ```{r, message = FALSE}
 # Data Preparation
