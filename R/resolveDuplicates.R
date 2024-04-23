@@ -11,7 +11,10 @@ resolveDuplicates <- function(df) {
                                    "variable",
                                    "region",
                                    "period",
-                                   "metric")]), ]
+                                   "metric",
+                                   "ref_model",
+                                   "ref_scenario",
+                                   "ref_period")]), ]
 
   # here, all instances of the data that was duplicated are removed
   no_dupl <- dplyr::anti_join(df, duplicates, by = c("model",

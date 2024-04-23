@@ -1,5 +1,5 @@
 ---
-title: "piamValidation: REMIND"
+title: "piamValidation: COMMITTED"
 date: "`r format(Sys.Date())`"
 output:
   html_document:
@@ -15,7 +15,7 @@ params:
 ---
 
 ```{r include=FALSE}
-devtools::load_all(".")
+library(piamValidation)
 library(knitr)
 library(dplyr)
 library(ggplot2)

@@ -49,6 +49,10 @@ getConfig <- function(configName) {
     cfg <- tibble::as_tibble(
       read.csv2(path, na.strings = "", comment.char = "#"))
   }
+
+  # remove empty (all NA) rows
+  cfg <- cfg[rowSums(is.na(cfg)) != ncol(cfg),]
+
   message("loading config file: ", path, "\n")
   return(cfg)
 }
