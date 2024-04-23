@@ -43,7 +43,23 @@ getConfig <- function(configName) {
   }
 
   # remove empty (all NA) rows
-  cfg <- cfg[rowSums(is.na(cfg)) != ncol(cfg),]
+  cfg <- cfg[rowSums(is.na(cfg)) != ncol(cfg), ]
+
+
+  # convert "%" thresholds to decimals
+  cfg <- cfg %>%
+    mutate(min_red = as.numeric(ifelse("%" %in% min_red,
+                                       sub("%", "", min_red) / 100,
+                                       min_red))) %>%
+    mutate(min_yel = as.numeric(ifelse("%" %in% min_yel,
+                                       sub("%", "", min_yel) / 100,
+                                       min_yel))) %>%
+    mutate(max_yel = as.numeric(ifelse("%" %in% max_yel,
+                                       sub("%", "", max_yel) / 100,
+                                       max_yel))) %>%
+    mutate(max_red = as.numeric(ifelse("%" %in% max_red,
+                                       sub("%", "", max_red) / 100,
+                                       max_red)))
 
   message("loading config file: ", path, "\n")
   return(cfg)
@@ -52,10 +68,10 @@ getConfig <- function(configName) {
 # fill empty threshold columns with Infinity for easier evaluation
 fillInf <- function(cfg) {
   cfg <- cfg %>%
-    mutate(min_red = as.numeric(ifelse(is.na(min_red), -Inf, min_red)),
-           min_yel = as.numeric(ifelse(is.na(min_yel), -Inf, min_yel)),
-           max_yel = as.numeric(ifelse(is.na(max_yel),  Inf, max_yel)),
-           max_red = as.numeric(ifelse(is.na(max_red),  Inf, max_red))
+    mutate(min_red = ifelse(is.na(min_red), -Inf, min_red),
+           min_yel = ifelse(is.na(min_yel), -Inf, min_yel),
+           max_yel = ifelse(is.na(max_yel),  Inf, max_yel),
+           max_red = ifelse(is.na(max_red),  Inf, max_red)
            )
 
   return(cfg)
