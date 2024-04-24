@@ -32,7 +32,18 @@ The package is available via the R package repository of PIK.
 install.packages("piamValidation", repos = "https://rse.pik-potsdam.de/r/packages")
 ```
 
+For more detailed information please refer to the [Readme](https://github.com/pik-piam/piamValidation/tree/main?tab=readme-ov-file#installation).
+
 # Usage
+
+## Scenario Data
+
+You can pass IAMC-style .mif, .csv or .xlsx files or vectors of paths to the 
+function. More precisely, any data file which can be read by
+``quitte::read.quitte()`` featuring the columns: 
+
+*Model, Scenario, Region, Variable, Unit, \<years\>*
+
 
 ## Configuration File
 
@@ -40,17 +51,78 @@ The config file is the place where the validation checks are defined. Filling
 the file comes with a few rules - depending on the type of check which is being 
 performed, different columns can or need to be filled.
 
-![Rules for writing the config file.](./config_rules.jpg)
+![Rules for writing the config file.](./config_rules.jpg){width=100%}
 
 
-### Use Case 1: Comparison to historical data
+**General Rules**
+
+- historical reference data needs to read "historical" in the column "scenario"
+- one set of thresholds per row
+- only one reference period/model/scenario per data-slice (e.g. don't compare the same data against ref_model1 and ref_model2)
+- define multiple variables with "\*" (one sub-level) or "\*\*" (all sub-levels)
+- if period column is empty (= all):
+  * historic: 2005 - 2020
+  * scenario: < 2100
+  * give range via yyyy-yyyy or comma-separated years
+
+It is recommended to choose a historical reference source explicitly in the 
+"ref_model" column for historical comparisons. Otherwise, all available 
+historical sources will be averaged and the tooltip will show
+``ref_model = "multiple"``.
+
+
+### Use Case 1: relative comparison to historical data
 | metric   | critical | variable     | model | scenario | region | period | min_red | min_yel | max_yel | max_red | ref_model | ref_scenario | ref_period |
 |----------|----------|--------------|-------|----------|--------|--------|---------|---------|---------|---------|-----------|--------------|------------|
 | relative | yes      | Emi\|CO2\|Energy |       |          |        |        | -0.25   | -0.2    | 0.2     | 0.25    | EDGAR8    | historical   |            |
 | relative | yes      | Emi\|CO2\|Energy |       |          | World  |        | -0.2    | -0.1    | 0.1     | 0.2     | EDGAR8    | historical   |            |
 
 
-Test
+### Use Case 2: difference to historical data
+
+wip
+
+### Use Case 3: relative comparison to other model/scenario/period
+
+wip
+
+### Use Case 4: difference to other model/scenario/period
+
+wip
+
+### Use Case 5: direct comparison to absolute thresholds
+
+wip
+
+### Use Case 6: direct comparison to yearly growthrate
+
+wip
 
 
-If you are unsure where on your computer the output folder is, use ``path.package("piamValidation")`` to find your package.
+## Scenario Validation
+
+The function ``validateScenarios()`` performs all necessary steps of the 
+validation process. It takes the config file and goes through each row, 
+assembling the required data and checking the thresholds.
+
+Optionally, you can save the resulting data.frame to a .csv file.
+
+```{r run validation, eval = FALSE}
+df <- validateScenarios(c(scenPath, histPath), config, outputFile = NULL)
+```
+
+## Create Validation Report
+
+To perform the validation and create an output document in one go, the function
+``validationReport()`` can be used. It renders an .html file which features heat 
+maps for all variables described in the config file.
+
+By default, the .Rmd ``validation_default`` is used, but alternatives can be 
+used or created according to individual needs in ``inst/markdown``.
+
+The report is saved in a folder called ``output`` in the current working 
+directory.
+
+```{r create report, eval = FALSE}
+validationReport(c(scenPath, histPath), config, report = "default")
+```

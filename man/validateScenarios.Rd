@@ -10,7 +10,8 @@ validateScenarios(dataPath, config, outputFile = NULL)
 \item{dataPath}{one or multiple path(s) to scenario data in .mif or .csv
 format, in case of historic comparison, also path to reference data}
 
-\item{config}{select config from inst/config}
+\item{config}{select config from inst/config or give a full path to a config
+file on your computer}
 
 \item{outputFile}{give name of output file in case results should be exported}
 }
