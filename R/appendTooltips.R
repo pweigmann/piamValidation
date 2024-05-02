@@ -1,4 +1,7 @@
-# construct tooltips for interactive plots
+#' construct tooltips for interactive plots
+#' @param df data.frame as returned from `validateScenarios()`
+#'
+#' @export
 appendTooltips <- function(df) {
 
   df$text <- NA

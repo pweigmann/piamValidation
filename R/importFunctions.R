@@ -48,18 +48,18 @@ getConfig <- function(configName) {
 
   # convert "%" thresholds to decimals
   cfg <- cfg %>%
-    mutate(min_red = as.numeric(ifelse("%" %in% min_red,
-                                       sub("%", "", min_red) / 100,
-                                       min_red))) %>%
-    mutate(min_yel = as.numeric(ifelse("%" %in% min_yel,
-                                       sub("%", "", min_yel) / 100,
-                                       min_yel))) %>%
-    mutate(max_yel = as.numeric(ifelse("%" %in% max_yel,
-                                       sub("%", "", max_yel) / 100,
-                                       max_yel))) %>%
-    mutate(max_red = as.numeric(ifelse("%" %in% max_red,
-                                       sub("%", "", max_red) / 100,
-                                       max_red)))
+    mutate(min_red = ifelse(grepl("%", min_red),
+                            as.numeric(sub("%", "", min_red)) / 100,
+                            min_red)) %>%
+    mutate(min_yel = ifelse(grepl("%", min_yel),
+                            as.numeric(sub("%", "", min_yel)) / 100,
+                            min_yel)) %>%
+    mutate(max_yel = ifelse(grepl("%", max_yel),
+                            as.numeric(sub("%", "", max_yel)) / 100,
+                            max_yel)) %>%
+    mutate(max_red = ifelse(grepl("%", max_red),
+                            as.numeric(sub("%", "", max_red)) / 100,
+                            max_red))
 
   message("loading config file: ", path, "\n")
   return(cfg)
@@ -68,10 +68,10 @@ getConfig <- function(configName) {
 # fill empty threshold columns with Infinity for easier evaluation
 fillInf <- function(cfg) {
   cfg <- cfg %>%
-    mutate(min_red = ifelse(is.na(min_red), -Inf, min_red),
-           min_yel = ifelse(is.na(min_yel), -Inf, min_yel),
-           max_yel = ifelse(is.na(max_yel),  Inf, max_yel),
-           max_red = ifelse(is.na(max_red),  Inf, max_red)
+    mutate(min_red = as.numeric(ifelse(is.na(min_red), -Inf, min_red)),
+           min_yel = as.numeric(ifelse(is.na(min_yel), -Inf, min_yel)),
+           max_yel = as.numeric(ifelse(is.na(max_yel),  Inf, max_yel)),
+           max_red = as.numeric(ifelse(is.na(max_red),  Inf, max_red))
            )
 
   return(cfg)
@@ -136,7 +136,7 @@ expandVariables <- function(cfg, data) {
 
       # take the original row for the current set of variables and repeat it
       # once for each sub-variable, overwrite with sub-variable names
-      c <- cfg[i,] %>%
+      c <- var_expand[i, ] %>%
         dplyr::slice(rep(1, each = length(selected_vars)))
       c$variable <- selected_vars
       cfg_new <- rbind(cfg_new, c)

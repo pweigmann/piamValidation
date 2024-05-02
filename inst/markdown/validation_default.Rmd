@@ -40,18 +40,17 @@ for (m in params$mif) cat(paste0(normalizePath(m), "\n"))
 
 Using config:
 
-
 ```{r}
 cat(params$cfg, "\n")
 ```
 
-Preparing data...
 
 ```{r, message = FALSE}
 # Data Preparation
 df <- validateScenarios(params$mif, params$cfg)
 df <- appendTooltips(df)
 ```
+
 ## Validation
 
 ### Summary
