@@ -136,7 +136,7 @@ expandVariables <- function(cfg, data) {
 
       # take the original row for the current set of variables and repeat it
       # once for each sub-variable, overwrite with sub-variable names
-      c <- cfg[i,] %>%
+      c <- var_expand[i, ] %>%
         dplyr::slice(rep(1, each = length(selected_vars)))
       c$variable <- selected_vars
       cfg_new <- rbind(cfg_new, c)
