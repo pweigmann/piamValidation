@@ -48,7 +48,7 @@ evaluateThresholds <- function(df, cleanInf = TRUE) {
 
   # calculate the yearly average growth rate
   gro <- gro %>%
-    mutate(check_value = (value/value_5y_ago)^(1/5) - 1) %>%
+    mutate(check_value = ifelse(value_5y_ago %in% c(0, NA), NA, (value/value_5y_ago)^(1/5) - 1)) %>%
     select(-value_5y_ago)
 
 
