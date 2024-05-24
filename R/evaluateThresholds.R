@@ -1,4 +1,4 @@
-#' @importFrom dplyr filter select mutate summarise group_by %>%
+#' @importFrom dplyr filter select mutate summarise group_by %>% lag
 
 # cleanInf = TRUE: replace "Inf" and "-Inf" which were introduced
 #                  for ease of calculations with "-"
@@ -32,25 +32,15 @@ evaluateThresholds <- function(df, cleanInf = TRUE) {
     mutate(check_value = value)
 
   # growthrate ####
-  # calculate average growth rate of the last 5 years between 2010 and 2060
-  # TODO: in case of a need to look further than 2060, split df and add
-  # calculations for 10-year step periods
-  gro <- filter(df[df$metric == "growthrate", ],
-                    period <= 2060 & period >= 2010)
-
-  # add a column with the value 5 years ago for later calculations
-  tmp <- gro
-  gro$period <- gro$period + 5
-  gro <- gro %>%
-    mutate(value_5y_ago = value) %>%
-    select(-value) %>%
-    merge(tmp)
-
-  # calculate the yearly average growth rate
-  gro <- gro %>%
-    mutate(check_value = ifelse(value_5y_ago %in% c(0, NA), NA, (value/value_5y_ago)^(1/5) - 1)) %>%
-    select(-value_5y_ago)
-
+  # calculate average growth rate between periods
+  gro <- df %>%
+    filter(.data$metric == "growthrate") %>%
+    group_by(.data$model, .data$scenario, .data$region, .data$variable) %>%
+    arrange(.data$period) %>%
+    mutate(diffyear = .data$period - lag(.data$period),
+           check_value =  ifelse(lag(.data$value) %in% c(0, NA), NA, (.data$value/lag(.data$value))^(1/.data$diffyear) - 1)) %>%
+    select(-"diffyear") %>%
+    ungroup()
 
   # reassemble data.frame
   df <- do.call("rbind",
