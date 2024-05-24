@@ -16,6 +16,7 @@ Imports:
     ggthemes,
     htmltools,
     knitr,
+    piamutils,
     plotly,
     quitte (>= 0.3123.0),
     readxl,

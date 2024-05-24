@@ -28,7 +28,8 @@ getConfig <- function(configName) {
     path <- normalizePath(configName)
   }
   if (path == "") stop("Config not found, please provide either full path to a
-                       config file or choose a config from 'inst/config'.")
+  config file or select a config from 'inst/config' by choosing its
+  name ('validationConfig_<name>.csv'.\n")
 
   # config can be .xlsx or .csv, use "config" sheet in .xlsx if available
   if (grepl("\\.xlsx$", path)) {

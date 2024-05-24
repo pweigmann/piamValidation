@@ -14,7 +14,7 @@ combineData <- function(data, cfgRow, histData = NULL) {
   all_reg <- unique(data$region)
   all_per <- unique(data$period)  # not a factor, convert?
   all_per <- all_per[all_per <= 2100]
-  # TODO: take ref_per from ref_data for current var
+  # TODO: check if this works well
   ref_per <- c(2005, 2010, 2015, 2020)
 
 
