@@ -65,7 +65,7 @@ appendTooltips <- function(df) {
     df[df$metric == "growthrate", ] %>%
     mutate(text = paste0(region, "\n",
                          period, "\n",
-                         "Avg. growth/yr: ", round(check_value)*100, "% \n",
+                         "Avg. growth/yr: ", round(check_value*100), "% \n",
                          "Absolute value: ", round(value, 2), " \n",
                          "Thresholds (yel/red): \n",
                          "Min: ", min_yel*100, "% / ", min_red*100, "% \n",

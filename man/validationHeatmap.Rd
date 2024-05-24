@@ -10,7 +10,10 @@ validationHeatmap(
   met,
   historical = TRUE,
   interactive = TRUE,
-  compareModels = FALSE
+  x_plot = "region",
+  y_plot = "period",
+  x_facet = "model",
+  y_facet = "scenario"
 )
 }
 \arguments{
@@ -26,7 +29,13 @@ and ``appendTooltips()``}
 
 \item{interactive}{return plots as interactive plotly plots by default}
 
-\item{compareModels}{if TRUE, plots compare models instead of scenarios}
+\item{x_plot}{choose dimension to display on x-axis of plot, default: region}
+
+\item{y_plot}{choose dimension to display on y-axis of plot, default: period}
+
+\item{x_facet}{choose dimension to display on x-dim of facets, default: model}
+
+\item{y_facet}{choose dimension to display on x-dim of facets, default: scenario}
 }
 \description{
 takes the output of "validateScenarios()" and plots heatmaps per variable

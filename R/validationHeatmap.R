@@ -3,11 +3,14 @@
 #' @param df data.frame as returned by ``validateScenarios()``
 #'        and ``appendTooltips()``
 #' @param var variable to be plotted
-#' @param historical should this be a plot comparing to historical data
 #' @param met choose metric from "relative", "difference", "absolute" or
 #'        "growthrate"
+#' @param historical should this be a plot comparing to historical data
 #' @param interactive return plots as interactive plotly plots by default
-#' @param compareModels if TRUE, plots compare models instead of scenarios
+#' @param x_plot choose dimension to display on x-axis of plot, default: region
+#' @param y_plot choose dimension to display on y-axis of plot, default: period
+#' @param x_facet choose dimension to display on x-dim of facets, default: model
+#' @param y_facet choose dimension to display on x-dim of facets, default: scenario
 #'
 #' @importFrom dplyr filter select mutate %>%
 #' @import ggplot2
@@ -15,17 +18,25 @@
 #' @importFrom plotly ggplotly
 #' @export
 
-validationHeatmap <- function(df, var, met,
+validationHeatmap <- function(df,
+                              var,
+                              met,
                               historical = TRUE,
                               interactive = TRUE,
-                              compareModels = FALSE) {
+                              x_plot = "region",
+                              y_plot = "period",
+                              x_facet = "model",
+                              y_facet = "scenario") {
 
   # possible extension: when giving multiple vars, plot as facets in same row
+  if (length(var) > 1) {
+  }
 
-  # prepare data slice
+
+  # prepare data slice which will be plotted
   d <- df %>%
-    filter(variable == var,
-           metric == met)
+    filter(.data$variable == var,
+           .data$metric == met)
 
   if (historical) {
     d <- filter(d, ref_scenario == "historical")
@@ -55,32 +66,23 @@ validationHeatmap <- function(df, var, met,
               grey   = "#808080")
 
 
-  # classic ggplot, with text in aes
-  p <- ggplot(d, aes(x = region, y = period, fill=check, text=text)) +
+  # gg tile plot using data along dimensions as given in function call
+  p <- ggplot(d, aes(x = .data[[x_plot,]],
+                     y = .data[[y_plot,]],
+                     fill = check,
+                     text = text)) +
     geom_tile(color="white", linewidth=0.0) +
-    scale_fill_manual(values = colors, breaks = colors)
-  if (compareModels) {
-    p <- p + facet_grid(model~scenario)
-  } else {
-    p <- p + facet_grid(scenario~model)
-  }
+    scale_fill_manual(values = colors, breaks = colors) +
+    facet_grid(.data[[y_facet,]] ~ .data[[x_facet,]]) +
+    labs(x = NULL, y = NULL, title = plot_title) +
+    theme_tufte(base_family = "Helvetica") +  # creates warnings
+    theme(axis.ticks = element_blank()) +
+    theme(axis.text = element_text(size = 10)) +
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+    coord_equal() +
+    theme(legend.position = "none")
 
-  # make it beautiful
-  # from https://www.r-bloggers.com/2016/02/making-faceted-heatmaps-with-ggplot2
-  p <- p + labs(x = NULL,
-                y = NULL,
-                title = plot_title)
-  p <- p + theme_tufte(base_family = "Helvetica")  # creates warnings
-  p <- p + theme(axis.ticks = element_blank())
-  p <- p + theme(axis.text = element_text(size = 10))
-  p <- p + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
-  p <- p + coord_equal()
-  p <- p + theme(legend.position = "none")
-
-
-  # p + theme(panel.spacing = unit(2, "lines"))
-
-  # not great, only works with "World" being the first region
+  # create small gap to "World" data by creating white outline
   if("World" %in% d$region) {
     p <- p + geom_vline(xintercept = 1.5, linewidth = 0.8, color = "white")
   }

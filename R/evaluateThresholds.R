@@ -1,4 +1,4 @@
-#' @importFrom dplyr filter select mutate summarise group_by %>% lag
+#' @importFrom dplyr filter select mutate summarise group_by ungroup %>% lag arrange
 
 # cleanInf = TRUE: replace "Inf" and "-Inf" which were introduced
 #                  for ease of calculations with "-"
@@ -38,7 +38,10 @@ evaluateThresholds <- function(df, cleanInf = TRUE) {
     group_by(.data$model, .data$scenario, .data$region, .data$variable) %>%
     arrange(.data$period) %>%
     mutate(diffyear = .data$period - lag(.data$period),
-           check_value =  ifelse(lag(.data$value) %in% c(0, NA), NA, (.data$value/lag(.data$value))^(1/.data$diffyear) - 1)) %>%
+           check_value =
+             ifelse(lag(.data$value) %in% c(0, NA),
+                    NA,
+                    (.data$value/lag(.data$value))^(1/.data$diffyear) - 1)) %>%
     select(-"diffyear") %>%
     ungroup()
 
