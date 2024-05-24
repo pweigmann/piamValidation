@@ -10,9 +10,11 @@ validationReport(dataPath, config, report = "default")
 \item{dataPath}{one or multiple path(s) to scenario data in .mif or .csv
 format}
 
-\item{config}{name of a config from inst/config}
+\item{config}{name a config from inst/config ("validationConfig_<name>.csv")
+or give a full path to a separate configuration file}
 
-\item{report}{specify which .Rmd file should be used to create report}
+\item{report}{name a .Rmd from inst/markdown ("validationReport_<name>.Rmd")
+to be rendered or give a full path to a separate .Rmd file}
 }
 \description{
 perform validateScenarios and create an .html report using .Rmd templates

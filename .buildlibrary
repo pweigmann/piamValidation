@@ -1,4 +1,4 @@
-ValidationKey: '555688'
+ValidationKey: '576143'
 AutocreateReadme: yes
 AcceptedWarnings:
 - 'Warning: package ''.*'' was built under R version'
@@ -8,5 +8,6 @@ AcceptedNotes:
 - no visible binding for global variable
 - Found the following hidden files and directories: ~
 - All declared Imports should be used.
+- Non-standard file/directory found at top level: output
 allowLinterWarnings: yes
 enforceVersionUpdate: no

@@ -8,7 +8,6 @@ output:
     code_folding: hide
 params:
   mif: ""
-  ref: ""
   cfg: ""
   warning: false
   message: false
@@ -26,28 +25,43 @@ library(plotly)
 knitr::opts_chunk$set(
   echo = FALSE,
   error = TRUE,
-  #fig.width = params$figWidth,
   message = params$message,
   warning = params$warning
 )
-
 ```
 
 ## Import and Prepare Data
 
+Loading data from:
 
-```{r, message = FALSE}
-# Data Preparatio
-df <- validateScenarios(scenarioPath, config)
-df <- appendTooltips(df)
-
-# remove all-green rows (all regions green)
-df_noGreen <- df[df$check != "green", ]
-df_noGreennoGrey <- df[df$check %in% c("red", "yellow"), ]
-
-df <- df_noGreennoGrey
+```{r}
+for (m in params$mif) cat(paste0(normalizePath(m), "\n"))
 ```
 
+Using config:
+
+```{r}
+cat(params$cfg, "\n")
+```
+
+
+```{r, message = FALSE}
+# Data Preparation
+df <- validateScenarios(params$mif, params$cfg)
+df <- appendTooltips(df)
+```
+
+## Validation
+
+### Summary
+```{r}
+# find "critical == yes" data points, that are red/yellow
+colors <- c(green  = "#008450",
+            yellow = "#EFB700",
+            red    = "#B81D13",
+            grey   = "#808080")
+dplyr::count(df, critical, check)
+```
 
 ## Heatmaps by Category
 
