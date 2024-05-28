@@ -23,7 +23,10 @@ validateScenarios <- function(dataPath, config, outputFile = NULL) {
     expandPeriods(scen) %>%
     expandVariables(scen)
 
-  # filter data for relevant variables
+  # test if units of variables in config and data are consistent
+  # checkUnits(data, cfg)
+
+  # filter data for variables from config
   hist <- filter(hist, variable %in% unique(cfg$variable))
   scen <- filter(scen, variable %in% unique(cfg$variable))
 
@@ -31,7 +34,10 @@ validateScenarios <- function(dataPath, config, outputFile = NULL) {
   # thresholds for each row of the config and bind all into one data.frame
   df <- data.frame()
   for (i in 1:nrow(cfg)) {
-    df_row <- combineData(scen, cfg[i, ], histData = hist)
+    df_row <- combineData(
+      scen[scen$variable %in% cfg[i, "variable"], ],
+      cfg[i, ],
+      histData = filter(hist, variable %in% cfg[i, "variable"]))
     df <- rbind(df, df_row)
     # cat(paste0("Combined config row ", i, " of ", nrow(cfg), "\n"))
   }

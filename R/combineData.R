@@ -1,8 +1,8 @@
 #' @importFrom dplyr filter select mutate summarise group_by %>%
+#' @importFrom piamInterfaces areUnitsIdentical
 
 # for one row of cfg: filter and merge relevant scenario data with cfg
 # results in one df that contains scenario data, reference data and thresholds
-# TODO performance: only pass data and histData for current cfgRow$variable
 combineData <- function(data, cfgRow, histData = NULL) {
 
   # shorten as it will be used a lot
@@ -15,6 +15,7 @@ combineData <- function(data, cfgRow, histData = NULL) {
   all_per <- unique(data$period)  # not a factor, convert?
   all_per <- all_per[all_per <= 2100]
   # TODO: check if this works well
+  # if (!is.null(histData))
   ref_per <- c(2005, 2010, 2015, 2020)
 
 
@@ -28,7 +29,7 @@ combineData <- function(data, cfgRow, histData = NULL) {
     strsplit(c$region, split = ", |,")[[1]]
 
 
-  # empty "period" field means different years for historic or scenario category
+  # empty "period" field means different years for historic category
   if (c$ref_scenario == "historical" && !is.na(c$ref_scenario == "historical")) {
     per <- if (is.na(c$period))  ref_per else
       strsplit(as.character(c$period), split = ", |,")[[1]]
@@ -46,7 +47,7 @@ combineData <- function(data, cfgRow, histData = NULL) {
            region   %in% reg,
            period   %in% per)
 
-  # attach cfg information to data slice, which is independent of category
+  # attach cfg information which is independent of category to data slice
   d <- d %>%
     mutate(min_red  = c$min_red,
            min_yel  = c$min_yel,
@@ -54,6 +55,21 @@ combineData <- function(data, cfgRow, histData = NULL) {
            max_red  = c$max_red,
            metric   = c$metric,
            critical = c$critical)
+
+  # test whether units of config and scenario data match
+  scen_units <- as.character(unique(d$unit))
+  for (i in 1:length(scen_units)) {
+    if (!piamInterfaces::areUnitsIdentical(c$unit, scen_units[i])) {
+      warning(paste0(
+        "Non-matching units in config and scenario data found.\n",
+        "Variable: ", c$variable, "\n",
+        "Cfg unit: ", c$unit, "\n",
+        "Sce unit: ", scen_units[i]), "\n")
+      # in case of the presence of non-matching units:
+      # filter data for correct unit as it might also be available
+      d <- filter(d, d$unit %in% c$unit)
+    }
+  }
 
   # historic ####
   # depending on category: filter and attach reference values if they are needed
@@ -64,7 +80,23 @@ combineData <- function(data, cfgRow, histData = NULL) {
              region %in% reg,
              period %in% per) %>%
       mutate(ref_value = value, ref_model = model) %>%
-      select(-c("scenario", "unit", "value", "model"))
+      select(-c("scenario", "value", "model"))
+
+
+    # test whether units of config and reference data match
+    hist_units <- as.character(unique(h$unit))
+    for (i in 1:length(hist_units)) {
+      if (!piamInterfaces::areUnitsIdentical(c$unit, hist_units[i])) {
+        warning(paste0(
+        "Non-matching units in config and reference data found.\n",
+        "Variable: ", c$variable, "\n",
+        "Cfg unit: ", c$unit, "\n",
+        "Ref unit: ", hist_units[i]), "\n")
+        # in case of the presence of non-matching units:
+        # filter data for correct unit as it might also available
+        h <- filter(h, h$unit %in% c$unit)
+      }
+    }
 
     # test whether historical ref_model exists and has data to compare to
     if (nrow(h) == 0) {
@@ -108,6 +140,7 @@ combineData <- function(data, cfgRow, histData = NULL) {
 
     # get reference values for these metrics
     # TODO: support choosing ref_period AND model/scenario?
+    # TODO: support ref_variable
     } else if (c$metric %in% c("relative", "difference")) {
 
       # if a reference model should be used, same scenario, same period
