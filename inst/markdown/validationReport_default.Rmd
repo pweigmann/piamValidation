@@ -45,7 +45,7 @@ cat(params$cfg, "\n")
 ```
 
 
-```{r, message = FALSE}
+```{r, message = FALSE, warning = TRUE}
 # Data Preparation
 df <- validateScenarios(params$mif, params$cfg)
 df <- appendTooltips(df)
