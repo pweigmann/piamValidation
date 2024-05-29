@@ -46,6 +46,8 @@ getConfig <- function(configName) {
   # remove empty (all NA) rows
   cfg <- cfg[rowSums(is.na(cfg)) != ncol(cfg), ]
 
+  # remove rows without variables
+  cfg <- cfg[!is.na(cfg$variable), ]
 
   # convert "%" thresholds to decimals
   cfg <- cfg %>%

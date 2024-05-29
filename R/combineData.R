@@ -57,19 +57,7 @@ combineData <- function(data, cfgRow, histData = NULL) {
            critical = c$critical)
 
   # test whether units of config and scenario data match
-  scen_units <- as.character(unique(d$unit))
-  for (i in 1:length(scen_units)) {
-    if (!piamInterfaces::areUnitsIdentical(c$unit, scen_units[i])) {
-      warning(paste0(
-        "Non-matching units in config and scenario data found.\n",
-        "Variable: ", c$variable, "\n",
-        "Cfg unit: ", c$unit, "\n",
-        "Sce unit: ", scen_units[i]), "\n")
-      # in case of the presence of non-matching units:
-      # filter data for correct unit as it might also be available
-      d <- filter(d, d$unit %in% c$unit)
-    }
-  }
+  d <- checkUnits(d, c)
 
   # historic ####
   # depending on category: filter and attach reference values if they are needed
@@ -84,19 +72,7 @@ combineData <- function(data, cfgRow, histData = NULL) {
 
 
     # test whether units of config and reference data match
-    hist_units <- as.character(unique(h$unit))
-    for (i in 1:length(hist_units)) {
-      if (!piamInterfaces::areUnitsIdentical(c$unit, hist_units[i])) {
-        warning(paste0(
-        "Non-matching units in config and reference data found.\n",
-        "Variable: ", c$variable, "\n",
-        "Cfg unit: ", c$unit, "\n",
-        "Ref unit: ", hist_units[i]), "\n")
-        # in case of the presence of non-matching units:
-        # filter data for correct unit as it might also available
-        h <- filter(h, h$unit %in% c$unit)
-      }
-    }
+    h <- checkUnits(h, c)
 
     # test whether historical ref_model exists and has data to compare to
     if (nrow(h) == 0) {

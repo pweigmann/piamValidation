@@ -23,9 +23,6 @@ validateScenarios <- function(dataPath, config, outputFile = NULL) {
     expandPeriods(scen) %>%
     expandVariables(scen)
 
-  # test if units of variables in config and data are consistent
-  # checkUnits(data, cfg)
-
   # filter data for variables from config
   hist <- filter(hist, variable %in% unique(cfg$variable))
   scen <- filter(scen, variable %in% unique(cfg$variable))
@@ -47,6 +44,10 @@ validateScenarios <- function(dataPath, config, outputFile = NULL) {
 
   # perform actual checks and write results in new columns of data.frame
   df <- evaluateThresholds(df)
+
+  if (nrow(df) == 0) {
+    stop("Something went wrong, returned data.frame is empty.")
+  }
 
   # export df to file in case outputFile is specified
   if (!is.null(outputFile)) {

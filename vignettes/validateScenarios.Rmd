@@ -53,7 +53,6 @@ performed, different columns can or need to be filled.
 
 ![Rules for writing the config file.](./config_rules.jpg){width=100%}
 
-
 **General Rules**
 
 - historical reference data needs to read "historical" in the column "scenario"
@@ -69,6 +68,21 @@ It is recommended to choose a historical reference source explicitly in the
 "ref_model" column for historical comparisons. Otherwise, all available 
 historical sources will be averaged and the tooltip will show
 ``ref_model = "multiple"``.
+
+### Units
+
+It is recommended to include the unit of each variable in the config file to
+avoid inconsistency between data sources. The tools performs checks, whether the
+units in the config match those in scenario and reference data and returns a 
+warning in case they don't. This check is performed using 
+``piamInterfaces::areUnitsIdentical()`` to avoid false positives.
+
+In case scenario or reference data contains variables with multiple units, it
+will be filtered for the units matching those from the config file.
+
+If the ``unit`` column is left empty, no consistency check will be performed.
+This is the recommended approach when selecting multiple variables in one go via
+``**``, which don't all share the same unit.
 
 
 ### Use Case 1: relative comparison to historical data
