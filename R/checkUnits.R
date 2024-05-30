@@ -14,6 +14,8 @@ checkUnits <- function(data, cfgRow) {
   if (is.na(cfgRow$unit)) {
     message("No unit given in config for ", cfgRow$variable,
             ", skipping consistency check.\n")
+  } else if (nrow(data) == 0) {
+    message("Empty data object, skipping unit check.\n")
   } else {
     # identify data type
     dataType <-
@@ -26,7 +28,7 @@ checkUnits <- function(data, cfgRow) {
           "Non-matching units in config and ", dataType," data found.\n",
           "variable: ", cfgRow$variable, "\n",
           "config unit: ", cfgRow$unit, "\n",
-          dataType, " unit:   ", units[i]), "\n")
+          dataType, " unit: ", units[i]), "\n")
         # in case of the presence of non-matching units:
         # filter data for correct unit as it might also available, if not this
         # will result in an empty data object being returned

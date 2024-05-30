@@ -1,11 +1,11 @@
-metric;critical;variable;model;scenario;region;period;min_red;min_yel;max_yel;max_red;ref_model;ref_scenario;ref_period;source/link to discussion
-relative;yes;Emissions|*;REMIND-MAgPIE 3.3-4.7;;;;-0.99;-0.98;50;100;GCAM 6.0 NGFS;;;
-relative;yes;Emissions|*;REMIND-MAgPIE 3.3-4.7;;World;;-0.98;-0.97;30;50;GCAM 6.0 NGFS;;;
-relative;yes;Final Energy|*|Chemicals|*;REMIND-MAgPIE 3.3-4.7;;;;-0.99;-0.98;50;100;GCAM 6.0 NGFS;;;
-relative;yes;Final Energy|*;REMIND-MAgPIE 3.3-4.7;;World;;-0.98;-0.97;30;50;GCAM 6.0 NGFS;;;
-relative;yes;Secondary Energy|*;REMIND-MAgPIE 3.3-4.7;;;;-0.99;-0.98;50;100;GCAM 6.0 NGFS;;;
-relative;yes;Secondary Energy|*;REMIND-MAgPIE 3.3-4.7;;World;;-0.98;-0.97;30;50;GCAM 6.0 NGFS;;;
-relative;yes;Primary Energy|*;REMIND-MAgPIE 3.3-4.7;;;;-0.99;-0.98;50;100;GCAM 6.0 NGFS;;;
-relative;yes;Primary Energy|*;REMIND-MAgPIE 3.3-4.7;;World;;-0.98;-0.97;30;50;GCAM 6.0 NGFS;;;
-relative;yes;Carbon Sequestration|*;REMIND-MAgPIE 3.3-4.7;;;;-0.99;-0.98;50;100;GCAM 6.0 NGFS;;;
-relative;yes;Carbon Sequestration|*;REMIND-MAgPIE 3.3-4.7;;World;;-0.98;-0.97;30;50;GCAM 6.0 NGFS;;;
+metric;critical;variable;unit;model;scenario;region;period;min_red;min_yel;max_yel;max_red;ref_model;ref_scenario;ref_period;source/link to discussion
+relative;yes;Emissions|*;;REMIND-MAgPIE 3.3-4.7;;;;-0.99;-0.98;50;100;GCAM 6.0 NGFS;;;
+relative;yes;Emissions|*;;REMIND-MAgPIE 3.3-4.7;;World;;-0.98;-0.97;30;50;GCAM 6.0 NGFS;;;
+relative;yes;Final Energy|*|Chemicals|*;;REMIND-MAgPIE 3.3-4.7;;;;-0.99;-0.98;50;100;GCAM 6.0 NGFS;;;
+relative;yes;Final Energy|*;;REMIND-MAgPIE 3.3-4.7;;World;;-0.98;-0.97;30;50;GCAM 6.0 NGFS;;;
+relative;yes;Secondary Energy|*;;REMIND-MAgPIE 3.3-4.7;;;;-0.99;-0.98;50;100;GCAM 6.0 NGFS;;;
+relative;yes;Secondary Energy|*;;REMIND-MAgPIE 3.3-4.7;;World;;-0.98;-0.97;30;50;GCAM 6.0 NGFS;;;
+relative;yes;Primary Energy|*;;REMIND-MAgPIE 3.3-4.7;;;;-0.99;-0.98;50;100;GCAM 6.0 NGFS;;;
+relative;yes;Primary Energy|*;;REMIND-MAgPIE 3.3-4.7;;World;;-0.98;-0.97;30;50;GCAM 6.0 NGFS;;;
+relative;yes;Carbon Sequestration|*;;REMIND-MAgPIE 3.3-4.7;;;;-0.99;-0.98;50;100;GCAM 6.0 NGFS;;;
+relative;yes;Carbon Sequestration|*;;REMIND-MAgPIE 3.3-4.7;;World;;-0.98;-0.97;30;50;GCAM 6.0 NGFS;;;

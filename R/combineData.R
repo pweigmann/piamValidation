@@ -98,7 +98,8 @@ combineData <- function(data, cfgRow, histData = NULL) {
       df <- merge(d, h)
 
       # add columns which are not used in this category
-      df <- df %>% mutate(ref_period = NA, ref_scenario = "historical")
+      df <- df %>% mutate(ref_period = as.numeric(NA),
+                          ref_scenario = "historical")
     }
 
   # scenario ####
@@ -106,12 +107,13 @@ combineData <- function(data, cfgRow, histData = NULL) {
   } else {
 
     # no reference values needed for these metrics, fill NA
+    # TODO: columns turn out as logicals for some reason
     if (c$metric %in% c("absolute", "growthrate")) {
       df <- d %>%
-        mutate(ref_value    = NA,
-               ref_model    = NA,
-               ref_scenario = NA,
-               ref_period   = NA)
+        mutate(ref_value    = as.numeric(NA),
+               ref_model    = as.character(NA),
+               ref_scenario = as.character(NA),
+               ref_period   = as.numeric(NA))
 
 
     # get reference values for these metrics
@@ -131,7 +133,8 @@ combineData <- function(data, cfgRow, histData = NULL) {
           mutate(ref_value = value, ref_model = model) %>%
           select(-c(model, value)) %>%
           # add columns which are not used in this category, fill NA
-          mutate(ref_scenario = NA, ref_period = NA)
+          mutate(ref_scenario = as.character(NA),
+                 ref_period   = as.numeric(NA))
 
       # if a reference scenario should be used, same period, same model
       } else if (!is.na(c$ref_scenario)) {
@@ -145,7 +148,8 @@ combineData <- function(data, cfgRow, histData = NULL) {
           mutate(ref_value = value, ref_scenario = scenario) %>%
           select(-c(scenario, value)) %>%
           # add columns which are not used in this category, fill NA
-          mutate(ref_model = NA, ref_period = NA)
+          mutate(ref_model  = as.character(NA),
+                 ref_period = as.numeric(NA))
 
       # if a reference period should be used, same scenario, same model
       } else if (!is.na(c$ref_period)) {
@@ -159,7 +163,8 @@ combineData <- function(data, cfgRow, histData = NULL) {
           mutate(ref_value = value, ref_period = period) %>%
           select(-c(period, value)) %>%
           # add columns which are not used in this category, fill NA
-          mutate(ref_model = NA, ref_scenario = NA)
+          mutate(ref_model    = as.character(NA),
+                 ref_scenario = as.character(NA))
       }
 
       df <- merge(d, ref)

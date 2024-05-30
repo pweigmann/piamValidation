@@ -6,7 +6,7 @@
 #'        file on your computer
 #' @param outputFile give name of output file in case results should be exported
 #'
-#' @importFrom dplyr filter select mutate group_by %>%
+#' @importFrom dplyr filter select mutate group_by %>% bind_rows
 #' @export
 validateScenarios <- function(dataPath, config, outputFile = NULL) {
 
@@ -23,41 +23,43 @@ validateScenarios <- function(dataPath, config, outputFile = NULL) {
     expandPeriods(scen) %>%
     expandVariables(scen)
 
+  # TODO: check if all variables from config are in scenario data,
+  # currently fails only with unit check
+
   # filter data for variables from config
   hist <- filter(hist, variable %in% unique(cfg$variable))
   scen <- filter(scen, variable %in% unique(cfg$variable))
 
   # combine scenario data (and reference data if needed) with the respective
   # thresholds for each row of the config and bind all into one data.frame
-  df <- data.frame()
-  for (i in 1:nrow(cfg)) {
-    df_row <- combineData(
+  valiData <- data.frame()
+  valiData <- bind_rows(lapply(1:nrow(cfg), function(i) {
+    combineData(
       scen[scen$variable %in% cfg[i, "variable"], ],
       cfg[i, ],
       histData = filter(hist, variable %in% cfg[i, "variable"]))
-    df <- rbind(df, df_row)
-    # cat(paste0("Combined config row ", i, " of ", nrow(cfg), "\n"))
-  }
+  }))
+
 
   # "lower" rows of config overwrite "higher" rows when describing the same data
-  df <- resolveDuplicates(df)
+  valiData <- resolveDuplicates(valiData)
 
   # perform actual checks and write results in new columns of data.frame
-  df <- evaluateThresholds(df)
+  valiData <- evaluateThresholds(valiData)
 
-  if (nrow(df) == 0) {
+  if (nrow(valiData) == 0) {
     stop("Something went wrong, returned data.frame is empty.")
   }
 
-  # export df to file in case outputFile is specified
+  # export validated data to file in case outputFile is specified
   if (!is.null(outputFile)) {
     output_path <- paste0(path.package("piamValidation"), "/output")
     if (!dir.exists(output_path)) dir.create(output_path)
-    write.csv(df, paste0(output_path, "/", outputFile, ".csv"),
+    write.csv(valiData, paste0(output_path, "/", outputFile, ".csv"),
                row.names = FALSE, quote = FALSE)
   }
 
-  return(df)
+  return(valiData)
 }
 
 
