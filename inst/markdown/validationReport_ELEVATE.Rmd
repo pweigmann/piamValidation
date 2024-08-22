@@ -1,0 +1,104 @@
+---
+title: "piamValidation: default report"
+date: "`r format(Sys.Date())`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: hide
+params:
+  mif: ""
+  cfg: ""
+  warning: false
+  message: false
+  figWidth: 8
+---
+
+```{r include=FALSE}
+library(piamValidation)
+library(knitr)
+library(dplyr)
+library(ggplot2)
+library(ggthemes)
+library(plotly)
+
+knitr::opts_chunk$set(
+  echo = FALSE,
+  error = TRUE,
+  message = params$message,
+  warning = params$warning
+)
+```
+
+## Import and Prepare Data
+
+Loading data from:
+
+```{r}
+for (m in params$mif) cat(paste0(normalizePath(m), "\n"))
+```
+
+Using config:
+
+```{r}
+cat(params$cfg, "\n")
+```
+
+
+```{r, message = FALSE, warning = TRUE}
+# Data Preparation
+df <- validateScenarios(params$mif, params$cfg)
+df <- appendTooltips(df)
+```
+
+## Validation
+
+### Summary
+```{r}
+# find "critical == yes" data points, that are red/yellow
+colors <- c(green  = "#008450",
+            yellow = "#EFB700",
+            red    = "#B81D13",
+            grey   = "#808080")
+dplyr::count(df, critical, check)
+```
+
+## Heatmaps by Category
+
+### Scenario - Absolute
+```{r, fig.width=10, fig.height=10}
+historic <- FALSE
+m <- "absolute"
+d <- filter(df, metric == m, ref_scenario != "historical" | is.na(ref_scenario))
+interact <- TRUE
+
+if (interact) {
+  # interactive plots can only be printed from outside of loops, use tagList
+  # to store html objects in List
+  if (nrow(d) > 0) {
+    vars <- unique(d$variable)
+    plot_list <- htmltools::tagList()
+      for (i in 1:length(vars)) {
+        plot_list[[i]] <- validationHeatmap(d, vars[i], met = m, historic,
+                                            x_plot = "period",
+                                            y_plot = "region",
+                                            x_facet = "scenario",
+                                            y_facet = "model",
+                                            interactive = interact)
+      }
+      plot_list
+  }
+} else {
+  # non-interactive plots can simply be printed
+  vars <- unique(d$variable)
+  for (i in 1:length(vars)) {
+      p <- validationHeatmap(d, vars[i], met = m, historic,
+                                          x_plot = "period",
+                                          y_plot = "region",
+                                          x_facet = "scenario",
+                                          y_facet = "model",
+                                          interactive = interact)
+      print(p)
+      }
+}
+```
