@@ -28,70 +28,101 @@ validationHeatmap <- function(df,
                               x_facet = "model",
                               y_facet = "scenario") {
 
-  # possible extension: when giving multiple vars, plot as facets in same row
+  # wip: when giving multiple vars, plot as facets in same row
   if (length(var) > 1) {
-  }
+    d <- df3 %>%
+      filter(.data$metric == met)
+    if (historical) {
+      d <- filter(d, ref_scenario == "historical")
+      plot_title <- paste0("Summary ", met, " (historical)")
+    } else {
+      d <- filter(d, (ref_scenario != "historical" | is.na(ref_scenario)))
+      plot_title <- paste0("Summary ", met)
+    }
 
+    # gg tile plot using data along dimensions as given in function call
+    x_plot <- "scenario"
+    y_plot <- "variable"
 
-  # prepare data slice which will be plotted
-  d <- df %>%
-    filter(.data$variable == var,
-           .data$metric == met)
+    p <- ggplot(d, aes(x = .data[[x_plot,]],
+                       y = .data[[y_plot,]],
+                       fill = score)) +
+      geom_tile(color="white", linewidth=0.0) +
+      scale_fill_gradient2(low="#008450", high="#B81D13", guide="colorbar") +
+      labs(x = NULL, y = NULL, title = plot_title) +
+      theme_tufte(base_family = "Helvetica") +  # creates warnings
+      theme(axis.ticks = element_blank()) +
+      theme(axis.text = element_text(size = 10)) +
+      theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+      theme(strip.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+      coord_equal() +
+      theme(legend.position = "none")
 
-  if (historical) {
-    d <- filter(d, ref_scenario == "historical")
-    plot_title <- paste0(var, " [", d$unit[1], "] - ", met, " (historical)")
+    # create small gap to "World" data by creating white outline
+    if("World" %in% d$region) {
+      p <- p + geom_vline(xintercept = 1.5, linewidth = 0.8, color = "white")
+    }
+    fig <- ggplotly(p, tooltip = "text")
+
+    # if only one variable if passed to function
   } else {
-    d <- filter(d, (ref_scenario != "historical" | is.na(ref_scenario)))
-    plot_title <- paste0(var, " [", d$unit[1], "] - ", met)
+
+    # prepare data slice which will be plotted
+    d <- df %>%
+      filter(.data$variable == var,
+             .data$metric == met)
+
+    if (historical) {
+      d <- filter(d, ref_scenario == "historical")
+      plot_title <- paste0(var, " [", d$unit[1], "] - ", met, " (historical)")
+    } else {
+      d <- filter(d, (ref_scenario != "historical" | is.na(ref_scenario)))
+      plot_title <- paste0(var, " [", d$unit[1], "] - ", met)
+    }
+
+    # warn if no data is found for combination of var, cat and met
+    # TODO: fix for case without category
+    # if (nrow(d) == 0) {
+    #   data$cm <- paste(metric, sep = "-")
+    #   warning(
+    #     paste0(
+    #       "No data found for variable in this category and metric.\n
+    #       variable ", var ," is available for the following category-metric
+    #       combinations: ", unique(data[data$variable == var, "cm"])
+    #       )
+    #     )
+    # }
+
+    d$period <- as.character(d$period)
+    colors <- c(green  = "#008450",
+                yellow = "#EFB700",
+                red    = "#B81D13",
+                grey   = "#808080")
+
+
+    # gg tile plot using data along dimensions as given in function call
+    p <- ggplot(d, aes(x = .data[[x_plot,]],
+                       y = .data[[y_plot,]],
+                       fill = check)) +
+      geom_tile(color="white", linewidth=0.0) +
+      scale_fill_manual(values = colors, breaks = colors) +
+      facet_grid(.data[[y_facet,]] ~ .data[[x_facet,]]) +
+      labs(x = NULL, y = NULL, title = plot_title) +
+      theme_tufte(base_family = "Helvetica") +  # creates warnings
+      theme(axis.ticks = element_blank()) +
+      theme(axis.text = element_text(size = 9)) +
+      theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+      theme(strip.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+      theme(strip.text.y = element_text(angle = 0, vjust = 0.5, hjust=1)) +
+      coord_equal() +
+      theme(legend.position = "none")
+
+    # create small gap to "World" data by creating white outline
+    if("World" %in% d$region) {
+      p <- p + geom_vline(xintercept = 1.5, linewidth = 0.8, color = "white")
+    }
+    fig <- ggplotly(p, tooltip = "text")
   }
-
-  # warn if no data is found for combination of var, cat and met
-  # TODO: fix for case without category
-  # if (nrow(d) == 0) {
-  #   data$cm <- paste(metric, sep = "-")
-  #   warning(
-  #     paste0(
-  #       "No data found for variable in this category and metric.\n
-  #       variable ", var ," is available for the following category-metric
-  #       combinations: ", unique(data[data$variable == var, "cm"])
-  #       )
-  #     )
-  # }
-
-  d$period <- as.character(d$period)
-  colors <- c(green  = "#008450",
-              yellow = "#EFB700",
-              red    = "#B81D13",
-              grey   = "#808080")
-
-
-  # gg tile plot using data along dimensions as given in function call
-  p <- ggplot(d, aes(x = .data[[x_plot,]],
-                     y = .data[[y_plot,]],
-                     fill = check,
-                     text = text)) +
-    geom_tile(color="white", linewidth=0.0) +
-    scale_fill_manual(values = colors, breaks = colors) +
-    facet_grid(.data[[y_facet,]] ~ .data[[x_facet,]]) +
-    labs(x = NULL, y = NULL, title = plot_title) +
-    theme_tufte(base_family = "Helvetica") +  # creates warnings
-    theme(axis.ticks = element_blank()) +
-    theme(axis.text = element_text(size = 10)) +
-    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
-    coord_equal() +
-    theme(legend.position = "none")
-
-  # create small gap to "World" data by creating white outline
-  if("World" %in% d$region) {
-    p <- p + geom_vline(xintercept = 1.5, linewidth = 0.8, color = "white")
-  }
-  fig <- ggplotly(p, tooltip = "text")
-
-  # improve plotly layout, kinda works but very manual
-  # TODO: can this be extended to a general, useful function?
-  #fig <- fig %>% subplot(heights = 0.3) %>%
-  #   layout(title = list(y=0.64))
 
   if (interactive) {
     return(fig)
