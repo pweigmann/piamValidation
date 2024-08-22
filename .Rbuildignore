@@ -10,3 +10,4 @@
 ^codecov\.yml$
 ^\.github$
 ^vignettes/.lintr$
+^output

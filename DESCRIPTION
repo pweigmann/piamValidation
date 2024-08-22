@@ -1,8 +1,8 @@
 Type: Package
 Package: piamValidation
 Title: Validation Tools for PIK-PIAM
-Version: 0.2.13
-Date: 2024-05-30
+Version: 0.3.0
+Date: 2024-08-22
 Authors@R:
     c(person("Pascal", "Weigmann",, "pascal.weigmann@pik-potsdam.de", role = c("aut", "cre")),
       person("Oliver", "Richters",, role = "aut"))
@@ -28,7 +28,7 @@ Suggests:
     remind2,
     rmarkdown
 Encoding: UTF-8
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 Depends: 
     R (>= 2.10)
 VignetteBuilder: knitr
