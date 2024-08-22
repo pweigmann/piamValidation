@@ -103,7 +103,8 @@ validationHeatmap <- function(df,
     # gg tile plot using data along dimensions as given in function call
     p <- ggplot(d, aes(x = .data[[x_plot,]],
                        y = .data[[y_plot,]],
-                       fill = check)) +
+                       fill = check,
+                       text = text)) +
       geom_tile(color="white", linewidth=0.0) +
       scale_fill_manual(values = colors, breaks = colors) +
       facet_grid(.data[[y_facet,]] ~ .data[[x_facet,]]) +
@@ -112,8 +113,8 @@ validationHeatmap <- function(df,
       theme(axis.ticks = element_blank()) +
       theme(axis.text = element_text(size = 9)) +
       theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
-      theme(strip.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
-      theme(strip.text.y = element_text(angle = 0, vjust = 0.5, hjust=1)) +
+      theme(strip.text.x = element_text(angle = 0, vjust = 0.5, hjust=1)) +
+      theme(strip.text.y = element_text(angle = 90, vjust = 0.5, hjust=1)) +
       coord_equal() +
       theme(legend.position = "none")
 
