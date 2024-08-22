@@ -1,24 +1,38 @@
 metric;critical;variable;unit;model;scenario;region;period;min_red;min_yel;max_yel;max_red;ref_model;ref_scenario;ref_period;source/link to discussion
-relative;yes;Emi|CO2|Energy;Mt CO2/yr;;Elec, H2;;;-0.25;-0.2;0.2;0.25;EDGAR6;historical;;
-relative;yes;Emi|CO2|Energy;Mt CO2eq/yr;;Elec, H2;World;;-0.2;-0.1;0.1;0.2;EDGAR6;historical;;
-relative;yes;Emi|CO2|Energy;Mt CO2/yr;;Elec, H2;DEU;;-0.25;-0.15;0.15;0.25;EDGAR6;historical;;
-relative;yes;PE|Coal;EJ/yr;;;;;-0.1;;;0.1;BP, IEA;historical;;
-relative;yes;PE|Coal;EJ/yr;;;World;;-0.2;;;0.2;BP, IEA;historical;;
-difference;yes;PE|Oil;EJ/yr;;;;;-2;;;2;;historical;;
-difference;yes;PE|Oil;EJ/yr;;;World;;-5;;;5;;historical;;
-relative;yes;FE|Electricity;EJ/yr;;Bal;;;-0.1;;;0.1;;historical;;
-relative;yes;FE|Electricity;EJ/yr;;Bal;World;;-0.2;;;0.2;;historical;;
-absolute;yes;Price|Carbon;US$2005/t CO2;;;;2030;;;300;600;;;;
-absolute;yes;Price|Carbon;US$2005/t CO2;;;;2050;;;;1000;;;;
-absolute;yes;Price|Carbon;US$2005/t CO2;;;DEU;2030;50;100;400;800;;;;
-absolute;yes;Price|Carbon;US$2005/t CO2;;;DEU;2050;100;150;600;1200;;;;
-absolute;no;Price|Carbon;US$2005/t CO2;;;LAM, MEA, SSA, OAS, IND;2030, 2050;;;;200;;;;
-absolute;yes;Emi|GHG;Mt CO2eq/yr;;Bal;DEU, USA, JPN, REF, CHA, CAZ, EUR;2050;-2000;-1000;0;500;;;;
-absolute;no;Emi|GHG;Mt CO2eq/yr;;Bal;LAM, MEA, SSA, OAS, IND;2060;-2000;-1000;0;500;;;;
-absolute;yes;Temperature|Global Mean;K;;Bal;;2100;;;1.5;1.55;;;;
-relative;yes;Emi|CO2;Mt CO2/yr;;;;2030;-0.5;-0.3;;;;;2020;
-relative;yes;Emi|CO2;Mt CO2/yr;;;;2030;-0.6;-0.4;;;;;2015;
-relative;no;FE;EJ/yr;;;;2030, 2040;-0.4;-0.2;;;;;2020;
-absolute;yes;Price|Secondary Energy|Electricity;US$2005/GJ;;Bal;;;5.56;;;;;;;
-growthrate;yes;New Cap|Electricity|Solar|PV;GW/yr;;;;;;;0.5;1;;;;
-relative;yes;Price|Carbon;US$2005/t CO2;;Bal;;2030, 2040, 2050;0;;;;;NPi;;
+Deviation to historical data;;;;;;;;;;;;;;;
+relative;yes;Emi|CO2|Energy;Mt CO2/yr;;;;2005-2020;-0.4;-0.2;0.2;0.4;EDGAR8;historical;;
+relative;yes;Emi|CO2|Energy|Demand|Transport;Mt CO2/yr;;;;2005-2020;-0.4;-0.2;0.2;0.4;EDGAR8;historical;;
+relative;yes;Emi|CO2|Energy|Demand|Buildings;Mt CO2/yr;;;;2005-2020;-0.4;-0.2;0.2;0.4;EDGAR8;historical;;
+relative;yes;Emi|CO2|Energy|Demand|Industry;Mt CO2/yr;;;;2005-2020;-0.4;-0.2;0.2;0.4;EDGAR8;historical;;
+relative;yes;Emi|CO2|Energy|Supply;Mt CO2/yr;;;;2005-2020;-0.4;-0.2;0.2;0.4;EDGAR8;historical;;
+relative;yes;Emi|CO2|Industrial Processes;Mt CO2/yr;;;;2005-2020;-0.4;-0.2;0.2;0.4;EDGAR8;historical;;
+relative;yes;PE|Coal;EJ/yr;;;;2005-2020;-0.3;-0.15;0.15;0.3;BP, IEA;historical;;
+relative;yes;PE|Oil;EJ/yr;;;;2005-2020;-0.3;-0.15;0.15;0.3;BP, IEA;historical;;
+relative;yes;PE|Gas;EJ/yr;;;;2005-2020;-0.3;-0.15;0.15;0.3;BP, IEA;historical;;
+relative;yes;SE|Electricity;EJ/yr;;;;2005-2020;-0.3;-0.15;0.15;0.3;Ember, BP;historical;;
+relative;yes;SE|Electricity|*;EJ/yr;;;;2005-2020;-0.3;-0.15;0.15;0.3;Ember, BP;historical;;
+relative;yes;FE;EJ/yr;;;;2005-2020;-0.4;-0.2;0.2;0.4;IEA;historical;;
+relative;yes;FE|*;EJ/yr;;;;2005-2020;-0.4;-0.2;0.2;0.4;IEA;historical;;
+relative;yes;Cap|Electricity|*;GW;;;;2005-2020;-0.4;-0.2;0.2;0.4;Ember;historical;;
+;;;;;;;;;;;;;;;
+Near-term realism;;;;;;;;;;;;;;;
+relative;yes;FE;EJ/yr;;;;2030;-0.4;-0.2;;;;;2020;Survey: Felix
+relative;yes;Emi|GHG;Mt CO2/yr;;;;2030;-0.5;-0.3;;;;;2020;Survey: Felix
+absolute;yes;Emi|CO2;Mt CO2/yr;;;World;2025;39816;;;;;;;"based on Elmars assumptions on max. reduction scenarios:
+2019: 37.65Gt (EDGAR, wo LULUCF). 2025 (-3.4%): 36.37Gt + 3.45Gt LULUCF = 39.82Gt CO2"
+absolute;yes;Emi|CO2;Mt CO2/yr;;;World;2030;30987;;;;;;;2030 (-23%): 28.99Gt + 2.0Gt LULUCF = 30.99Gt CO2
+absolute;yes;Emi|CH4;Mt CH4/yr;;;World;2040;100;;;1000;;;;AR6 WG3 Annex III, Table 11
+absolute;yes;Carbon Management|Storage;Mt CO2/yr;;;World;2030;;;;2000;;;;AR6 WG3 Annex III, Table 11
+absolute;yes;SE|Electricity|Nuclear;EJ/yr;;;World;2030;;;;20;;;;AR6 WG3 Annex III, Table 11
+;;;;;;;;;;;;;;;
+Absolute technical/geological limits;;;;;;;;;;;;;;;
+growthrate;yes;New Cap|Electricity|Solar|PV;GW/yr;;;;2020-2100;;;0.5;1;;;;Survey: Felix
+absolute;yes;Carbon Management|Storage;Mt CO2/yr;;;World;2005-2050;;;;5000;;;;https://www.sciencedirect.com/science/article/pii/S1750583622001840
+absolute;yes;Carbon Management|Storage;Mt CO2/yr;;;World;2060-2100;;;;8600;;;;https://www.sciencedirect.com/science/article/pii/S1750583622001840
+absolute;yes;PE|Biomass;EJ/yr;;;World;;;;100;240;;;;"from ESABCC, based on Creutzig et al. ""Bioenergy and Climate Change Mitigation: An
+Assessment"" (2015), Frank et al. ""and-Based Climate
+Change Mitigation Potentials within the Agenda for Sustainable Development"" (2021)"
+;;;;;;;;;;;;;;;
+Scenario specific;;;;;;;;;;;;;;;
+absolute;yes;Temperature|Global Mean;K;;SSP2EU-EU21-PkBudg500-AMT, SSP2EU-PkBudg500-AMT;;2100;;;1.5;1.6;;;;corresponds to C1 category
+absolute;yes;Temperature|Global Mean;K;;SDP_MC-PkBudg650-AMT, SSP1-PkBudg650-AMT, SSP2EU-EU21-PkBudg650-AMT, SSP2EU-PkBudg650-AMT, SSP5-PkBudg650;;2100;;;;1.8;;;;C2? Or also C1?

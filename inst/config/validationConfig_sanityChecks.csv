@@ -1,0 +1,8 @@
+metric;critical;variable;unit;model;scenario;region;period;min_red;min_yel;max_yel;max_red;ref_model;ref_scenario;ref_period;source/link to discussion
+Sanity checks;;;;;;;;;;;;;;;
+absolute;yes;FE|**;;;;;;0;;;;;;;
+absolute;yes;SE|**;;;;;;0;;;;;;;
+absolute;yes;SE|Hydrogen|Net Imports;;;;;;-10000;;;;;;;overwrite min for the one SE variable that can be negative
+absolute;yes;PE|**;;;;;;0;;;;;;;
+absolute;yes;Emi|**|Fossil;;;;;;0;;;;;;;
+absolute;yes;**|Share;;;;;;0;;;100;;;;
