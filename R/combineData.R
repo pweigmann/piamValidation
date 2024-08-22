@@ -1,18 +1,26 @@
+#' Combine scenario and reference data with thresholds
+#'
+#' for one row of cfg: filter and merge relevant scenario data with cfg
+#' results in one df that contains scenario data, reference data and thresholds
+#'
+#' @param scenData scenario data
+#' @param cfgRow one row of a config file
+#' @param histData reference data
+#'
 #' @importFrom dplyr filter select mutate summarise group_by %>%
 #' @importFrom piamInterfaces areUnitsIdentical
-
-# for one row of cfg: filter and merge relevant scenario data with cfg
-# results in one df that contains scenario data, reference data and thresholds
-combineData <- function(data, cfgRow, histData = NULL) {
+#'
+#'
+combineData <- function(scenData, cfgRow, histData = NULL) {
 
   # shorten as it will be used a lot
   c <- cfgRow
 
   # full dimensions and important slices
-  all_mod <- unique(data$model)
-  all_sce <- unique(data$scenario)
-  all_reg <- unique(data$region)
-  all_per <- unique(data$period)  # not a factor, convert?
+  all_mod <- unique(scenData$model)
+  all_sce <- unique(scenData$scenario)
+  all_reg <- unique(scenData$region)
+  all_per <- unique(scenData$period)  # not a factor, convert?
   all_per <- all_per[all_per <= 2100]
   # TODO: check if this works well
   # if (!is.null(histData))
@@ -40,7 +48,7 @@ combineData <- function(data, cfgRow, histData = NULL) {
 
   # apply filters ####
   # filter scenario data according to each row in cfg
-  d <- data %>%
+  d <- scenData %>%
     filter(variable %in% c$variable,
            model    %in% mod,
            scenario %in% sce,
@@ -94,7 +102,7 @@ combineData <- function(data, cfgRow, histData = NULL) {
         h <- mutate(h_mean, variable = c$variable, ref_model = "multiple")
       }
 
-      # merge with historical data adds columns ref_value and ref_model
+      # merge with historical data adds columns ref_value and ref_model from h
       df <- merge(d, h)
 
       # add columns which are not used in this category
@@ -123,7 +131,7 @@ combineData <- function(data, cfgRow, histData = NULL) {
 
       # if a reference model should be used, same scenario, same period
       if (!is.na(c$ref_model)) {
-        ref <- data %>%
+        ref <- scenData %>%
           filter(variable %in% c$variable,
                  model    %in% c$ref_model, # expects exactly one model
                  scenario %in% sce,
@@ -138,7 +146,7 @@ combineData <- function(data, cfgRow, histData = NULL) {
 
       # if a reference scenario should be used, same period, same model
       } else if (!is.na(c$ref_scenario)) {
-        ref <- data %>%
+        ref <- scenData %>%
           filter(variable %in% c$variable,
                  model    %in% mod,
                  scenario %in% c$ref_scenario,  # expects exactly one scenario
@@ -153,7 +161,7 @@ combineData <- function(data, cfgRow, histData = NULL) {
 
       # if a reference period should be used, same scenario, same model
       } else if (!is.na(c$ref_period)) {
-        ref <- data %>%
+        ref <- scenData %>%
           filter(variable %in% c$variable,
                  model    %in% mod,
                  scenario %in% sce,

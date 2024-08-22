@@ -29,7 +29,7 @@ getConfig <- function(configName) {
   }
   if (path == "") stop("Config not found, please provide either full path to a
   config file or select a config from 'inst/config' by choosing its
-  name ('validationConfig_<name>.csv'.\n")
+  name ('validationConfig_<name>.csv').\n")
 
   # config can be .xlsx or .csv, use "config" sheet in .xlsx if available
   if (grepl("\\.xlsx$", path)) {
@@ -120,6 +120,7 @@ expandVariables <- function(cfg, data) {
   var_expand <- cfg[grepl("\\*", cfg$variable), ]
   cfg_new <- dplyr::anti_join(cfg, var_expand, by = colnames(cfg))
 
+  # TODO: expand variables into exact place in config as order can be important
   if (length(var_expand > 0)) {
     all_vars <- unique(data$variable)
     for (i in seq(nrow(var_expand))) {
@@ -142,7 +143,7 @@ expandVariables <- function(cfg, data) {
       c <- var_expand[i, ] %>%
         dplyr::slice(rep(1, each = length(selected_vars)))
       c$variable <- selected_vars
-      cfg_new <- rbind(cfg_new, c)
+      cfg_new <- rbind(c, cfg_new)
     }
   }
   return(cfg_new)

@@ -10,25 +10,20 @@
 #'        data object
 #'
 checkUnits <- function(data, cfgRow) {
-  # empty unit field in config means skipping the check
-  if (is.na(cfgRow$unit)) {
-    message("No unit given in config for ", cfgRow$variable,
-            ", skipping consistency check.\n")
-  } else if (nrow(data) == 0) {
-    message("Empty data object, skipping unit check.\n")
-  } else {
+  # no unit in config or empty data object: skip the check
+  if (nrow(data) != 0 & !is.na(cfgRow$unit)) {
     # identify data type
     dataType <-
       if(cfgRow$ref_scenario %in% "historical") "reference" else "scenario"
 
     units <- as.character(unique(data$unit))
-    for (i in 1:length(units)) {
-      if (!piamInterfaces::areUnitsIdentical(cfgRow$unit, units[i])) {
+    for (n in 1:length(units)) {
+      if (!piamInterfaces::areUnitsIdentical(cfgRow$unit, units[n])) {
         warning(paste0(
           "Non-matching units in config and ", dataType," data found.\n",
           "variable: ", cfgRow$variable, "\n",
           "config unit: ", cfgRow$unit, "\n",
-          dataType, " unit: ", units[i]), "\n")
+          dataType, " unit: ", units[n]), "\n")
         # in case of the presence of non-matching units:
         # filter data for correct unit as it might also available, if not this
         # will result in an empty data object being returned

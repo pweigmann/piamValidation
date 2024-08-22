@@ -6,12 +6,14 @@
 #'        or give a full path to a separate configuration file
 #' @param report name a .Rmd from inst/markdown ("validationReport_<name>.Rmd")
 #'        to be rendered or give a full path to a separate .Rmd file
+#' @param outputDir choose a directory to save validation reports to
 #'
 #' @importFrom piamutils getSystemFile
 #'
 #' @export
 
-validationReport <- function(dataPath, config, report = "default") {
+validationReport <- function(dataPath, config, report = "default",
+                             outputDir = "output") {
 
   # convert relative to absolute paths
   dataPath <- normalizePath(dataPath)
@@ -22,38 +24,38 @@ validationReport <- function(dataPath, config, report = "default") {
   if (file.exists(normalizePath(config, mustWork = F))) {
     # full path to config given
     config <- normalizePath(config)
-    config_name <- "Custom"
+    configName <- "Custom"
   } else {
     # name of config file in inst/config given
-    config_name <- config
+    configName <- config
   }
 
   if (file.exists(normalizePath(report, mustWork = F))) {
     # full path to report given
-    report_path <- normalizePath(report)
-    report_name <- "Custom"
+    reportPath <- normalizePath(report)
+    reportName <- "Custom"
   } else {
     # name of report file in inst/markdown given
-    report_path <- piamutils::getSystemFile(
+    reportPath <- piamutils::getSystemFile(
       paste0("markdown/validationReport_", report, ".Rmd"),
       package = "piamValidation")
-    report_name <- report
+    reportName <- report
   }
 
   # put rendered reports in output folder in working directory
-  output_path <- paste0(getwd(), "/output")
-  if (!dir.exists(output_path)) dir.create(output_path)
+  outputPath <- paste0(getwd(), "/", outputDir)
+  if (!dir.exists(outputPath)) dir.create(outputPath)
 
   # include chosen config and report name in output file except if it is default
   infix <- ""
-  if (config_name != "default") infix <- paste0(infix, "_cfg", config_name)
-  if (report_name != "default") infix <- paste0(infix, "_rep", report_name)
+  if (configName != "default") infix <- paste0(infix, "_cfg", configName)
+  if (reportName != "default") infix <- paste0(infix, "_rep", reportName)
 
   # create specified report for given data and config
   yamlParams <- list(mif = dataPath, cfg = config)
-  rmarkdown::render(input = report_path,
+  rmarkdown::render(input = reportPath,
                     params = yamlParams,
-                    output_file = paste0(output_path, "/validation", infix,
+                    output_file = paste0(outputPath, "/validation", infix,
                                          format(Sys.time(), "_%Y%m%d-%H%M%S"),
                                          ".html"))
 }
