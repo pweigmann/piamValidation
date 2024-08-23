@@ -84,7 +84,10 @@ if (interact) {
                                             y_plot = "region",
                                             x_facet = "scenario",
                                             y_facet = "model",
-                                            interactive = interact)
+                                            interactive = interact) %>% 
+          # avoid overlap of title and facet labels (plotly issue)
+          layout(title = list(y = .95, xref = "plot"),
+                 margin = list(l = 75, t = 150))
       }
       plot_list
   }

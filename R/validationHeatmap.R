@@ -113,10 +113,15 @@ validationHeatmap <- function(df,
       theme(axis.ticks = element_blank()) +
       theme(axis.text = element_text(size = 9)) +
       theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
-      theme(strip.text.x = element_text(angle = 0, vjust = 0.5, hjust=1)) +
-      theme(strip.text.y = element_text(angle = 90, vjust = 0.5, hjust=1)) +
       coord_equal() +
       theme(legend.position = "none")
+
+    # tweak for ELEVATE:
+    if (x_facet == "scenario") {
+      p <- p +
+        theme(strip.text.x = element_text(angle = 30, vjust = 0.5, hjust=1)) +
+        theme(strip.text.y = element_text(angle = 0, vjust = 0.5, hjust=1))
+    }
 
     # create small gap to "World" data by creating white outline
     if("World" %in% d$region) {
