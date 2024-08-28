@@ -116,7 +116,7 @@ validationHeatmap <- function(df,
       coord_equal() +
       theme(legend.position = "none")
 
-    # tweak for ELEVATE:
+    # tweak for ELEVATE: to make facet labels and title readable
     if (x_facet == "scenario") {
       p <- p +
         theme(strip.text.x = element_text(angle = 30, vjust = 0.5, hjust=1)) +

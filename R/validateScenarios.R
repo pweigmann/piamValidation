@@ -4,7 +4,7 @@
 #'        format, in case of historic comparison, also path to reference data
 #' @param config select config from inst/config or give a full path to a config
 #'        file on your computer
-#' @param outputFile give name of output file in case results should be exported
+#' @param outputFile give name of output file in case results should be exported;
 #'        include file extension
 #'
 #' @importFrom dplyr filter select mutate group_by %>% bind_rows

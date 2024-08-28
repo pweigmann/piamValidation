@@ -74,6 +74,8 @@ d <- filter(df, metric == m, ref_scenario == "historical")
 
 if (nrow(d) > 0) {
   vars <- unique(d$variable)
+  
+  # tagList only works for interactive plots
   plot_list <- htmltools::tagList()
     for (i in 1:length(vars)) {
       plot_list[[i]] <- validationHeatmap(d, vars[i], met = m, historic)

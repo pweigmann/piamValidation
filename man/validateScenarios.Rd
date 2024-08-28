@@ -13,7 +13,7 @@ format, in case of historic comparison, also path to reference data}
 \item{config}{select config from inst/config or give a full path to a config
 file on your computer}
 
-\item{outputFile}{give name of output file in case results should be exported
+\item{outputFile}{give name of output file in case results should be exported;
 include file extension}
 }
 \description{
