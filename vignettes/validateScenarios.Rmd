@@ -39,6 +39,63 @@ For more detailed information please refer to the
 
 # Usage
 
+## REMIND output script
+
+When working directly with REMIND, a script comes shipped with the code which 
+will make it easy to perform a basic scenario validation. Go to  the REMIND 
+directory ``remind/`` and call ``Rscript output.R``. Then choose "Comparison 
+across runs" and "validateScenarios". Select the runs of interest and choose
+one of the ``validationConfigs`` that are available via ``piamValidation``.
+If you are not sure which config to choose, "default" is a good starting point.
+
+## Scenario Validation
+
+More generally, the function ``piamValidation::validateScenarios()`` performs 
+all necessary steps of the 
+validation process. It takes the config file and iterates through each row, 
+assembling the required scenario and reference data and checking the thresholds.
+
+The output is a data.frame, which combines scenario and reference data with
+the threshold that is applied to each respective data point and the result of 
+the validation checks.
+These results can be found in the columns ``check_value`` and ``check``, with 
+the former containing the value that is directly compared to the thresholds (
+e.g. the calculated growth rate when doing a growth rate check) and the latter
+being the result in form of a traffic-light color.
+
+![Traffic-light threshold check results.](./thresholds.png){width=80%}
+
+Optionally, you can save the resulting data.frame to a .csv file by providing
+an ``outputFile``.
+
+```{r run validation, eval = FALSE}
+df <- validateScenarios(c(scenPath, histPath), config, outputFile = NULL)
+```
+
+The function argument ``config`` can be either the name of a config file found
+in ``piamValidation`` (find the name via 
+``inst/config/validationConfig_<name>.csv``) or a full path to a config file.
+
+## Validation Report
+
+To perform the validation and create an output document in one go, the function
+``piamValidation::validationReport()`` can be used. It calls ``validateScenarios`` 
+and additionally renders an .html file which features heat maps for all 
+variables described in the config file.
+
+By default, the .Rmd ``validation_default`` is used, but alternatives can be 
+used or created according to individual needs in ``inst/markdown``.
+
+The report is saved in a folder called ``output`` in the current working 
+directory.
+
+-> Be careful when using this function on big data sets and configs with many
+variables as it might create very large html files.
+
+```{r create report, eval = FALSE}
+validationReport(c(scenPath, histPath), config, report = "default")
+```
+
 ## Scenario Data
 
 You can pass IAMC-style .mif, .csv or .xlsx files or vectors of paths to the 
@@ -51,7 +108,8 @@ function. More precisely, any data file which can be read by
 
 Reference data should follow the same format guidelines as scenario data with 
 the exception that the ``scenario`` column needs to read ``historical``. It is 
-passed to the validation function as part of the ``dataPath`` argument, e.g.:
+passed to the validation function together with the scenario data as part of the 
+``dataPath`` argument, e.g.:
 
 ``validateScenarios(dataPath = c("<path_to_scenario_data>", "<path_to_reference_data>"),
 config = ...)``
@@ -69,9 +127,9 @@ performed, different columns can or need to be filled.
 **General Rules**
 
 - when using reference data, "historical" is required in the column "scenario"
-- one set of thresholds per row
+- one set of thresholds per row is allowed
 - empty rows and rows without "variable" are ignored and can be used to structure the config
-- later rows overwrite earlier rows if thresholds overlap
+- later rows overwrite earlier rows if there is a data overlap
 - only one reference period/model/scenario per data-slice (e.g. don't compare the same data against ref_model1 and ref_model2)
 - define multiple variables with "\*" (one sub-level) or "\*\*" (all sub-levels)
 - ``relative`` thresholds can be given as percentage (``20%``) or decimal (``0.2``).
@@ -203,44 +261,3 @@ Example:
 |----------|----------|--------------|-------|-------|----------|--------|------|---------|---------|---------|---------|-----------|--------------|------------|
 | absolute | yes      | Cap\|Electricity\|Wind | GW  |  |     | USA |       |     |     |    |  50  |   |    |    
 
-## Scenario Validation
-
-The function ``validateScenarios()`` performs all necessary steps of the 
-validation process. It takes the config file and iterates through each row, 
-assembling the required scenario and reference data and checking the thresholds.
-
-The output is a data.frame, which combines scenario and reference data with
-the threshold that is applied to each respective data point and the result of 
-the validation checks.
-These results can be found in the columns ``check_value`` and ``check``, with 
-the former containing the value that is directly compared to the thresholds (
-e.g. the calculated growth rate when doing a growth rate check) and the latter
-being the result in form of a traffic-light color.
-
-![Traffic-light threshold check results.](./thresholds.png){width=80%}
-
-Optionally, you can save the resulting data.frame to a .csv file by providing
-an ``outputFile``.
-
-```{r run validation, eval = FALSE}
-df <- validateScenarios(c(scenPath, histPath), config, outputFile = NULL)
-```
-
-## Creating a Validation Report
-
-To perform the validation and create an output document in one go, the function
-``validationReport()`` can be used. It renders an .html file which features heat 
-maps for all variables described in the config file.
-
-By default, the .Rmd ``validation_default`` is used, but alternatives can be 
-used or created according to individual needs in ``inst/markdown``.
-
-The report is saved in a folder called ``output`` in the current working 
-directory.
-
--> Be careful when using this function on big data sets and configs with many
-variables as it might create very large html files.
-
-```{r create report, eval = FALSE}
-validationReport(c(scenPath, histPath), config, report = "default")
-```
