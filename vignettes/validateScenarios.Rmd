@@ -51,9 +51,9 @@ If you are not sure which config to choose, "default" is a good starting point.
 ## Scenario Validation
 
 More generally, the function ``piamValidation::validateScenarios()`` performs 
-all necessary steps of the 
-validation process. It takes the config file and iterates through each row, 
-assembling the required scenario and reference data and checking the thresholds.
+all necessary steps of the validation process. It takes the config file and 
+iterates through each row, assembling the required scenario and reference data 
+and checking the thresholds.
 
 The output is a data.frame, which combines scenario and reference data with
 the threshold that is applied to each respective data point and the result of 
@@ -126,24 +126,71 @@ performed, different columns can or need to be filled.
 
 **General Rules**
 
-- when using reference data, "historical" is required in the column "scenario"
 - one set of thresholds per row is allowed
 - empty rows and rows without "variable" are ignored and can be used to structure the config
 - later rows overwrite earlier rows if there is a data overlap
 - only one reference period/model/scenario per data-slice (e.g. don't compare the same data against ref_model1 and ref_model2)
-- define multiple variables with "\*" (one sub-level) or "\*\*" (all sub-levels)
-- ``relative`` thresholds can be given as percentage (``20%``) or decimal (``0.2``).
-- if period column is empty (= all):
-  * historical: 2005 - 2020
-  * all other cases: < 2100
-  * give range via yyyy-yyyy or comma-separated years
+
+
+### Columns
+
+*Comparison Type*
+
+**metric**: decide which type of comparison will be performed, currently 
+supported: ``relative, difference, absolute, growthrate``
+            
+**critical**: is it considered to be a critical check? the function 
+``validationPass`` will only complain about failed checks if this is set to "yes"
+            
+            
+            
+*Which data will be validated?*
+
+**variable**: choose one or multiple variables to be checked; define multiple 
+variables via "\*" (one sub-level) or "\*\*" (all sub-levels)
+
+**unit**: see paragraph below
+
+**model**: choose one or multiple (comma-separated) models, or leave empty to choose all
+
+**scenario**: choose one or multiple (comma-separated) scenarios, or leave empty to choose all
+
+**region**: choose one or multiple (comma-separated) regions, or leave empty to choose all
+
+**period**: choose one or multiple (comma-separated) periods, or leave empty to choose all
+(for historical checks: ``2005 - 2020``, all other cases: ``< 2100``). You can also select a range via ``yyyy-yyyy``.
+          
+          
+          
+*Thresholds*
+
+**min/max_yel/red**: minimum and maximum thresholds which decide whether a check
+is passed (``green``), produces a warning (``yellow``) or is failed (``red``). 
+If reference data is missing the result will be ``grey``. Each line needs at 
+least one threshold. ``relative`` thresholds can be given either as percentage 
+(``20%``) or decimal (``0.2``).
+          
+          
+          
+*What are we comparing to?*
+
+**ref_model**: for model comparison set a reference model here, also setting 
+the column ``model`` is recommended to avoid comparing a model to itself
+
+**ref_scenario**: this column can be used in two ways - either compare two scenarios
+produced by the same model to one-another (similar to model comparison), or set 
+it to ``historical`` to compare model data to observational data provided by 
+one or multiple external sources.
 
 It is recommended to choose a historical reference source explicitly in the 
 "ref_model" column for historical comparisons. Otherwise, all available 
-historical sources will be averaged and the tooltip of a heatmap will show
+historical sources will be averaged and the tooltip of a heat map will show
 ``ref_model = "multiple"``.
 
-<insert description of each column here?>
+**ref_period**: compare data between different periods, set the reference period
+here
+
+
 
 ### Units
 
@@ -162,12 +209,15 @@ This is the recommended approach when selecting multiple variables in one go via
 
 ## Use Cases
 
+To give some examples how to define various validation checks, see the 6 use
+cases below.
+
 ### Use Case 1: relative comparison to reference data
 
 You want to compare your scenario data to an external reference source, which 
 provides historical (or projected) data for the variable you are interested in.
 The thresholds are defined as a ``relative`` deviation above or below the 
-reference value: $relDeviation = \frac{(scenValue - refValue)}{refValue}$.
+reference value: $\textrm{relDeviation} = \frac{(\textrm{scenValue} - \textrm{refValue})}{\textrm{refValue}}$.
 
 Example:
 
@@ -183,7 +233,7 @@ You want to compare your scenario data to an external reference source, which
 provides historical (or projected) data for the variable you are interested in.
 
 The thresholds are defined as a ``difference`` (above or below) to the 
-reference value: $difference = scenValue - refValue$.
+reference value: $\textrm{difference} = \textrm{scenValue} - \textrm{refValue}$.
 
 Example:
 
@@ -200,14 +250,14 @@ periods/scenarios/models in the respective "period/scenario/model" column and
 *exactly* one in the "ref_period/scenario/model" column.
 
 The thresholds are defined as a ``relative`` deviation above or below the 
-reference value: $relDeviation = \frac{(scenValue - refValue)}{refValue}$.
+reference value: $\textrm{relDeviation} = \frac{(\textrm{scenValue} - \textrm{refValue})}{\textrm{refValue}}$.
 
 Example:
 
 | metric   | critical | variable     | unit |model | scenario | region | period | min_red | min_yel | max_yel | max_red | ref_model | ref_scenario | ref_period |
 |----------|----------|--------------|-------|-------|----------|--------|------|---------|---------|---------|---------|-----------|--------------|------------|
 | relative | yes      | Emi\|CO2\|Energy | Mt CO2/yr | REMIND |     |   |       |  -20%   |  -10%   |  10%    |   20%   | MESSAGE    |    |            |
-| relative | yes      | Emi\|CO2\|Energy | Mt CO2/yr |   | NDC |    |   |       |         |         |  -25%   |  -10%   |  CurPol |            |
+| relative | yes      | Emi\|CO2\|Energy | Mt CO2/yr |   | NDC |       |       |         |  |  -25%   |  -10%   |       |  CurPol |            |
 | relative | yes      | Emi\|CO2\|Energy | Mt CO2/yr |   | CurPol  |   | 2030   |   10%   |   20%   |   60%   |   80%   |  | |  2020          |
 | relative | yes      | Emi\|CO2\|Energy | Mt CO2/yr |   | NDC     |   | 2030   | -20%    |  -10%   |   20%   |   40%   |  | |  2020          |
 
@@ -221,14 +271,14 @@ periods/scenarios/models in the respective "period/scenario/model" column and
 *exactly* one in the "ref_period/scenario/model" column.
 
 The thresholds are defined as a ``difference`` (above or below) to the 
-reference value: $difference = scenValue - refValue$.
+reference value: $\textrm{difference} = \textrm{scenValue} - \textrm{refValue}$.
 
 Example:
 
 | metric   | critical | variable     | unit |model | scenario | region | period | min_red | min_yel | max_yel | max_red | ref_model | ref_scenario | ref_period |
 |----------|----------|--------------|-------|-------|----------|--------|------|---------|---------|---------|---------|-----------|--------------|------------|
 | difference | yes      | Emi\|CO2\|Energy | Mt CO2/yr | REMIND |     | World | 2020  |  -1500   |  -500   |  500  |   1500  | MESSAGE    |    |            |
-| difference | yes      | Emi\|CO2\|Energy | Mt CO2/yr |   | NDC |    |   |       |         |         |  -25%   |  -10%   |  CurPol |           |
+| difference | yes      | Emi\|CO2\|Energy | Mt CO2/yr |   | NDC |    |   |       |                  |  -25%   |  -10%   ||  CurPol |           |
 | difference | yes      | Emi\|CO2\|Energy | Mt CO2/yr |   | CurPol  |   | 2030   |   10%   |   20%   |   60%   |   80%   |  | |  2020          |
 | difference | yes      | Emi\|CO2\|Energy | Mt CO2/yr |   | NDC     |   | 2030   | -20%    |  -10%   |   20%   |   40%   |  | |  2020          |
 
@@ -238,7 +288,7 @@ You want to compare your scenario data to explicit values. This could be the
 case if you want to do sanity checks on variables that should never leave a 
 certain range or you have expert guesses on ``absolute`` upper or lower thresholds.
 
-The tool checks whether $minRed/Yel < scenValue < maxYel/Red$.
+The tool checks whether $\textrm{minRed/Yel} < \textrm{scenValue} < \textrm{maxYel/Red}$.
 
 Example:
 
@@ -253,7 +303,7 @@ You want to check growth rates of variables in your scenario data. As 5-year
 steps are expected, the average yearly growth rate over the last 5 years is 
 calculated via:
 
-$\left(\frac{value}{value5yearsAgo}\right)^\frac{1}{5} - 1$.
+$\textrm{growthRate} = \left(\frac{\textrm{value}}{\textrm{value5yearsAgo}}\right)^\frac{1}{5} - 1$.
 
 Example:
 
