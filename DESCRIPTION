@@ -1,8 +1,8 @@
 Type: Package
 Package: piamValidation
 Title: Validation Tools for PIK-PIAM
-Version: 0.3.5
-Date: 2024-08-29
+Version: 0.3.6
+Date: 2024-09-19
 Authors@R:
     c(person("Pascal", "Weigmann",, "pascal.weigmann@pik-potsdam.de", role = c("aut", "cre")),
       person("Oliver", "Richters",, role = "aut"))
