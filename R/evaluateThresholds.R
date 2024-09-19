@@ -2,7 +2,7 @@
 
 # cleanInf = TRUE: replace "Inf" and "-Inf" which were introduced
 #                  for ease of calculations with "-"
-evaluateThresholds <- function(df, cleanInf = TRUE) {
+evaluateThresholds <- function(df, cleanInf = TRUE, extraColors = TRUE) {
 
   # first calculate values that will be compared to thresholds for each category
   # ("check_value") and metric separately, then perform evaluation for all together
@@ -52,23 +52,54 @@ evaluateThresholds <- function(df, cleanInf = TRUE) {
   # evaluation ####
   # perform comparison to thresholds for whole data.frame at once
   # TODO: not as robust as previously thought. Partially fails if only max_red is given
-  df <- df %>%
-    mutate(check = ifelse(is.na(check_value) | is.infinite(check_value),
-                          "grey",
-                          ifelse(
-                            # first check whether red threshold is violated...
-                            check_value > max_red | check_value < min_red,
-                            "red",
-                            # otherwise check if yellow threshold is violated...
+  if (extraColors) {
+    df <- df %>%
+      mutate(check = ifelse(is.na(check_value) | is.infinite(check_value),
+                            "grey",
+                            # check thresholds from low to high
                             ifelse(
-                              check_value > max_yel | check_value < min_yel,
-                              "yellow",
-                              # ... else green
-                              "green"
+                              # first check whether min red is violated...
+                              check_value < min_red,
+                              "blue",
+                              # then check if min yellow is violated...
+                              ifelse(
+                                check_value < min_yel,
+                                "cyan",
+                                # now check max thresholds, first yel...
+                                ifelse(
+                                  check_value > max_red,
+                                  "red",
+                                  # then max red...
+                                  ifelse(
+                                    check_value > max_yel,
+                                    "yellow",
+                                    # ... else green
+                                    "green")
+                                  )
+                              )
                             )
                           )
-                        )
-           )
+             )
+  } else {
+    # if only
+    df <- df %>%
+      mutate(check = ifelse(is.na(check_value) | is.infinite(check_value),
+                            "grey",
+                            ifelse(
+                              # first check whether red threshold is violated...
+                              check_value > max_red | check_value < min_red,
+                              "red",
+                              # otherwise check if yellow threshold is violated...
+                              ifelse(
+                                check_value > max_yel | check_value < min_yel,
+                                "yellow",
+                                # ... else green
+                                "green"
+                                )
+                              )
+                            )
+             )
+    }
 
   if (any(is.infinite(df$check_value))) {
     cat(

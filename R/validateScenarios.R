@@ -6,11 +6,14 @@
 #'        file on your computer
 #' @param outputFile give name of output file in case results should be exported;
 #'        include file extension
+#' @param extraColors if TRUE, use cyan and blue for violation of min thresholds
+#'        instead of using the same colors as for max thresholds (yel and red)
 #'
 #' @importFrom dplyr filter select mutate group_by %>% bind_rows
 #'
 #' @export
-validateScenarios <- function(dataPath, config, outputFile = NULL) {
+validateScenarios <- function(dataPath, config,
+                              outputFile = NULL, extraColors = TRUE) {
 
   data <- importScenarioData(dataPath)
 
@@ -34,7 +37,7 @@ validateScenarios <- function(dataPath, config, outputFile = NULL) {
 
   # combine scenario data (and reference data if needed) with the respective
   # thresholds for each row of the config and bind all into one data.frame
-  # TODO: parallelization works but makes development harder
+  # TODO: parallelization works but makes development harder, likely not needed
   # future::plan(future::multisession, workers = parallel::detectCores())
   valiData <- bind_rows(
     lapply(1:nrow(cfg), function(i) {
@@ -49,7 +52,7 @@ validateScenarios <- function(dataPath, config, outputFile = NULL) {
   valiData <- resolveDuplicates(valiData)
 
   # perform actual checks and write results in new columns of data.frame
-  valiData <- evaluateThresholds(valiData)
+  valiData <- evaluateThresholds(valiData, extraColors = extraColors)
 
   if (nrow(valiData) == 0) {
     stop("Something went wrong, returned data.frame is empty.")

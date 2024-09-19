@@ -4,7 +4,13 @@
 \alias{validationReport}
 \title{perform validateScenarios and create an .html report using .Rmd templates}
 \usage{
-validationReport(dataPath, config, report = "default", outputDir = "output")
+validationReport(
+  dataPath,
+  config,
+  report = "default",
+  outputDir = "output",
+  extraColors = TRUE
+)
 }
 \arguments{
 \item{dataPath}{one or multiple path(s) to scenario data in .mif or .csv
@@ -17,6 +23,9 @@ or give a full path to a separate configuration file}
 to be rendered or give a full path to a separate .Rmd file}
 
 \item{outputDir}{choose a directory to save validation reports to}
+
+\item{extraColors}{if TRUE, use cyan and blue for violation of min thresholds
+instead of using the same colors as for max thresholds (yel and red)}
 }
 \description{
 perform validateScenarios and create an .html report using .Rmd templates
