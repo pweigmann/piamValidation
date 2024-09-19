@@ -94,10 +94,12 @@ validationHeatmap <- function(df,
     # }
 
     d$period <- as.character(d$period)
-    colors <- c(green  = "#008450",
-                yellow = "#EFB700",
-                red    = "#B81D13",
-                grey   = "#808080")
+    colors <- c(green     = "#008450",
+                yellow    = "#EFB700",
+                red       = "#B81D13",
+                cyan      = "#66ccee",
+                blue      = "#4477aa",
+                grey      = "#808080")
 
 
     # gg tile plot using data along dimensions as given in function call

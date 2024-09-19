@@ -7,13 +7,15 @@
 #' @param report name a .Rmd from inst/markdown ("validationReport_<name>.Rmd")
 #'        to be rendered or give a full path to a separate .Rmd file
 #' @param outputDir choose a directory to save validation reports to
+#' @param extraColors if TRUE, use cyan and blue for violation of min thresholds
+#'        instead of using the same colors as for max thresholds (yel and red)
 #'
 #' @importFrom piamutils getSystemFile
 #'
 #' @export
 
 validationReport <- function(dataPath, config, report = "default",
-                             outputDir = "output") {
+                             outputDir = "output", extraColors = TRUE) {
 
   # convert relative to absolute paths
   dataPath <- normalizePath(dataPath)
@@ -52,7 +54,7 @@ validationReport <- function(dataPath, config, report = "default",
   if (reportName != "default") infix <- paste0(infix, "_rep", reportName)
 
   # create specified report for given data and config
-  yamlParams <- list(mif = dataPath, cfg = config)
+  yamlParams <- list(mif = dataPath, cfg = config, extraColors = extraColors)
   rmarkdown::render(input = reportPath,
                     params = yamlParams,
                     output_file = paste0(outputPath, "/validation", infix,

@@ -9,6 +9,7 @@ output:
 params:
   mif: ""
   cfg: ""
+  extraColors: true
   warning: false
   message: false
   figWidth: 8
@@ -47,7 +48,7 @@ cat(params$cfg, "\n")
 
 ```{r, message = FALSE, warning = TRUE}
 # Data Preparation
-df <- validateScenarios(params$mif, params$cfg)
+df <- validateScenarios(params$mif, params$cfg, extraColors = params$extraColors)
 df <- appendTooltips(df)
 ```
 
@@ -55,11 +56,7 @@ df <- appendTooltips(df)
 
 ### Summary
 ```{r}
-# find "critical == yes" data points, that are red/yellow
-colors <- c(green  = "#008450",
-            yellow = "#EFB700",
-            red    = "#B81D13",
-            grey   = "#808080")
+# find "critical == yes" data points of each color
 dplyr::count(df, critical, check)
 ```
 
