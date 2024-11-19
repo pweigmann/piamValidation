@@ -6,31 +6,42 @@
 \usage{
 validationHeatmap(
   df,
-  var,
-  met,
-  historical = TRUE,
-  interactive = TRUE,
-  x_plot = "region",
-  y_plot = "period",
-  x_facet = "model",
-  y_facet = "scenario"
+  main_dim = "variable",
+  x_plot = NULL,
+  y_plot = NULL,
+  x_facet = NULL,
+  y_facet = NULL,
+  interactive = TRUE
 )
 
 validationHeatmap(
   df,
-  var,
-  met,
-  historical = TRUE,
-  interactive = TRUE,
-  x_plot = "region",
-  y_plot = "period",
-  x_facet = "model",
-  y_facet = "scenario"
+  main_dim = "variable",
+  x_plot = NULL,
+  y_plot = NULL,
+  x_facet = NULL,
+  y_facet = NULL,
+  interactive = TRUE
 )
 }
 \arguments{
-\item{df}{data.frame as returned by ``validateScenarios()``
-and ``appendTooltips()``}
+\item{df}{data.frame to be plotted, as returned by ``validateScenarios()``
+(and ``appendTooltips()`` if interactive), plus optional filtering.
+Needs to have at least one dimension with only one unique element.}
+
+\item{main_dim}{out of the 5-dim df, 1 dim has to contain only on element,
+this is the main dimension of the plot, default: variable}
+
+\item{x_plot}{choose dimension to display on x-axis of plot, if any
+is NULL, arrangement is chosen automatically based on data dimensions}
+
+\item{y_plot}{choose dimension to display on y-axis of plot}
+
+\item{x_facet}{choose dimension to display on x-dim of facets}
+
+\item{y_facet}{choose dimension to display on x-dim of facets}
+
+\item{interactive}{return plots as interactive plotly plots by default}
 
 \item{var}{variable to be plotted}
 
@@ -38,19 +49,9 @@ and ``appendTooltips()``}
 "growthrate"}
 
 \item{historical}{should this be a plot comparing to historical data}
-
-\item{interactive}{return plots as interactive plotly plots by default}
-
-\item{x_plot}{choose dimension to display on x-axis of plot, default: region}
-
-\item{y_plot}{choose dimension to display on y-axis of plot, default: period}
-
-\item{x_facet}{choose dimension to display on x-dim of facets, default: model}
-
-\item{y_facet}{choose dimension to display on x-dim of facets, default: scenario}
 }
 \description{
 takes the output of "validateScenarios()" and plots heatmaps per variable
 
-takes the output of "validateScenarios()" and plots heatmaps per variable
+takes the output of "validateScenarios()" and plots heat maps per variable
 }
