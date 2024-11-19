@@ -1,0 +1,202 @@
+---
+title: "piamValidation: Scenario MIP report"
+date: "`r format(Sys.Date())`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: hide
+    toc_depth: 4
+params:
+  mif: ""
+  cfg: ""
+  extraColors: true
+  warning: false
+  message: false
+  figWidth: 8
+---
+
+```{r include=FALSE}
+library(piamValidation)
+library(knitr)
+library(dplyr)
+library(ggplot2)
+library(ggthemes)
+library(plotly)
+library(madrat)
+library(piamInterfaces)
+
+knitr::opts_chunk$set(
+  echo = FALSE,
+  error = TRUE,
+  message = params$message,
+  warning = params$warning
+)
+```
+
+## Import and Prepare Data
+
+Loading data from: 
+"scenarioMIP_snapshot_2024-10-25", "historical_R10_scenarioMIP_2024-11-05.mif"
+
+```{r}
+#for (m in params$mif) cat(paste0(normalizePath(m), "\n"))
+```
+
+Using config:
+
+```{r}
+cat(params$cfg, "\n")
+```
+
+
+```{r, message = FALSE, warning = TRUE}
+
+hist <- quitte::read.snapshot("C:/Users/pascalwe/Code/scenarioMIP/historical_R10_scenarioMIP_2024-11-05.mif") %>%
+  filter(period %in% seq(2018, 2022)) %>%
+  as.magpie(spatial = "region")
+
+# average 2020 values over 5 year period to even out Covid shock
+hist[, 2020, ] <- dimSums(hist, dim = 2)/5
+hist <- quitte::as.quitte(hist[, 2020, ])
+
+data <- readRDS("C:/Users/pascalwe/Code/scenarioMIP/scenarioMIP_snapshot_2024-10-25")
+
+dR10 <- filter(data, region %in% unique(hist$region)) %>%
+  filter(period %in% c(2020, 2030))
+
+df <- rbind(hist, dR10)
+
+# Data Preparation
+df <- validateScenarios(df, "scenarioMIP", extraColors = TRUE)
+df <- appendTooltips(df)
+
+# reorder scenario names alphabetically
+df$scenario <- factor(df$scenario, levels = sort(levels(df$scenario)))
+```
+
+## Validation
+
+### Summary
+```{r}
+# find "critical == yes" data points of each color
+summary <- dplyr::count(df, model, check)
+
+colors <- c(green     = "#008450",
+                yellow    = "#EFB700",
+                red       = "#B81D13",
+                cyan      = "#66ccee",
+                blue      = "#4477aa",
+                grey      = "#808080")
+
+ggplot(summary, aes(x = model, y= n, fill = check)) + 
+  geom_bar(stat = "identity") +
+  scale_fill_manual(values = colors) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+## Historical (non-interactive)
+
+### All models, all scenarios
+
+Deviation to IEA data, averaged from 2018 to 2022 to dampen Covid shock.
+
+```{r, fig.width=10, fig.height=10}
+d <- filter(df, metric == "relative", ref_scenario == "historical" | is.na(ref_scenario))
+interact <- FALSE
+
+if (interact) {
+  # interactive plots can only be printed from outside of loops, use tagList
+  # to store html objects in List
+  if (nrow(d) > 0) {
+    vars <- unique(d$variable)
+    plot_list <- htmltools::tagList()
+      for (i in 1:length(vars)) {
+        plot_list[[i]] <- validationHeatmap(filter(d, variable == vars[i]),
+                                            y_plot = "period",
+                                            x_plot = "region",
+                                            y_facet = "scenario",
+                                            x_facet = "model",
+                                            interactive = interact) %>% 
+          # avoid overlap of title and facet labels (plotly issue)
+          layout(title = list(y = .95, xref = "plot"),
+                 margin = list(l = 75, t = 150))
+      }
+      plot_list
+  }
+} else {
+  # non-interactive plots can simply be printed
+  vars <- unique(d$variable)
+  for (i in 1:length(vars)) {
+      p <- validationHeatmap(filter(d, variable == vars[i]),
+                              y_plot = "period",
+                              x_plot = "region",
+                              y_facet = "scenario",
+                              x_facet = "model",
+                              interactive = interact)
+      print(p)
+      }
+}
+```
+
+## Historical (interactive)
+
+### By Model
+
+Deviation to IEA data, averaged from 2018 to 2022 to dampen Covid shock.
+
+```{r, fig.width=10, fig.height=10}
+d <- filter(df, metric == "relative", ref_scenario == "historical" | is.na(ref_scenario))
+interact <- TRUE
+
+# interactive plots can only be printed from outside of loops, use tagList
+# to store html objects in List
+if (nrow(d) > 0) {
+  models <- unique(d$model)
+  plot_list <- htmltools::tagList()
+  for (i in 1:length(models)) {
+    d_model <- filter(d, model == models[i])
+    plot_list[[i]] <- validationHeatmap(d_model, main_dim = "model",    
+                                        x_plot = "region",
+                                        y_plot = "period",
+                                        x_facet = "variable",
+                                        y_facet = "scenario",
+                                        interactive = interact) %>% 
+      # avoid overlap of title and facet labels (plotly issue)
+      layout(title = list(y = .95, xref = "plot"),
+             margin = list(l = 0, t = 150, r = 150))
+  }
+  plot_list
+}
+```
+
+## Near-Term Trends
+
+### Emissions by Model
+
+Deviation to "Medium" Scenario of the respective SSP in 2030.
+
+```{r, fig.width=10, fig.height=10}
+d <- filter(df, metric == "relative", ref_scenario != "historical" | is.na(ref_scenario))
+interact <- TRUE
+
+# interactive plots can only be printed from outside of loops, use tagList
+# to store html objects in List
+if (nrow(d) > 0) {
+  models <- unique(d$model)
+  plot_list <- htmltools::tagList()
+  for (i in 1:length(models)) {
+    d_model <- filter(d, model == models[i])
+    plot_list[[i]] <- validationHeatmap(d_model, main_dim = "model",    
+                                        x_plot = "region",
+                                        y_plot = "period",
+                                        x_facet = "variable",
+                                        y_facet = "scenario",
+                                        interactive = interact) %>% 
+      # avoid overlap of title and facet labels (plotly issue)
+      layout(title = list(y = .95, xref = "plot"),
+             margin = list(l = 0, t = 150, r = 150))
+  }
+  plot_list
+}
+```

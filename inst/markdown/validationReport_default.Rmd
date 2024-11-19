@@ -65,36 +65,52 @@ dplyr::count(df, critical, check)
 ### Historic - Relative
 Relative deviation to historical reference data.
 ```{r}
-historic <- TRUE
-m <- "relative"
-d <- filter(df, metric == m, ref_scenario == "historical")
+interact = TRUE
+
+# plot one heat map for each variable in this category
+d <- filter(df, metric == "relative", ref_scenario == "historical")
+vars <- unique(d$variable)
 
 if (nrow(d) > 0) {
-  vars <- unique(d$variable)
-  
-  # tagList only works for interactive plots
-  plot_list <- htmltools::tagList()
+  if (interact) {  # interactive plots need to be collected in a tagList
+    plot_list <- htmltools::tagList()
+      for (i in 1:length(vars)) {
+        plot_data <- filter(d, variable == vars[i])
+        plot_list[[i]] <- validationHeatmap(plot_data)
+      }
+    plot_list
+  } else {  # non-interactive plots can simply be printed in a loop
     for (i in 1:length(vars)) {
-      plot_list[[i]] <- validationHeatmap(d, vars[i], met = m, historic)
+        p <- validationHeatmap(d, vars[i], interactive = interact)
+        print(p)
     }
-  plot_list
+  }
 }
 ```
 
 ### Historic - Difference
 Absolute difference to historical reference data
 ```{r}
-historic <- TRUE
-m <- "difference"
-d <- filter(df, metric == m, ref_scenario == "historical")
+interact = TRUE
+
+# plot one heat map for each variable in this category
+d <- filter(df, metric == "difference", ref_scenario == "historical")
+vars <- unique(d$variable)
 
 if (nrow(d) > 0) {
-  vars <- unique(d$variable)
-  plot_list <- htmltools::tagList()
+  if (interact) {  # interactive plots need to be collected in a tagList
+    plot_list <- htmltools::tagList()
+      for (i in 1:length(vars)) {
+        plot_data <- filter(d, variable == vars[i])
+        plot_list[[i]] <- validationHeatmap(plot_data)
+      }
+    plot_list
+  } else {  # non-interactive plots can simply be printed in a loop
     for (i in 1:length(vars)) {
-      plot_list[[i]] <- validationHeatmap(d, vars[i], met = m, historic)
+        p <- validationHeatmap(d, vars[i], interactive = interact)
+        print(p)
     }
-  plot_list
+  }
 }
 ```
 
@@ -106,65 +122,101 @@ Relative deviation to data point from either:
 - model (same period/scenario)
 
 ```{r}
-historic <- FALSE
-m <- "relative"
-d <- filter(df, metric == m, ref_scenario != "historical" | is.na(ref_scenario))
+interact = TRUE
+
+# plot one heat map for each variable in this category
+d <- filter(df, metric == "relative", ref_scenario != "historical" | is.na(ref_scenario))
+vars <- unique(d$variable)
 
 if (nrow(d) > 0) {
-  vars <- unique(d$variable)
-  plot_list <- htmltools::tagList()
+  if (interact) {  # interactive plots need to be collected in a tagList
+    plot_list <- htmltools::tagList()
+      for (i in 1:length(vars)) {
+        plot_data <- filter(d, variable == vars[i])
+        plot_list[[i]] <- validationHeatmap(plot_data)
+      }
+    plot_list
+  } else {  # non-interactive plots can simply be printed in a loop
     for (i in 1:length(vars)) {
-      plot_list[[i]] <- validationHeatmap(d, vars[i], met = m, historic)
+        p <- validationHeatmap(d, vars[i], interactive = interact)
+        print(p)
     }
-  plot_list
+  }
 }
 ```
 
 ### Scenario - Difference
 ```{r}
-historic <- FALSE
-m <- "difference"
-d <- filter(df, metric == m, ref_scenario != "historical" | is.na(ref_scenario))
+interact = TRUE
+
+# plot one heat map for each variable in this category
+d <- filter(df, metric == "difference", ref_scenario != "historical" | is.na(ref_scenario))
+vars <- unique(d$variable)
 
 if (nrow(d) > 0) {
-  vars <- unique(d$variable)
-  plot_list <- htmltools::tagList()
+  if (interact) {  # interactive plots need to be collected in a tagList
+    plot_list <- htmltools::tagList()
+      for (i in 1:length(vars)) {
+        plot_data <- filter(d, variable == vars[i])
+        plot_list[[i]] <- validationHeatmap(plot_data)
+      }
+    plot_list
+  } else {  # non-interactive plots can simply be printed in a loop
     for (i in 1:length(vars)) {
-      plot_list[[i]] <- validationHeatmap(d, vars[i], met = m, historic)
+        p <- validationHeatmap(d, vars[i], interactive = interact)
+        print(p)
     }
-  plot_list
+  }
 }
 ```
 
 ### Scenario - Absolute
 ```{r}
-historic <- FALSE
-m <- "absolute"
-d <- filter(df, metric == m, ref_scenario != "historical" | is.na(ref_scenario))
+interact = TRUE
+
+# plot one heat map for each variable in this category
+d <- filter(df, metric == "absolute")
+vars <- unique(d$variable)
 
 if (nrow(d) > 0) {
-  vars <- unique(d$variable)
-  plot_list <- htmltools::tagList()
+  if (interact) {  # interactive plots need to be collected in a tagList
+    plot_list <- htmltools::tagList()
+      for (i in 1:length(vars)) {
+        plot_data <- filter(d, variable == vars[i])
+        plot_list[[i]] <- validationHeatmap(plot_data)
+      }
+    plot_list
+  } else {  # non-interactive plots can simply be printed in a loop
     for (i in 1:length(vars)) {
-      plot_list[[i]] <- validationHeatmap(d, vars[i], met = m, historic)
+        p <- validationHeatmap(d, vars[i], interactive = interact)
+        print(p)
     }
-  plot_list
+  }
 }
 ```
 
 
 ### Scenario - Growthrate
 ```{r}
-historic <- FALSE
-m <- "growthrate"
-d <- filter(df, metric == m, ref_scenario != "historical" | is.na(ref_scenario))
+interact = TRUE
+
+# plot one heat map for each variable in this category
+d <- filter(df, metric == "growthrate")
+vars <- unique(d$variable)
 
 if (nrow(d) > 0) {
-  vars <- unique(d$variable)
-  plot_list <- htmltools::tagList()
+  if (interact) {  # interactive plots need to be collected in a tagList
+    plot_list <- htmltools::tagList()
+      for (i in 1:length(vars)) {
+        plot_data <- filter(d, variable == vars[i])
+        plot_list[[i]] <- validationHeatmap(plot_data)
+      }
+    plot_list
+  } else {  # non-interactive plots can simply be printed in a loop
     for (i in 1:length(vars)) {
-      plot_list[[i]] <- validationHeatmap(d, vars[i], met = m, historic)
+        p <- validationHeatmap(d, vars[i], interactive = interact)
+        print(p)
     }
-  plot_list
+  }
 }
 ```

@@ -1,4 +1,4 @@
-ValidationKey: '739445'
+ValidationKey: '801840'
 AutocreateReadme: yes
 AcceptedWarnings:
 - 'Warning: package ''.*'' was built under R version'
@@ -11,3 +11,4 @@ AcceptedNotes:
 - Non-standard file/directory found at top level: output
 allowLinterWarnings: yes
 enforceVersionUpdate: no
+skipCoverage: no
