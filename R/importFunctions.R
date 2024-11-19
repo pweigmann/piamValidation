@@ -68,13 +68,13 @@ getConfig <- function(configName) {
   return(cfg)
 }
 
-# fill empty threshold columns with Infinity for easier evaluation
+# fill empty and NA threshold columns with Infinity for easier evaluation
 fillInf <- function(cfg) {
   cfg <- cfg %>%
-    mutate(min_red = as.numeric(ifelse(is.na(min_red), -Inf, min_red)),
-           min_yel = as.numeric(ifelse(is.na(min_yel), -Inf, min_yel)),
-           max_yel = as.numeric(ifelse(is.na(max_yel),  Inf, max_yel)),
-           max_red = as.numeric(ifelse(is.na(max_red),  Inf, max_red))
+    mutate(min_red = as.numeric(ifelse(is.na(min_red) | min_red == "NA", -Inf, min_red)),
+           min_yel = as.numeric(ifelse(is.na(min_yel) | min_yel == "NA", -Inf, min_yel)),
+           max_yel = as.numeric(ifelse(is.na(max_yel) | max_yel == "NA",  Inf, max_yel)),
+           max_red = as.numeric(ifelse(is.na(max_red) | max_red == "NA",  Inf, max_red))
            )
 
   return(cfg)
