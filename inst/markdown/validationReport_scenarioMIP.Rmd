@@ -37,13 +37,13 @@ knitr::opts_chunk$set(
 ## Import and Prepare Data
 
 Loading data from: 
-"scenarioMIP_snapshot_2024-10-25", "historical_R10_scenarioMIP_2024-11-05.mif"
+"scenarios_scenariomip_2024-11-19", "historical_R10_scenarioMIP_2024-11-05.mif"
 
 ```{r}
 #for (m in params$mif) cat(paste0(normalizePath(m), "\n"))
 ```
 
-Using config:
+Using config: "scenarioMIP"
 
 ```{r}
 cat(params$cfg, "\n")
@@ -52,18 +52,17 @@ cat(params$cfg, "\n")
 
 ```{r, message = FALSE, warning = TRUE}
 
-hist <- quitte::read.snapshot("C:/Users/pascalwe/Code/scenarioMIP/historical_R10_scenarioMIP_2024-11-05.mif") %>%
-  filter(period %in% seq(2018, 2022)) %>%
-  as.magpie(spatial = "region")
+hist <- quitte::read.snapshot("/historical_R10_scenarioMIP_2024-11-05.mif") # %>%
+  #filter(period %in% seq(2018, 2022)) %>%
+  #as.magpie(spatial = "region")
 
 # average 2020 values over 5 year period to even out Covid shock
-hist[, 2020, ] <- dimSums(hist, dim = 2)/5
-hist <- quitte::as.quitte(hist[, 2020, ])
+#hist[, 2020, ] <- dimSums(hist, dim = 2)/5
+#hist <- quitte::as.quitte(hist[, , ])
 
-data <- readRDS("C:/Users/pascalwe/Code/scenarioMIP/scenarioMIP_snapshot_2024-10-25")
+data <- readRDS("/scenarios_scenariomip_2024-11-19.rds")
 
-dR10 <- filter(data, region %in% unique(hist$region)) %>%
-  filter(period %in% c(2020, 2030))
+dR10 <- filter(data, region %in% unique(hist$region))
 
 df <- rbind(hist, dR10)
 
@@ -83,11 +82,11 @@ df$scenario <- factor(df$scenario, levels = sort(levels(df$scenario)))
 summary <- dplyr::count(df, model, check)
 
 colors <- c(green     = "#008450",
-                yellow    = "#EFB700",
-                red       = "#B81D13",
-                cyan      = "#66ccee",
-                blue      = "#4477aa",
-                grey      = "#808080")
+            yellow    = "#EFB700",
+            red       = "#B81D13",
+            cyan      = "#66ccee",
+            blue      = "#4477aa",
+            grey      = "#808080")
 
 ggplot(summary, aes(x = model, y= n, fill = check)) + 
   geom_bar(stat = "identity") +
@@ -95,13 +94,195 @@ ggplot(summary, aes(x = model, y= n, fill = check)) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 ```
 
+
+## Lineplots Historical - Prototypes
+
+### SSP1
+
+```{r, fig.width=10, fig.height=6}
+i <- 1
+ssp <- paste0("SSP", i)
+valiData <- filter(df, grepl(ssp, scenario),
+            metric == "relative", ref_scenario == "historical")
+vars <- unique(valiData$variable)
+
+for (var in vars) {
+  # this plots only the periods which are being validated 
+  # (change in validationConfig)
+  p <- linePlotThresholds(valiData, var, reg = "World")
+  
+  # add historical data
+  h <- filter(hist, variable == var, region == "World", 
+              model %in% valiData[ ,"ref_model"],
+              period %in% seq(2005, 2030)) %>%
+    mutate(ref_model = model)
+  p <- p +
+    geom_point(data = h, aes(x = period, y = value, shape = ref_model),
+               size = 1, color = "black")
+  
+  # add scenario data
+  d <- filter(dR10, variable == var, region == "World",
+              grepl(ssp, scenario),
+              period %in% seq(2005, 2030))
+  p <- p +
+    geom_line(data = d, aes(x = period, y = value, color = model, linetype = scenario)) +
+    ylab(var)
+  
+  print(p)
+}
+```
+
+
+### SSP2
+
+```{r, fig.width=10, fig.height=6}
+i <- 2
+ssp <- paste0("SSP", i)
+valiData <- filter(df, grepl(ssp, scenario),
+            metric == "relative", ref_scenario == "historical")
+vars <- unique(valiData$variable)
+
+for (var in vars) {
+  # this plots only the periods which are being validated 
+  # (change in validationConfig)
+  p <- linePlotThresholds(valiData, var, reg = "World")
+  
+  # add historical data
+  h <- filter(hist, variable == var, region == "World", 
+              model %in% valiData[ ,"ref_model"],
+              period %in% seq(2005, 2030)) %>%
+    mutate(ref_model = model)
+  p <- p +
+    geom_point(data = h, aes(x = period, y = value, shape = ref_model),
+               size = 1, color = "black")
+  
+  # add scenario data
+  d <- filter(dR10, variable == var, region == "World",
+              grepl(ssp, scenario),
+              period %in% seq(2005, 2030))
+  p <- p +
+    geom_line(data = d, aes(x = period, y = value, color = model, linetype = scenario)) +
+    ylab(var)
+  
+  print(p)
+}
+```
+
+### SSP3
+
+```{r, fig.width=10, fig.height=6}
+i <- 3
+ssp <- paste0("SSP", i)
+valiData <- filter(df, grepl(ssp, scenario),
+            metric == "relative", ref_scenario == "historical")
+vars <- unique(valiData$variable)
+
+for (var in vars) {
+  # this plots only the periods which are being validated 
+  # (change in validationConfig)
+  p <- linePlotThresholds(valiData, var, reg = "World")
+  
+  # add historical data
+  h <- filter(hist, variable == var, region == "World", 
+              model %in% valiData[ ,"ref_model"],
+              period %in% seq(2005, 2030)) %>%
+    mutate(ref_model = model)
+  p <- p +
+    geom_point(data = h, aes(x = period, y = value, shape = ref_model),
+               size = 1, color = "black")
+  
+  # add scenario data
+  d <- filter(dR10, variable == var, region == "World",
+              grepl(ssp, scenario),
+              period %in% seq(2005, 2030))
+  p <- p +
+    geom_line(data = d, aes(x = period, y = value, color = model, linetype = scenario)) +
+    ylab(var)
+  
+  print(p)
+}
+```
+
+### SSP4
+
+```{r, fig.width=10, fig.height=6}
+i <- 4
+ssp <- paste0("SSP", i)
+valiData <- filter(df, grepl(ssp, scenario),
+            metric == "relative", ref_scenario == "historical")
+vars <- unique(valiData$variable)
+
+for (var in vars) {
+  # this plots only the periods which are being validated 
+  # (change in validationConfig)
+  p <- linePlotThresholds(valiData, var, reg = "World")
+  
+  # add historical data
+  h <- filter(hist, variable == var, region == "World", 
+              model %in% valiData[ ,"ref_model"],
+              period %in% seq(2005, 2030)) %>%
+    mutate(ref_model = model)
+  p <- p +
+    geom_point(data = h, aes(x = period, y = value, shape = ref_model),
+               size = 1, color = "black")
+  
+  # add scenario data
+  d <- filter(dR10, variable == var, region == "World",
+              grepl(ssp, scenario),
+              period %in% seq(2005, 2030))
+  p <- p +
+    geom_line(data = d, aes(x = period, y = value, color = model, linetype = scenario)) +
+    ylab(var)
+  
+  print(p)
+}
+```
+
+
+### SSP5
+
+```{r, fig.width=10, fig.height=6}
+i <- 5
+ssp <- paste0("SSP", i)
+valiData <- filter(df, grepl(ssp, scenario),
+            metric == "relative", ref_scenario == "historical")
+vars <- unique(valiData$variable)
+
+for (var in vars) {
+  # this plots only the periods which are being validated 
+  # (change in validationConfig)
+  p <- linePlotThresholds(valiData, var, reg = "World")
+  
+  # add historical data
+  h <- filter(hist, variable == var, region == "World", 
+              model %in% valiData[ ,"ref_model"],
+              period %in% seq(2005, 2030)) %>%
+    mutate(ref_model = model)
+  p <- p +
+    geom_point(data = h, aes(x = period, y = value, shape = ref_model),
+               size = 1, color = "black")
+  
+  # add scenario data
+  d <- filter(dR10, variable == var, region == "World",
+              grepl(ssp, scenario),
+              period %in% seq(2005, 2030))
+  p <- p +
+    geom_line(data = d, aes(x = period, y = value, color = model, linetype = scenario)) +
+    ylab(var)
+  
+  print(p)
+}
+```
+
+
 ## Historical (non-interactive)
 
 ### All models, all scenarios
 
-Deviation to IEA data, averaged from 2018 to 2022 to dampen Covid shock.
+Deviation to IEA data
 
 ```{r, fig.width=10, fig.height=10}
+df <- filter(df, period >= 2020)
 d <- filter(df, metric == "relative", ref_scenario == "historical" | is.na(ref_scenario))
 interact <- FALSE
 
@@ -163,8 +344,8 @@ if (nrow(d) > 0) {
                                         y_facet = "scenario",
                                         interactive = interact) %>% 
       # avoid overlap of title and facet labels (plotly issue)
-      layout(title = list(y = .95, xref = "plot"),
-             margin = list(l = 0, t = 150, r = 150))
+      plotly::layout(title = list(y = .95, xref = "plot"),
+                     margin = list(l = 0, t = 150, r = 150))
   }
   plot_list
 }
@@ -178,6 +359,39 @@ Deviation to "Medium" Scenario of the respective SSP in 2030.
 
 ```{r, fig.width=10, fig.height=10}
 d <- filter(df, metric == "relative", ref_scenario != "historical" | is.na(ref_scenario))
+interact <- TRUE
+
+# interactive plots can only be printed from outside of loops, use tagList
+# to store html objects in List
+if (nrow(d) > 0) {
+  models <- unique(d$model)
+  plot_list <- htmltools::tagList()
+  for (i in 1:length(models)) {
+    d_model <- filter(d, model == models[i])
+    plot_list[[i]] <- validationHeatmap(d_model, main_dim = "model",    
+                                        x_plot = "region",
+                                        y_plot = "period",
+                                        x_facet = "variable",
+                                        y_facet = "scenario",
+                                        interactive = interact) %>% 
+      # avoid overlap of title and facet labels (plotly issue)
+      layout(title = list(y = .95, xref = "plot"),
+             margin = list(l = 0, t = 150, r = 150))
+  }
+  plot_list
+}
+```
+
+### Capacities by Model
+
+Tested against thresholds based on IEA HSMR and IAEA PRIS project pipelines:
+
+https://github.com/pik-piam/mrremind/discussions/540
+
+https://github.com/pik-piam/mrremind/discussions/541
+
+```{r, fig.width=10, fig.height=10}
+d <- filter(df, metric == "absolute")
 interact <- TRUE
 
 # interactive plots can only be printed from outside of loops, use tagList
