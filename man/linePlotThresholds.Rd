@@ -8,7 +8,7 @@ linePlotThresholds(df, var, reg, scenData = FALSE, refData = FALSE)
 }
 \arguments{
 \item{df}{data.frame to be plotted, as returned by ``validateScenarios()``
-plus optional filtering. Only works for datapoint with "reference"}
+plus optional filtering. Only works for data point with "reference"}
 
 \item{var}{choose variable to plot}
 
