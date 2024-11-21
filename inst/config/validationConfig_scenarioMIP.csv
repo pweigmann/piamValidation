@@ -1,9 +1,9 @@
 metric;critical;variable;unit;model;scenario;region;period;min_red;min_yel;max_yel;max_red;ref_model;ref_scenario;ref_period;source/link to discussion
 Historical Vetting;;;;;;;;;;;;;;;
-relative;yes;Final Energy;EJ/yr;;;;2020;-20%;-10%;10%;20%;IEA;historical;;
-relative;yes;Primary Energy|Coal;EJ/yr;;;;2020;-20%;-10%;10%;20%;IEA;historical;;
-relative;yes;Primary Energy|Oil;EJ/yr;;;;2020;-20%;-10%;10%;20%;IEA;historical;;
-relative;yes;Primary Energy|Gas;EJ/yr;;;;2020;-20%;-10%;10%;20%;IEA;historical;;
+relative;yes;Final Energy;EJ/yr;;;;2010-2020;-20%;-10%;10%;20%;IEA;historical;;
+relative;yes;Primary Energy|Coal;EJ/yr;;;;2010-2020;-20%;-10%;10%;20%;IEA;historical;;
+relative;yes;Primary Energy|Oil;EJ/yr;;;;2010-2020;-20%;-10%;10%;20%;IEA;historical;;
+relative;yes;Primary Energy|Gas;EJ/yr;;;;2010-2020;-20%;-10%;10%;20%;IEA;historical;;
 Near-Term Trends;;;;;;;;;;;;;;;
 relative to 2030;;;;;;;;;;;;;;;
 relative;yes;Emissions|CO2;Mt CO2/yr;;SSP1 - High Emissions, SSP1 - Very Low Emissions, SSP1 - Low Overshoot, SSP1 - Low Emissions, SSP1 - Low Emissions_a, SSP1 - Medium Emissions_a, SSP1 - Medium-Low Emissions, SSP1 - Very Low Emissions_a;;2030;-20%;-10%;10%;20%;;SSP1 - Medium Emissions;;
@@ -27,18 +27,17 @@ relative;yes;Emissions|CO2|Energy|Demand|Transportation;Mt CO2/yr;;SSP2 - High E
 relative;yes;Emissions|CO2|Energy|Demand|Transportation;Mt CO2/yr;;SSP3 - High Emissions;;2030;-20%;-10%;10%;20%;;SSP3 - Medium Emissions;;
 relative;yes;Emissions|CO2|Energy|Demand|Transportation;Mt CO2/yr;;SSP5 - High Emissions, SSP5 - Low Overshoot;;2030;-20%;-10%;10%;20%;;SSP5 - Medium Emissions;;
 ;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;
 CCS;;;;;;;;;;;;;;;
 absolute;yes;Carbon Capture|Storage;Mt CO2/yr;;;World;2030;44.02;60.02;152.47;457.89;;;;Near-term vetting: Carbon Management 
 absolute;yes;Carbon Capture|Storage;Mt CO2/yr;;;Latin America (R10);2030;;6.36;28.84;;;;;https://github.com/pik-piam/mrremind/discussions/544
-absolute;yes;Carbon Capture|Storage;Mt CO2/yr;;;Rest of Asia (R10);2030;;0.00;20.91;;;;;
-absolute;yes;Carbon Capture|Storage;Mt CO2/yr;;;Africa (R10);2030;;0.00;2.24;;;;;
-absolute;yes;Carbon Capture|Storage;Mt CO2/yr;;;Europe (R10);2030;;1.12;110.60;;;;;
+absolute;yes;Carbon Capture|Storage;Mt CO2/yr;;;Rest of Asia (R10);2030;;0;20.91;;;;;
+absolute;yes;Carbon Capture|Storage;Mt CO2/yr;;;Africa (R10);2030;;0;2.24;;;;;
+absolute;yes;Carbon Capture|Storage;Mt CO2/yr;;;Europe (R10);2030;;1.12;110.6;;;;;
 absolute;yes;Carbon Capture|Storage;Mt CO2/yr;;;Middle East (R10);2030;;2.22;30.32;;;;;
-absolute;yes;Carbon Capture|Storage;Mt CO2/yr;;;Reforming Economies (R10);2030;;;0.00;;;;;
+absolute;yes;Carbon Capture|Storage;Mt CO2/yr;;;Reforming Economies (R10);2030;;;0;;;;;
 absolute;yes;Carbon Capture|Storage;Mt CO2/yr;;;Pacific OECD (R10);2030;;5.52;92.09;;;;;
 absolute;yes;Carbon Capture|Storage;Mt CO2/yr;;;China+ (R10);2030;;2.01;12.95;;;;;
-absolute;yes;Carbon Capture|Storage;Mt CO2/yr;;;India+ (R10);2030;;0.00;0.98;;;;;
+absolute;yes;Carbon Capture|Storage;Mt CO2/yr;;;India+ (R10);2030;;0;0.98;;;;;
 absolute;yes;Carbon Capture|Storage;Mt CO2/yr;;;North America (R10);2030;;12.12;283.84;;;;;
 Nuclear;;;;;;;;;;;;;;;
 absolute;yes;Capacity|Electricity|Nuclear;GW;;;World;2030;269.75;320.33;441.92;479.92;;;;Near-term vetting: Nuclear
@@ -46,7 +45,7 @@ absolute;yes;Capacity|Electricity|Nuclear;GW;;;Latin America (R10);2030;;2.43;9.
 absolute;yes;Capacity|Electricity|Nuclear;GW;;;Rest of Asia (R10);2030;;13.96;47.49;;;;;
 absolute;yes;Capacity|Electricity|Nuclear;GW;;;Africa (R10);2030;;0.89;8.75;;;;;
 absolute;yes;Capacity|Electricity|Nuclear;GW;;;Europe (R10);2030;;50.51;161.01;;;;;
-absolute;yes;Capacity|Electricity|Nuclear;GW;;;Middle East (R10);2030;;3.00;10.09;;;;;
+absolute;yes;Capacity|Electricity|Nuclear;GW;;;Middle East (R10);2030;;3;10.09;;;;;
 absolute;yes;Capacity|Electricity|Nuclear;GW;;;Reforming Economies (R10);2030;;20.42;67.86;;;;;
 absolute;yes;Capacity|Electricity|Nuclear;GW;;;Pacific OECD (R10);2030;;11.88;38.36;;;;;
 absolute;yes;Capacity|Electricity|Nuclear;GW;;;China+ (R10);2030;;26.89;115.25;;;;;
@@ -55,8 +54,8 @@ absolute;yes;Capacity|Electricity|Nuclear;GW;;;North America (R10);2030;;46.54;1
 Hydro;;;;;;;;;;;;;;;
 absolute;yes;Capacity|Electricity|Hydro;GW;;;World;2030;979.43;1175.37;1606.66;2117.58;;;;Near-term vetting: Hydro 
 absolute;yes;Capacity|Electricity|Hydro;GW;;;Latin America (R10);2030;;110.94;376.29;;;;;https://github.com/pik-piam/mrremind/discussions/541 
-absolute;yes;Capacity|Electricity|Hydro;GW;;;Rest of Asia (R10);2030;;32.88;189.60;;;;;
-absolute;yes;Capacity|Electricity|Hydro;GW;;;Africa (R10);2030;;15.30;96.39;;;;;
+absolute;yes;Capacity|Electricity|Hydro;GW;;;Rest of Asia (R10);2030;;32.88;189.6;;;;;
+absolute;yes;Capacity|Electricity|Hydro;GW;;;Africa (R10);2030;;15.3;96.39;;;;;
 absolute;yes;Capacity|Electricity|Hydro;GW;;;Europe (R10);2030;;106.16;436.09;;;;;
 absolute;yes;Capacity|Electricity|Hydro;GW;;;Middle East (R10);2030;;6.85;31.76;;;;;
 absolute;yes;Capacity|Electricity|Hydro;GW;;;Reforming Economies (R10);2030;;37.74;135.95;;;;;
