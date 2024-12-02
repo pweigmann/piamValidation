@@ -13,9 +13,9 @@
 #'
 #' @export
 validateScenarios <- function(dataPath, config,
-                              outputFile = NULL, extraColors = TRUE) {
+                              outputFile = NULL, extraColors = TRUE, loadBinary = TRUE) {
 
-  data <- importScenarioData(dataPath)
+  data <- importScenarioData(dataPath, loadBinary)
 
   # historical/reference data has to have "historical" as scenario name
   hist <- filter(data, scenario == "historical")
@@ -27,6 +27,7 @@ validateScenarios <- function(dataPath, config,
     fillInf() %>%
     expandPeriods(scen) %>%
     expandVariables(scen)
+  # TODO: remove duplicate constraints here
 
   # TODO: check if all variables from config are in scenario data,
   # currently fails only with unit check

@@ -11,7 +11,7 @@
 #' @importFrom piamInterfaces areUnitsIdentical
 #'
 #'
-combineData <- function(scenData, cfgRow, histData = NULL) {
+combineData <- function(scenData, cfgRow, histData = NULL, smoothYears = c(2020)) {
 
   # shorten as it will be used a lot
   c <- cfgRow
@@ -67,50 +67,87 @@ combineData <- function(scenData, cfgRow, histData = NULL) {
   # test whether units of config and scenario data match
   d <- checkUnits(d, c)
 
-  # historic ####
+  # validate with historical values ####
   # depending on category: filter and attach reference values if they are needed
   if (c$ref_scenario == "historical" && !is.na(c$ref_scenario == "historical")) {
     # historic data for relevant variable and dimensions (all sources)
     h <- histData %>%
       filter(variable %in% c$variable,
-             region %in% reg,
-             period %in% per) %>%
+             region %in% reg) %>%
       mutate(ref_value = value, ref_model = model) %>%
-      select(-c("scenario", "value", "model"))
+      select(-c("scenario", "value", "model", "ssp", "emi.scen", "def.var"))
 
+    # calculating averages for 5-year periods
+    h_smoothed <- h %>%
+      group_by(
+        ref_model, region, variable, unit,
+        period = round(period / 5) * 5) %>% # nearest multiple of 5 (eg 2020 for 2018-2022)
+      filter(period %in% smoothYears) %>%
+      summarise(ref_value = mean(ref_value), .groups = "drop")
+
+
+    # combine the original and averaged historical values
+    h <- bind_rows(
+      h %>% mutate(period_smoothing = ifelse(period %in% smoothYears, "max", "default")),
+      h_smoothed %>% mutate(period_smoothing = "min")
+    )
+
+
+    h <- h %>% filter(period %in% per)
 
     # test whether units of config and reference data match
     h <- checkUnits(h, c)
 
     # test whether historical ref_model exists and has data to compare to
     if (nrow(h) == 0) {
-      cat(paste0("No reference data for variable ", c$variable, " found.\n"))
+      cat(paste0("No reference data found for variable ", c$variable, ".\n"))
       df <- data.frame()
     } else {
 
       # in case one or more sources are specified, filter for them
       if (!is.na(c$ref_model)) {
-        h <- filter(
-          h, ref_model %in% strsplit(c$ref_model, split = ", |,")[[1]]
-        )
+        h <- h %>%
+          filter(ref_model %in% strsplit(c$ref_model, split = ", |,")[[1]])
       }
 
       # in case of multiple sources, use mean (of all available sources)
       if (length(unique(h$ref_model)) > 1) {
-        h_mean <- group_by(h, period, region) %>%
-          summarise(ref_value = mean(ref_value, na.rm = TRUE))
-        h <- mutate(h_mean, variable = c$variable, ref_model = "multiple")
+        h_mean <- h %>%
+          group_by(period, region, period_smoothing) %>%
+          summarise(ref_value = mean(ref_value, na.rm = TRUE)) %>%
+          mutate(variable = c$variable, ref_model = "multiple")
       }
 
       # merge with historical data adds columns ref_value and ref_model from h
-      df <- merge(d, h)
+      df <- merge(d, h, by = c("region", "variable", "unit", "period"))
+
+      # for smoothed years, keep the max for upper-bounds and min for lower-bounds
+      df <- df %>%
+        group_by(across(-c(ref_value, period_smoothing))) %>%
+        mutate(
+          ref_value = case_when(
+            #!(period %in% smoothYears & n() == 2) ~ ref_value, # no modification where no smoothing
+            period_smoothing == "max" ~ max(ref_value, na.rm = TRUE),
+            period_smoothing == "min" ~ min(ref_value, na.rm = TRUE),
+            TRUE ~ ref_value
+          )
+        ) %>%
+        ungroup()
+
+      df <- df %>%
+        mutate(min_red = ifelse(period_smoothing == "max", NA, min_red),
+               min_yel = ifelse(period_smoothing == "max", NA, min_yel),
+               max_yel = ifelse(period_smoothing == "min", NA, max_yel),
+               max_red = ifelse(period_smoothing == "min", NA, max_red),
+        ) %>%
+        select(-period_smoothing)
 
       # add columns which are not used in this category
       df <- df %>% mutate(ref_period = as.numeric(NA),
                           ref_scenario = "historical")
     }
 
-  # scenario ####
+  # validate with other scenarios ####
   # filter and attach reference values if they are needed; scenario data
   } else {
 
@@ -144,6 +181,8 @@ combineData <- function(scenData, cfgRow, histData = NULL) {
           mutate(ref_scenario = as.character(NA),
                  ref_period   = as.numeric(NA))
 
+        df <- merge(d, ref, by = c("scenario", "region", "variable", "unit", "period"))
+
       # if a reference scenario should be used, same period, same model
       } else if (!is.na(c$ref_scenario)) {
         ref <- scenData %>%
@@ -159,6 +198,8 @@ combineData <- function(scenData, cfgRow, histData = NULL) {
           mutate(ref_model  = as.character(NA),
                  ref_period = as.numeric(NA))
 
+        df <- merge(d, ref, by = c("model", "region", "variable", "unit", "period"))
+
       # if a reference period should be used, same scenario, same model
       } else if (!is.na(c$ref_period)) {
         ref <- scenData %>%
@@ -173,9 +214,11 @@ combineData <- function(scenData, cfgRow, histData = NULL) {
           # add columns which are not used in this category, fill NA
           mutate(ref_model    = as.character(NA),
                  ref_scenario = as.character(NA))
+
+        df <- merge(d, ref, by = c("model", "scenario", "region", "variable", "unit"))
       }
 
-      df <- merge(d, ref)
+
 
     } else {
       # TODO: have this warning here or earlier when cleaning config?

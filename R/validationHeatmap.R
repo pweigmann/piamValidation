@@ -17,32 +17,44 @@
 #' @importFrom ggthemes theme_tufte
 #' @export
 
+# define color signal for each category of threshods
+validationHeatmap.colors <- c(green     = "#008450",
+                              yellow    = "#EFB700",
+                              red       = "#B81D13",
+                              cyan      = "#66ccee",
+                              blue      = "#4477aa",
+                              grey      = "#808080")
+
+# define ranks of color urgency, just to sort them when needed
+# 2 = warning, 3 = alert
+validationHeatmap.colorRanks <- c(green = 1,
+                              yellow    = 2,
+                              red       = 3,
+                              cyan      = 2,
+                              blue      = 3,
+                              grey      = 0)
+
+
 validationHeatmap <- function(df,
                               main_dim = "variable",
                               x_plot  = NULL, y_plot  = NULL,
                               x_facet = NULL, y_facet = NULL,
-                              interactive = TRUE) {
+                              interactive = TRUE,
+                              titleSuffix = "") {
 
   # setup ####
 
-  plot_title <- paste0(df[1, main_dim])
+  plot_title <- paste0(df[1, main_dim][[1]], " ", titleSuffix)
 
   # prepare data
   df$period <- as.character(df$period)
   standard_dims <- c("model", "scenario", "variable", "region", "period")
-  colors <- c(green     = "#008450",
-              yellow    = "#EFB700",
-              red       = "#B81D13",
-              cyan      = "#66ccee",
-              blue      = "#4477aa",
-              grey      = "#808080")
 
   # check arguments ####
 
   # check if valid name for main_dim is passed
   if (!main_dim %in% standard_dims) {
-    stop("Please choose 'main_dim' from the standard dimensions: \n",
-         "model, scenario, variable, region or period\n")
+    stop("Please choose argument 'main_dim' among: ", toString(standard_dims), "\n")
   }
 
   # check if data.frame has at least one dimension of only one element
@@ -143,7 +155,7 @@ validationHeatmap <- function(df,
                       fill = check,
                       text = text)) +
     geom_tile(color = "white", linewidth = 0.0) +
-    scale_fill_manual(values = colors, breaks = colors) +
+    scale_fill_manual(values = validationHeatmap.colors, breaks = validationHeatmap.colors) +
     facet_grid(.data[[y_facet, ]] ~ .data[[x_facet, ]]) +
     labs(x = NULL, y = NULL, title = plot_title) +
     theme_tufte(base_family = "Arial") +
