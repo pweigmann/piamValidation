@@ -8,8 +8,8 @@ relative;yes;Primary Energy|Oil;EJ/yr;;;;2010-2020;-30%;-20%;20%;30%;IEA;histori
 relative;yes;Primary Energy|Oil;EJ/yr;;;World;2010-2020;-20%;-10%;10%;20%;IEA;historical;;
 relative;yes;Primary Energy|Gas;EJ/yr;;;;2010-2020;-30%;-20%;20%;30%;IEA;historical;;
 relative;yes;Primary Energy|Gas;EJ/yr;;;World;2010-2020;-20%;-10%;10%;20%;IEA;historical;;
-#relative;yes;Emissions|CO2|Energy|Supply;Mt CO2/yr;;;;2010-2020;-30%;-20%;20%;30%;CEDS;historical;;
-#relative;yes;Emissions|CO2|Energy|Supply;Mt CO2/yr;;;World;2010-2020;-20%;-10%;10%;20%;CEDS;historical;;
+relative;yes;Emissions|CO2|Energy|Supply;Mt CO2/yr;;;;2010-2020;-30%;-20%;20%;30%;CEDS;historical;;
+relative;yes;Emissions|CO2|Energy|Supply;Mt CO2/yr;;;World;2010-2020;-20%;-10%;10%;20%;CEDS;historical;;
 Near-Term Trends;;;;;;;;;;;;;;;
 relative to 2030;;;;;;;;;;;;;;;
 relative;yes;Emissions|CO2|Energy and Industrial Processes;Mt CO2/yr;;SSP1 - High Emissions, SSP1 - Very Low Emissions, SSP1 - Low Overshoot, SSP1 - Low Emissions, SSP1 - Low Emissions_a, SSP1 - Medium Emissions_a, SSP1 - Medium-Low Emissions, SSP1 - Very Low Emissions_a;;2030;-20%;-10%;10%;20%;;SSP1 - Medium Emissions;;
@@ -21,14 +21,14 @@ capacities and CCS from threshold.mif;;;;;;;;;;;;;;;
 CCS;;;;;;;;;;;;;;;
 absolute;yes;Carbon Capture;Mt CO2/yr;;;World;2030;44.02;60.02;152.47;457.89;;;;Near-term vetting: Carbon Management
 absolute;yes;Carbon Capture;Mt CO2/yr;;;Latin America (R10);2030;;6.36;28.84;;;;;https://github.com/pik-piam/mrremind/discussions/544
-absolute;yes;Carbon Capture;Mt CO2/yr;;;Rest of Asia (R10);2030;;0;20.91;;;;;
-absolute;yes;Carbon Capture;Mt CO2/yr;;;Africa (R10);2030;;0;2.24;;;;;
-absolute;yes;Carbon Capture;Mt CO2/yr;;;Europe (R10);2030;;1.12;110.6;;;;;
+absolute;yes;Carbon Capture;Mt CO2/yr;;;Rest of Asia (R10);2030;;0.00;20.91;;;;;
+absolute;yes;Carbon Capture;Mt CO2/yr;;;Africa (R10);2030;;0.00;2.24;;;;;
+absolute;yes;Carbon Capture;Mt CO2/yr;;;Europe (R10);2030;;1.12;110.60;;;;;
 absolute;yes;Carbon Capture;Mt CO2/yr;;;Middle East (R10);2030;;2.22;30.32;;;;;
-absolute;yes;Carbon Capture;Mt CO2/yr;;;Reforming Economies (R10);2030;;;0;;;;;
+absolute;yes;Carbon Capture;Mt CO2/yr;;;Reforming Economies (R10);2030;;;0.00;;;;;
 absolute;yes;Carbon Capture;Mt CO2/yr;;;Pacific OECD (R10);2030;;5.52;92.09;;;;;
 absolute;yes;Carbon Capture;Mt CO2/yr;;;China+ (R10);2030;;2.01;12.95;;;;;
-absolute;yes;Carbon Capture;Mt CO2/yr;;;India+ (R10);2030;;0;0.98;;;;;
+absolute;yes;Carbon Capture;Mt CO2/yr;;;India+ (R10);2030;;0.00;0.98;;;;;
 absolute;yes;Carbon Capture;Mt CO2/yr;;;North America (R10);2030;;12.12;283.84;;;;;
 Nuclear;;;;;;;;;;;;;;;
 absolute;yes;Capacity|Electricity|Nuclear;GW;;;World;2030;269.75;320.33;441.92;479.92;;;;Near-term vetting: Nuclear

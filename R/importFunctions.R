@@ -4,37 +4,16 @@
 
 # scenarioPath: one or multiple paths to .mif or .csv file(s) containing
 #               scenario data in IAM format
-importScenarioData <- function(scenarioPath, loadBinary = TRUE) {
-  # create a folder for binary backups if necessary
-  if (loadBinary && !dir.exists("data")) {
-    dir.create("data")
-  }
+importScenarioData <- function(scenarioPath) {
+  data <- remind2::deletePlus(quitte::as.quitte(scenarioPath, na.rm = TRUE)) %>%
+    filter(period >= 1990)
 
-  # load each scenario file, either from path or from binary backup
-  data_list <- lapply(scenarioPath, function(file) {
-    binary_filename <- file.path("data", paste0(basename(file), ".rds"))
-    
-    if (loadBinary && file.exists(binary_filename)) { # load from binary if it exists
-      data <- readRDS(binary_filename)
-      message(paste("Loaded", basename(file), "from binary backup. To reload from path, use `loadBinary = FALSE`."))
-    } else { # otherwise load from path
-      data <- file %>%
-        quitte::as.quitte(na.rm = TRUE) %>%
-        filter(period >= 1990) %>%
-        remind2::deletePlus()
-      
-      # change ordering of factors (global elements first)
-      new_order <- unique(intersect(c("World", "GLO", levels(data$region)), levels(data$region)))
-      data$region <- factor(data$region, levels = new_order)
-      
-      saveRDS(data, binary_filename) # save binary backup for future use
-      message(paste("Loaded", basename(file), "from path and saved binary backup."))
-    }
-    
-    return(data)
-  })
+  # change ordering of factors, global elements first
+  new_order <- unique(intersect(c("World", "GLO",
+                                  levels(data$region)), levels(data$region)))
+  data$region <- factor(data$region, levels = new_order)
 
-  return(as.quitte(data_list))
+  return(data)
 }
 
 

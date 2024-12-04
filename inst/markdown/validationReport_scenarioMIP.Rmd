@@ -16,7 +16,7 @@ params:
   figWidth: 8
 ---
 
-```{r, setup, include=FALSE}
+```{r include=FALSE}
 library(piamValidation)
 library(knitr)
 library(dplyr)
@@ -32,778 +32,444 @@ knitr::opts_chunk$set(
   message = params$message,
   warning = params$warning
 )
-
-# ensure that the working directory is the project root
-knitr::opts_knit$set(root.dir = rprojroot::find_rstudio_root_file())
 ```
 
-<!-- ## Import and Prepare Data -->
+## Import and Prepare Data
+
+Loading data from: 
+"scenarios_scenariomip_2024-11-21", "historical_R10_scenarioMIP_2024-11-05.mif"
+
+```{r}
+#for (m in params$mif) cat(paste0(normalizePath(m), "\n"))
+```
+
+Using config: "scenarioMIP"
 
 ```{r}
 cat(params$cfg, "\n")
 ```
 
+
 ```{r, message = FALSE, warning = TRUE}
-# getwd()
 
-hist <- quitte::read.snapshot("./data/historical_R10_scenarioMIP_2024-11-05.mif")
-dR10 <- readRDS("./data/scenarios_scenariomip_2024-11-21_processed.rds") %>%
-  filter(region %in% unique(hist$region))
-df <- bind_rows(hist, dR10)
+hist <- quitte::read.snapshot("/historical_R10_scenarioMIP_2024-11-05.mif") # %>%
+  #filter(period %in% seq(2018, 2022)) %>%
+  #as.magpie(spatial = "region")
 
-files <- c(
-  "./data/historical_R10_scenarioMIP_2024-11-05.mif",
-  "scenarios_scenariomip_2024-11-21_processed"
-)
+# average 2020 values over 5 year period to even out Covid shock
+#hist[, 2020, ] <- dimSums(hist, dim = 2)/5
+#hist <- quitte::as.quitte(hist[, , ])
+
+
+#data <- quitte::read.snapshot("/scenarios_scenariomip_2024-11-21.csv")
+#saveRDS(data, file = "scenarios_scenariomip_2024-11-21.rds")
+data <- readRDS("/scenarios_scenariomip_2024-11-21.rds")
+
+dR10 <- filter(data, region %in% unique(hist$region))
+
+df <- rbind(hist, dR10)
 
 # Data Preparation
-df <- validateScenarios(files, "scenarioMIP", extraColors = TRUE)
+df <- validateScenarios(df, "scenarioMIP", extraColors = TRUE)
 df <- appendTooltips(df)
 
 # reorder scenario names alphabetically
 df$scenario <- factor(df$scenario, levels = sort(levels(df$scenario)))
 ```
 
-<!-- ### Naming conventions -->
-```{r}
-# copy-pasted from REMIND multi-model analysis scripts
-
-plot.emi.scen.letter <- c(
-  "High Emissions" = "H",
-  "Medium Emissions" = "M",
-  "Medium-Low Emissions" = "ML",
-  "Low Emissions" = "L",
-  "Low Overshoot" = "LOS",
-  "Very Low Emissions" = "VL"
-)
-
-plot.emi.scen.colors <- c(
-  "High Emissions" = "darkred",
-  "Medium Emissions" = "#FF6F6F",
-  "Medium-Low Emissions" = "#B282AE",
-  "Low Emissions" = "#6495ED",
-  "Low Overshoot" = "#FF8C00",
-  "Very Low Emissions" = "#6B8E23"
-)
-
-plot.model.colors <- c(
-  # scenario models
-  "AIM" = "#4D5CAD",
-  "COFFEE" = "#69BA7F",
-  "GCAM" = "#759EA8",
-  "IMAGE" = "#868367",
-  "MESSAGEix-GLOBIOM" = "#892F71",
-  "REMIND-MAgPIE" = "#facb1e",
-  "WITCH" = "#fb6a4a"
-)
-
-plot.model.letters <- c(
-  "AIM" = "A",
-  "COFFEE" = "C",
-  "MESSAGEix-GLOBIOM" = "M",
-  "GCAM" = "G",
-  "REMIND-MAgPIE" = "R",
-  "IMAGE" = "I",
-  "WITCH" = "W"
-)
-
-plot.SSP.linetype <- c(
-    "SSP1" = "dashed",
-    "SSP2" = "solid",
-    "SSP3" = "dotted",
-    "SSP4" = "longdash",
-    "SSP5" = "dotdash"
-  )
-
-```
-
-
 ## Validation
 
-### Data sources
-
-#### 2020 vetting
-
-Deviation to IEA data.
-For 2020, the tolerance range includes both the 2020 value and the 2018-2022 average.
-
-#### Near-term emissions
-
-Deviation to "Medium" Scenario of the respective SSP in 2030.
-
-
-#### Near-term capacities
-
-Tested against thresholds based on IEA HSMR and IAEA PRIS project pipelines:
-
-<https://github.com/pik-piam/mrremind/discussions/540>
-
-<https://github.com/pik-piam/mrremind/discussions/541>
-
 ### Summary
-
 ```{r}
 # find "critical == yes" data points of each color
-summary <- dplyr::count(df, model, check) %>%
-  mutate(model = substr(model, 1, 5))
-  #revalue.levels(model = plot.model.letters)
+summary <- dplyr::count(df, model, check)
 
-ggplot(summary, aes(x = model, y = n, fill = check)) +
+colors <- c(green     = "#008450",
+            yellow    = "#EFB700",
+            red       = "#B81D13",
+            cyan      = "#66ccee",
+            blue      = "#4477aa",
+            grey      = "#808080")
+
+ggplot(summary, aes(x = model, y= n, fill = check)) +
   geom_bar(stat = "identity") +
-  scale_fill_manual(values = validationHeatmap.colors) +
-  theme(axis.text.x = element_text(angle = 0, vjust = 0, hjust=0.5))
+  scale_fill_manual(values = colors) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 ```
 
-<!-- ## Historical vetting by model -->
+
+## Lineplots Historical - Interactive Prototypes
+
+### SSP1
+
 ```{r, fig.width=10, fig.height=6}
+s <- 1
+ssp <- paste0("SSP", s)
+valiData <- filter(df, grepl(ssp, scenario),
+            metric == "relative", ref_scenario == "historical")
+vars <- unique(valiData$variable)
 
-interactiveLinplots_model <- function(modelArg = "AIM") {
-  valiData <- df %>%
-    #revalue.levels(emi.scen = plot.emi.scen.letter) %>%
-    filter(model == modelArg,
-           metric == "relative",
-           ref_scenario == "historical")
+plot_list <- htmltools::tagList()
+for (i in 1:length(vars)) {
+  var <- as.character(vars[i])
+  # this plots only the periods which are being validated 
+  # (change in validationConfig)
+  p <- linePlotThresholds(valiData, var, reg = "World")
   
-  vars <- unique(valiData$variable)
+  # add historical data
+  h <- filter(hist, variable == var, region == "World", 
+              model %in% valiData[ ,"ref_model"],
+              period %in% seq(2005, 2030)) %>%
+    mutate(ref_model = model)
+  p <- p +
+    geom_point(data = h, aes(x = period, y = value, shape = ref_model),
+               size = 1, color = "black")
   
-  local_hist <- hist %>%
-      filter(variable %in% vars,
-             region == "World",
-             model %in% valiData$ref_model,
-             period %in% seq(2005, 2030)) %>%
-      mutate(ref_model = model)
+  # add scenario data
+  d <- filter(dR10, variable == var, region == "World",
+              grepl(ssp, scenario),
+              period %in% seq(2005, 2030))
+  p <- p +
+    geom_line(data = d, aes(x = period, y = value, color = model, linetype = scenario)) +
+    ylab(var)
   
-  local_scen <- dR10 %>%
-      #revalue.levels(emi.scen = plot.emi.scen.letter) %>%
-      filter(variable %in% vars,
-             region == "World",
-             model == modelArg,
-             period %in% seq(2005, 2030)) %>%
-      mutate(scenario = paste0(" ", ssp, gsub("Default|Variant","",def.var)))
-  
-  plot_list <- htmltools::tagList()
-  for (i in 1:length(vars)) {
-    var <- as.character(vars[i])
-    
-    # this plots only the periods which are being validated 
-    # (change in validationConfig)
-    p <- linePlotThresholds(valiData, var, reg = "World", refData = T)
-    
-    # add historical data
-    h <- local_hist %>% filter(variable == var)
-    p <- p +
-      geom_point(data = h, aes(x = period, y = value), #, shape = ref_model),
-                 size = 1, color = "black")
-    
-    # add scenario data
-    d <- local_scen %>% filter(variable == var)
-    p <- p +
-      geom_line(data = d, aes(x = period, y = value, color = emi.scen, linetype = scenario, group = ssp)) +
-      scale_color_manual(values = plot.emi.scen.colors)
-      #labs(color = "Scenario") +
-      #scale_linetype_manual(values = plot.SSP.linetype) +
-
-    plot_list[[i]] <- plotly::ggplotly(p)
-  }
-  return(plot_list)
+  plot_list[[i]] <- plotly::ggplotly(p)
 }
-
+plot_list
 ```
-<!-- ### AIM -->
-<!-- ```{r, fig.width=10, fig.height=6} -->
-<!-- interactiveLinplots_model("REMIND-MAgPIE") -->
-<!-- ``` -->
 
 
-## Historical vetting by scenario narrative
+### SSP2
+
 ```{r, fig.width=10, fig.height=6}
+s <- 2
+ssp <- paste0("SSP", s)
+valiData <- filter(df, grepl(ssp, scenario),
+            metric == "relative", ref_scenario == "historical")
+vars <- unique(valiData$variable)
 
-interactiveLinplots_emiScen <- function(emiScen = "VL") {
-  valiData <- df %>%
-    revalue.levels(emi.scen = plot.emi.scen.letter) %>%
-    filter(emi.scen == emiScen,
-           metric == "relative",
-           ref_scenario == "historical")
+plot_list <- htmltools::tagList()
+for (i in 1:length(vars)) {
+  var <- as.character(vars[i])
+  # this plots only the periods which are being validated 
+  # (change in validationConfig)
+  p <- linePlotThresholds(valiData, var, reg = "World")
   
-  vars <- unique(valiData$variable)
+  # add historical data
+  h <- filter(hist, variable == var, region == "World", 
+              model %in% valiData[ ,"ref_model"],
+              period %in% seq(2005, 2030)) %>%
+    mutate(ref_model = model)
+  p <- p +
+    geom_point(data = h, aes(x = period, y = value, shape = ref_model),
+               size = 1, color = "black")
   
-  local_hist <- hist %>%
-      filter(variable %in% vars,
-             region == "World",
-             model %in% valiData$ref_model,
-             period %in% seq(2005, 2030)) %>%
-      mutate(ref_model = model)
+  # add scenario data
+  d <- filter(dR10, variable == var, region == "World",
+              grepl(ssp, scenario),
+              period %in% seq(2005, 2030))
+  p <- p +
+    geom_line(data = d, aes(x = period, y = value, color = model, linetype = scenario)) +
+    ylab(var)
   
-  local_scen <- dR10 %>%
-      revalue.levels(emi.scen = plot.emi.scen.letter) %>%
-      filter(variable %in% vars,
-             region == "World",
-             emi.scen == emiScen,
-             period %in% seq(2005, 2030)) %>%
-      mutate(scenario = paste0(" ", ssp, gsub("Default|Variant","",def.var)))
-  
-  plot_list <- htmltools::tagList()
-  for (i in 1:length(vars)) {
-    var <- as.character(vars[i])
-    
-    # this plots only the periods which are being validated 
-    # (change in validationConfig)
-    p <- linePlotThresholds(valiData, var, reg = "World", refData = T)
-    
-    # add historical data
-    h <- local_hist %>% filter(variable == var)
-    p <- p +
-      geom_point(data = h, aes(x = period, y = value), #, shape = ref_model),
-                 size = 1, color = "black")
-    
-    # add scenario data
-    d <- local_scen %>% filter(variable == var)
-    p <- p +
-      geom_line(data = d, aes(x = period, y = value, color = model, linetype = scenario, group = ssp)) +
-      #labs(color = "Scenario") +
-      #scale_linetype_manual(values = plot.SSP.linetype) +
-      scale_color_manual(values = plot.model.colors)
-    
-    plot_list[[i]] <- plotly::ggplotly(p)
-  }
-  return(plot_list)
+  plot_list[[i]] <- plotly::ggplotly(p)
 }
-
+plot_list
 ```
 
-### VL
+### SSP3
+
 ```{r, fig.width=10, fig.height=6}
-interactiveLinplots_emiScen("VL")
+s <- 3
+ssp <- paste0("SSP", s)
+valiData <- filter(df, grepl(ssp, scenario),
+            metric == "relative", ref_scenario == "historical")
+vars <- unique(valiData$variable)
+
+plot_list <- htmltools::tagList()
+for (i in 1:length(vars)) {
+  var <- as.character(vars[i])
+  # this plots only the periods which are being validated 
+  # (change in validationConfig)
+  p <- linePlotThresholds(valiData, var, reg = "World")
+  
+  # add historical data
+  h <- filter(hist, variable == var, region == "World", 
+              model %in% valiData[ ,"ref_model"],
+              period %in% seq(2005, 2030)) %>%
+    mutate(ref_model = model)
+  p <- p +
+    geom_point(data = h, aes(x = period, y = value, shape = ref_model),
+               size = 1, color = "black")
+  
+  # add scenario data
+  d <- filter(dR10, variable == var, region == "World",
+              grepl(ssp, scenario),
+              period %in% seq(2005, 2030))
+  p <- p +
+    geom_line(data = d, aes(x = period, y = value, color = model, linetype = scenario)) +
+    ylab(var)
+  
+  plot_list[[i]] <- plotly::ggplotly(p)
+}
+plot_list
 ```
 
-### LOS
+### SSP4
+
 ```{r, fig.width=10, fig.height=6}
-interactiveLinplots_emiScen("LOS")
+s <- 4
+ssp <- paste0("SSP", s)
+valiData <- filter(df, grepl(ssp, scenario),
+            metric == "relative", ref_scenario == "historical")
+vars <- unique(valiData$variable)
+
+plot_list <- htmltools::tagList()
+for (i in 1:length(vars)) {
+  var <- as.character(vars[i])
+  # this plots only the periods which are being validated 
+  # (change in validationConfig)
+  p <- linePlotThresholds(valiData, var, reg = "World")
+  
+  # add historical data
+  h <- filter(hist, variable == var, region == "World", 
+              model %in% valiData[ ,"ref_model"],
+              period %in% seq(2005, 2030)) %>%
+    mutate(ref_model = model)
+  p <- p +
+    geom_point(data = h, aes(x = period, y = value, shape = ref_model),
+               size = 1, color = "black")
+  
+  # add scenario data
+  d <- filter(dR10, variable == var, region == "World",
+              grepl(ssp, scenario),
+              period %in% seq(2005, 2030))
+  p <- p +
+    geom_line(data = d, aes(x = period, y = value, color = model, linetype = scenario)) +
+    ylab(var)
+  
+  plot_list[[i]] <- plotly::ggplotly(p)
+}
+plot_list
 ```
 
-### L
+
+### SSP5
+
 ```{r, fig.width=10, fig.height=6}
-interactiveLinplots_emiScen("L")
+s <- 5
+ssp <- paste0("SSP", s)
+valiData <- filter(df, grepl(ssp, scenario),
+            metric == "relative", ref_scenario == "historical")
+vars <- unique(valiData$variable)
+
+plot_list <- htmltools::tagList()
+for (i in 1:length(vars)) {
+  var <- as.character(vars[i])
+  # this plots only the periods which are being validated 
+  # (change in validationConfig)
+  p <- linePlotThresholds(valiData, var, reg = "World")
+  
+  # add historical data
+  h <- filter(hist, variable == var, region == "World", 
+              model %in% valiData[ ,"ref_model"],
+              period %in% seq(2005, 2030)) %>%
+    mutate(ref_model = model)
+  p <- p +
+    geom_point(data = h, aes(x = period, y = value, shape = ref_model),
+               size = 1, color = "black")
+  
+  # add scenario data
+  d <- filter(dR10, variable == var, region == "World",
+              grepl(ssp, scenario),
+              period %in% seq(2005, 2030))
+  p <- p +
+    geom_line(data = d, aes(x = period, y = value, color = model, linetype = scenario)) +
+    ylab(var)
+  
+  plot_list[[i]] <- plotly::ggplotly(p)
+}
+plot_list
 ```
 
-### ML
-```{r, fig.width=10, fig.height=6}
-interactiveLinplots_emiScen("ML")
-```
 
-### M
-```{r, fig.width=10, fig.height=6}
-interactiveLinplots_emiScen("M")
-```
-
-### H
-```{r, fig.width=10, fig.height=6}
-interactiveLinplots_emiScen("H")
-```
-
-
-<!-- ## Historical vetting by SSP -->
-
-<!-- ```{r, fig.width=10, fig.height=6} -->
-
-<!-- interactiveLinplots <- function(sspArg = "SSP1") { -->
-<!--   valiData <- df %>% -->
-<!--     filter(ssp == sspArg, -->
-<!--            metric == "relative", -->
-<!--            ref_scenario == "historical") -->
-
-<!--   vars <- unique(valiData$variable) -->
-
-<!--   local_hist <- hist %>% -->
-<!--       filter(variable %in% vars, -->
-<!--              region == "World", -->
-<!--              model %in% valiData$ref_model, -->
-<!--              period %in% seq(2005, 2030)) %>% -->
-<!--       mutate(ref_model = model) -->
-
-<!--   local_scen <- dR10 %>% -->
-<!--       filter(variable %in% vars, -->
-<!--              region == "World", -->
-<!--              ssp == sspArg, -->
-<!--              period %in% seq(2005, 2030)) %>% -->
-<!--       revalue.levels(emi.scen = plot.emi.scen.letter) %>% -->
-<!--       mutate(scenario = paste0(" ", emi.scen, gsub("Default|Variant","",def.var))) -->
-
-
-<!--   plot_list <- htmltools::tagList() -->
-<!--   for (i in 1:length(vars)) { -->
-<!--     var <- as.character(vars[i]) -->
-
-<!--     # this plots only the periods which are being validated  -->
-<!--     # (change in validationConfig) -->
-<!--     p <- linePlotThresholds(valiData, var, reg = "World", refData = T) -->
-
-<!--     # add historical data -->
-<!--     h <- local_hist %>% filter(variable == var) -->
-<!--     p <- p + -->
-<!--       geom_point(data = h, aes(x = period, y = value), #, shape = ref_model), -->
-<!--                  size = 1, color = "black") -->
-
-<!--     # add scenario data -->
-<!--     d <- local_scen %>% filter(variable == var) -->
-<!--     p <- p + -->
-<!--       geom_line(data = d, aes(x = period, y = value, color = model, linetype = scenario)) -->
-
-<!--     plot_list[[i]] <- plotly::ggplotly(p) -->
-<!--   } -->
-<!--   return(plot_list) -->
-<!-- } -->
-
-<!-- ``` -->
-
-<!-- ### SSP1 -->
-<!-- ```{r, fig.width=10, fig.height=6} -->
-<!-- interactiveLinplots("SSP1") -->
-<!-- ``` -->
-
-
-<!-- ### SSP2 -->
-<!-- ```{r, fig.width=10, fig.height=6} -->
-<!-- interactiveLinplots("SSP2") -->
-<!-- ``` -->
-
-<!-- ### SSP3 -->
-<!-- ```{r, fig.width=10, fig.height=6} -->
-<!-- interactiveLinplots("SSP3") -->
-<!-- ``` -->
-
-<!-- ### SSP4 -->
-<!-- ```{r, fig.width=10, fig.height=6} -->
-<!-- interactiveLinplots("SSP4") -->
-<!-- ``` -->
-
-<!-- ### SSP5 -->
-<!-- ```{r, fig.width=10, fig.height=6} -->
-<!-- interactiveLinplots("SSP5") -->
-<!-- ``` -->
-
-<!-- ## 2020 overview (non-interactive) -->
+## Historical (non-interactive)
 
 ```{r, fig.width=10, fig.height=10}
 # all following heat maps should not show historic periods in this document
-df_heatmap <- df %>%
-  filter(period >= 2020)
-
-# when there are several checks for the same variable, display only the more extreme color
-# minor issue: if only the max is the violated, hoverbox won't show the min
-# issue: if a strict rule is overwritten by a lax rule, we may get unwanted color warnings
-df_heatmap <- df_heatmap %>%
-  mutate(checkRank = check) %>%
-  revalue.levels(checkRank = validationHeatmap.colorRanks) %>%
-  group_by(region,variable,unit,period, model, scenario, value, ssp,emi.scen,def.var) %>%
-  filter(checkRank == max(checkRank)) %>%
-  select(-checkRank)
-
-# testing example:
-# ddd <- df_heatmap %>%
-#   filter(model == "IMAGE", region == "India+ (R10)", variable == "Final Energy", emi.scen == "Very Low Emissions", ssp == "SSP1", period == 2020) %>%
-#   mutate(checkRank = check) %>%
-#   revalue.levels(checkRank = validationHeatmap.colorRanks) %>%
-#   group_by(region,variable,unit,period, model, scenario, value, ssp,emi.scen,def.var) %>%
-#   filter(checkRank == max(checkRank))
-
+df <- filter(df, period >= 2020)
 ```
 
-<!-- Deviation to IEA data (with 2020 smoothing) -->
+### All models, all scenarios
 
-<!-- ```{r, fig.width=10, fig.height=10} -->
-<!-- d <- df_heatmap %>% -->
-<!--   filter(metric == "relative", ref_scenario == "historical" | is.na(ref_scenario)) -->
-<!-- interact <- F -->
+Deviation to IEA data (no 2020 smoothing)
 
-<!-- if (interact) { -->
-<!--   # interactive plots can only be printed from outside of loops, use tagList -->
-<!--   # to store html objects in List -->
-<!--   if (nrow(d) > 0) { -->
-<!--     vars <- unique(d$variable) -->
-<!--     plot_list <- htmltools::tagList() -->
-<!--       for (i in 1:length(vars)) { -->
-<!--         plot_list[[i]] <- validationHeatmap(filter(d, variable == vars[i]), -->
-<!--                                             y_plot = "period", -->
-<!--                                             x_plot = "region", -->
-<!--                                             y_facet = "scenario", -->
-<!--                                             x_facet = "model", -->
-<!--                                             interactive = interact) %>%  -->
-<!--           # avoid overlap of title and facet labels (plotly issue) -->
-<!--           layout(title = list(y = .95, xref = "plot"), -->
-<!--                  margin = list(l = 75, t = 150)) -->
-<!--       } -->
-<!--       plot_list -->
-<!--   } -->
-<!-- } else { -->
-<!--   # non-interactive plots can simply be printed -->
-<!--   vars <- unique(d$variable) -->
-<!--   for (i in 1:length(vars)) { -->
-<!--       p <- validationHeatmap(filter(d, variable == vars[i]), -->
-<!--                               y_plot = "period", -->
-<!--                               x_plot = "region", -->
-<!--                               y_facet = "scenario", -->
-<!--                               x_facet = "model", -->
-<!--                               interactive = interact) -->
-<!--       print(p) -->
-<!--       } -->
-<!-- } -->
-<!-- ``` -->
+```{r, fig.width=10, fig.height=10}
+d <- filter(df, metric == "relative", ref_scenario == "historical" | is.na(ref_scenario))
+interact <- FALSE
 
-<!-- ## 2020 by model (interactive) -->
-
-<!-- Deviation to IEA data. -->
-<!-- For 2020, the tolerance range includes both the 2020 value and the 2018-2022 average. -->
-
-```{r, modelHeatmap, fig.width=10, fig.height=10}
-modelHeatmap <- function(d) {
-  d <- d %>%
-    filter(metric == "relative", ref_scenario == "historical" | is.na(ref_scenario))
-  interact <- TRUE
-  
+if (interact) {
   # interactive plots can only be printed from outside of loops, use tagList
   # to store html objects in List
   if (nrow(d) > 0) {
-    models <- unique(d$model)
+    vars <- unique(d$variable)
     plot_list <- htmltools::tagList()
-    for (i in 1:length(models)) {
-      plot_list[[i]] <- d %>%
-        filter(model == models[i]) %>%
-        validationHeatmap(main_dim = "model",
-                          interactive = interact,
-                          titleSuffix = " 2020") %>% 
-        # avoid overlap of title and facet labels (plotly issue)
-        plotly::layout(title = list(y = .95, xref = "plot"),
-                       margin = list(l = 0, t = 150, r = 150))
-    }
-    return(plot_list)
+      for (i in 1:length(vars)) {
+        plot_list[[i]] <- validationHeatmap(filter(d, variable == vars[i]),
+                                            y_plot = "period",
+                                            x_plot = "region",
+                                            y_facet = "scenario",
+                                            x_facet = "model",
+                                            interactive = interact) %>% 
+          # avoid overlap of title and facet labels (plotly issue)
+          layout(title = list(y = .95, xref = "plot"),
+                 margin = list(l = 75, t = 150))
+      }
+      plot_list
   }
+} else {
+  # non-interactive plots can simply be printed
+  vars <- unique(d$variable)
+  for (i in 1:length(vars)) {
+      p <- validationHeatmap(filter(d, variable == vars[i]),
+                              y_plot = "period",
+                              x_plot = "region",
+                              y_facet = "scenario",
+                              x_facet = "model",
+                              interactive = interact)
+      print(p)
+      }
 }
 ```
 
-```{r}
-#modelHeatmap(df_heatmap)
-```
+## Historical (interactive)
 
+### By Model
 
-<!-- ## Definitions -->
+Deviation to IEA data, averaged from 2018 to 2022 to dampen Covid shock.
 
-<!-- ### 2020 vetting -->
+```{r, fig.width=10, fig.height=10}
+d <- filter(df, metric == "relative", ref_scenario == "historical" | is.na(ref_scenario))
+interact <- TRUE
 
-<!-- Deviation to IEA data. -->
-<!-- For 2020, the tolerance range includes both the 2020 value and the 2018-2022 average. -->
-
-
-<!-- ### Near-term emissions -->
-
-<!-- Deviation to "Medium" Scenario of the respective SSP in 2030. -->
-
-```{r, modelEmissions, fig.width=10, fig.height=10}
-modelEmissions <- function(d) {
-  d <- d %>%
-    filter(metric == "relative", ref_scenario != "historical" | is.na(ref_scenario))
-  interact <- TRUE
-  
-  # interactive plots can only be printed from outside of loops, use tagList
-  # to store html objects in List
-  if (nrow(d) > 0) {
-    models <- unique(d$model)
-    plot_list <- htmltools::tagList()
-    for (i in 1:length(models)) {
-      plot_list[[i]] <- d %>%
-        filter(model == models[i]) %>%
-        validationHeatmap(main_dim = "model",
-                          interactive = interact,
-                          titleSuffix = "near-term emissions") %>% 
-        # avoid overlap of title and facet labels (plotly issue)
-        layout(title = list(y = .95, xref = "plot"),
-               margin = list(l = 0, t = 150, r = 150))
-    }
-    return(plot_list)
+# interactive plots can only be printed from outside of loops, use tagList
+# to store html objects in List
+if (nrow(d) > 0) {
+  models <- unique(d$model)
+  plot_list <- htmltools::tagList()
+  for (i in 1:length(models)) {
+    d_model <- filter(d, model == models[i])
+    plot_list[[i]] <- validationHeatmap(d_model, main_dim = "model",
+                                        interactive = interact) %>% 
+      # avoid overlap of title and facet labels (plotly issue)
+      plotly::layout(title = list(y = .95, xref = "plot"),
+                     margin = list(l = 0, t = 150, r = 150))
   }
+  plot_list
 }
 ```
 
-```{r}
-#modelEmissions(df_heatmap)
-```
+## Near-Term Trends
 
+### Emissions by Model
 
-<!-- ### Near-term capacities -->
+Deviation to "Medium" Scenario of the respective SSP in 2030.
 
-<!-- Tested against thresholds based on IEA HSMR and IAEA PRIS project pipelines: -->
+```{r, fig.width=10, fig.height=10}
+d <- filter(df, metric == "relative", ref_scenario != "historical" | is.na(ref_scenario))
+interact <- TRUE
 
-<!-- <https://github.com/pik-piam/mrremind/discussions/540> -->
-
-<!-- <https://github.com/pik-piam/mrremind/discussions/541> -->
-
-```{r, modelCapacities, fig.width=10, fig.height=10}
-modelCapacities <- function(d) {
-  d <- d %>%
-    filter(metric == "absolute", grepl("Capacity", variable))
-  interact <- TRUE
-  
-  # interactive plots can only be printed from outside of loops, use tagList
-  # to store html objects in List
-  if (nrow(d) > 0) {
-    models <- unique(d$model)
-    plot_list <- htmltools::tagList()
-    for (i in 1:length(models)) {
-      plot_list[[i]] <- d %>%
-        filter(model == models[i]) %>%
-        validationHeatmap(main_dim = "model",
-                          interactive = interact,
-                          titleSuffix = "near-term capacities") %>% 
-        # avoid overlap of title and facet labels (plotly issue)
-        layout(title = list(y = .95, xref = "plot"),
-               margin = list(l = 0, t = 150, r = 150))
-    }
-    return(plot_list)
+# interactive plots can only be printed from outside of loops, use tagList
+# to store html objects in List
+if (nrow(d) > 0) {
+  models <- unique(d$model)
+  plot_list <- htmltools::tagList()
+  for (i in 1:length(models)) {
+    d_model <- filter(d, model == models[i])
+    plot_list[[i]] <- validationHeatmap(d_model, main_dim = "model",
+                                        interactive = interact) %>% 
+      # avoid overlap of title and facet labels (plotly issue)
+      layout(title = list(y = .95, xref = "plot"),
+             margin = list(l = 0, t = 150, r = 150))
   }
+  plot_list
 }
 ```
 
-```{r}
-#modelCapacities(df_heatmap)
-```
+### Capacities by Model
 
+Tested against thresholds based on IEA HSMR and IAEA PRIS project pipelines:
 
-<!-- ### Near-term biomass -->
+https://github.com/pik-piam/mrremind/discussions/540
 
-```{r, modelBiomass, fig.width=10, fig.height=10}
-modelBiomass <- function(d) {
-  d <- d %>%
-    filter(metric == "absolute",
-           variable %in% c("Primary Energy|Biomass"))
-  interact <- TRUE
-  
-  # interactive plots can only be printed from outside of loops, use tagList
-  # to store html objects in List
-  if (nrow(d) > 0) {
-    models <- unique(d$model)
-    plot_list <- htmltools::tagList()
-    for (i in 1:length(models)) {
-      plot_list[[i]] <- d %>%
-        filter(model == models[i]) %>%
-        validationHeatmap(main_dim = "model",
-                          interactive = interact,
-                          titleSuffix = "near-term biomass") %>% 
-        # avoid overlap of title and facet labels (plotly issue)
-        layout(title = list(y = .95, xref = "plot"),
-               margin = list(l = 0, t = 150, r = 150))
-    }
-    return(plot_list)
+https://github.com/pik-piam/mrremind/discussions/541
+
+```{r, fig.width=10, fig.height=10}
+d <- filter(df, metric == "absolute", grepl("Capacity", variable))
+interact <- TRUE
+
+# interactive plots can only be printed from outside of loops, use tagList
+# to store html objects in List
+if (nrow(d) > 0) {
+  models <- unique(d$model)
+  plot_list <- htmltools::tagList()
+  for (i in 1:length(models)) {
+    d_model <- filter(d, model == models[i])
+    plot_list[[i]] <- validationHeatmap(d_model, main_dim = "model",
+                                        interactive = interact) %>% 
+      # avoid overlap of title and facet labels (plotly issue)
+      layout(title = list(y = .95, xref = "plot"),
+             margin = list(l = 0, t = 150, r = 150))
   }
+  plot_list
 }
 ```
 
-```{r}
-#modelBiomass(df_heatmap)
-```
+### Biomass by Model
 
+```{r, fig.width=10, fig.height=10}
+d <- filter(df, metric == "absolute", 
+            variable %in% c("Primary Energy|Biomass"))
+interact <- TRUE
 
-<!-- ### Near-term carbon capture -->
-
-```{r, modelCC, fig.width=10, fig.height=10}
-
-modelCC <- function(d, title = TRUE) {
-  d <- d %>%
-    filter(metric == "absolute", 
-           variable %in% c("Carbon Capture"))
-  interact <- TRUE
-  
-  # interactive plots can only be printed from outside of loops, use tagList
-  # to store html objects in List
-  if (nrow(d) > 0) {
-    models <- unique(d$model)
-    plot_list <- htmltools::tagList()
-    for (i in 1:length(models)) {
-      plot_list[[i]] <- d %>%
-        filter(model == models[i]) %>%
-        validationHeatmap(main_dim = "model",
-                          interactive = interact,
-                          titleSuffix = "near-term carbon capture") %>% 
-        # avoid overlap of title and facet labels (plotly issue)
-        layout(title = list(y = .95, xref = "plot"),
-               margin = list(l = 0, t = 150, r = 150))
-    }
-    return(plot_list)
+# interactive plots can only be printed from outside of loops, use tagList
+# to store html objects in List
+if (nrow(d) > 0) {
+  models <- unique(d$model)
+  plot_list <- htmltools::tagList()
+  for (i in 1:length(models)) {
+    d_model <- filter(d, model == models[i])
+    plot_list[[i]] <- validationHeatmap(d_model, main_dim = "model",
+                                        interactive = interact) %>% 
+      # avoid overlap of title and facet labels (plotly issue)
+      layout(title = list(y = .95, xref = "plot"),
+             margin = list(l = 0, t = 150, r = 150))
   }
+  plot_list
 }
 ```
 
-```{r}
-#modelCC(df_heatmap)
-```
+### Carbon Capture by Model
 
-<!-- ## Results by model -->
+```{r, fig.width=10, fig.height=10}
 
-```{r}
-# this chunk prints Rmd lines that we copy paste below for the HTML rendering
-messageChunk <- function(...) {
-  message("```{r}")
-  message(...)
-  message("```")
+d <- filter(df, metric == "absolute", 
+            variable %in% c("Carbon Capture"))
+interact <- TRUE
+
+# interactive plots can only be printed from outside of loops, use tagList
+# to store html objects in List
+if (nrow(d) > 0) {
+  models <- unique(d$model)
+  plot_list <- htmltools::tagList()
+  for (i in 1:length(models)) {
+    d_model <- filter(d, model == models[i])
+    plot_list[[i]] <- validationHeatmap(d_model, main_dim = "model",
+                                        interactive = interact) %>% 
+      # avoid overlap of title and facet labels (plotly issue)
+      layout(title = list(y = .95, xref = "plot"),
+             margin = list(l = 0, t = 150, r = 150))
+  }
+  plot_list
 }
-for (modelLoop in unique(df$model) %>% sort) {
-  #cat("  \n## Model ", modelLoop)
-  message("## Model ", modelLoop)
-  messageChunk("modelLoop='", modelLoop, "'
-d <- df_heatmap %>% filter(model==modelLoop)
-interactiveLinplots_model(modelLoop)")
-  messageChunk("modelHeatmap(d)")
-  messageChunk("modelCapacities(d)")
-  messageChunk("modelEmissions(d)")
-  messageChunk("modelBiomass(d)")
-  messageChunk("modelCC(d)")
-}
-```
-
-
-## Model AIM
-```{r}
-modelLoop='AIM'
-d <- df_heatmap %>% filter(model==modelLoop)
-interactiveLinplots_model(modelLoop)
-```
-```{r}
-modelHeatmap(d)
-```
-```{r}
-modelCapacities(d)
-```
-```{r}
-modelEmissions(d)
-```
-```{r}
-modelBiomass(d)
-```
-```{r}
-modelCC(d)
-```
-## Model COFFEE
-```{r}
-modelLoop='COFFEE'
-d <- df_heatmap %>% filter(model==modelLoop)
-interactiveLinplots_model(modelLoop)
-```
-```{r}
-modelHeatmap(d)
-```
-```{r}
-modelCapacities(d)
-```
-```{r}
-modelEmissions(d)
-```
-```{r}
-modelBiomass(d)
-```
-```{r}
-modelCC(d)
-```
-## Model GCAM
-```{r}
-modelLoop='GCAM'
-d <- df_heatmap %>% filter(model==modelLoop)
-interactiveLinplots_model(modelLoop)
-```
-```{r}
-modelHeatmap(d)
-```
-```{r}
-modelCapacities(d)
-```
-```{r}
-modelEmissions(d)
-```
-```{r}
-modelBiomass(d)
-```
-```{r}
-modelCC(d)
-```
-## Model IMAGE
-```{r}
-modelLoop='IMAGE'
-d <- df_heatmap %>% filter(model==modelLoop)
-interactiveLinplots_model(modelLoop)
-```
-```{r}
-modelHeatmap(d)
-```
-```{r}
-modelCapacities(d)
-```
-```{r}
-modelEmissions(d)
-```
-```{r}
-modelBiomass(d)
-```
-```{r}
-modelCC(d)
-```
-## Model MESSAGEix-GLOBIOM
-```{r}
-modelLoop='MESSAGEix-GLOBIOM'
-d <- df_heatmap %>% filter(model==modelLoop)
-interactiveLinplots_model(modelLoop)
-```
-```{r}
-modelHeatmap(d)
-```
-```{r}
-modelCapacities(d)
-```
-```{r}
-modelEmissions(d)
-```
-```{r}
-modelBiomass(d)
-```
-```{r}
-modelCC(d)
-```
-## Model REMIND-MAgPIE
-```{r}
-modelLoop='REMIND-MAgPIE'
-d <- df_heatmap %>% filter(model==modelLoop)
-interactiveLinplots_model(modelLoop)
-```
-```{r}
-modelHeatmap(d)
-```
-```{r}
-modelCapacities(d)
-```
-```{r}
-modelEmissions(d)
-```
-```{r}
-modelBiomass(d)
-```
-```{r}
-modelCC(d)
-```
-## Model WITCH
-```{r}
-modelLoop='WITCH'
-d <- df_heatmap %>% filter(model==modelLoop)
-interactiveLinplots_model(modelLoop)
-```
-```{r}
-modelHeatmap(d)
-```
-```{r}
-modelCapacities(d)
-```
-```{r}
-modelEmissions(d)
-```
-```{r}
-modelBiomass(d)
-```
-```{r}
-modelCC(d)
 ```
