@@ -11,3 +11,4 @@
 ^\.github$
 ^vignettes/.lintr$
 ^output
+^data
