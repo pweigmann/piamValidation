@@ -1,8 +1,8 @@
 # Validation Tools for PIK-PIAM
 
-R package **piamValidation**, version **0.4.2**
+R package **piamValidation**, version **0.5.0**
 
-[![CRAN status](https://www.r-pkg.org/badges/version/piamValidation)](https://cran.r-project.org/package=piamValidation)  [![R build status](https://github.com/pik-piam/piamValidation/workflows/check/badge.svg)](https://github.com/pik-piam/piamValidation/actions) [![codecov](https://codecov.io/gh/pik-piam/piamValidation/branch/master/graph/badge.svg)](https://app.codecov.io/gh/pik-piam/piamValidation) [![r-universe](https://pik-piam.r-universe.dev/badges/piamValidation)](https://pik-piam.r-universe.dev/builds)
+[![CRAN status](https://www.r-pkg.org/badges/version/piamValidation)](https://cran.r-project.org/package=piamValidation) [![R build status](https://github.com/pik-piam/piamValidation/workflows/check/badge.svg)](https://github.com/pik-piam/piamValidation/actions) [![codecov](https://codecov.io/gh/pik-piam/piamValidation/branch/master/graph/badge.svg)](https://app.codecov.io/gh/pik-piam/piamValidation) [![r-universe](https://pik-piam.r-universe.dev/badges/piamValidation)](https://pik-piam.r-universe.dev/builds)
 
 ## Purpose and Functionality
 
@@ -46,16 +46,17 @@ In case of questions / problems please contact Pascal Weigmann <pascal.weigmann@
 
 To cite package **piamValidation** in publications use:
 
-Weigmann P, Richters O (2024). _piamValidation: Validation Tools for PIK-PIAM_. R package version 0.4.2, <https://github.com/pik-piam/piamValidation>.
+Weigmann P, Richters O (2025). "piamValidation: Validation Tools for PIK-PIAM." Version: 0.5.0, <https://github.com/pik-piam/piamValidation>.
 
 A BibTeX entry for LaTeX users is
 
  ```latex
-@Manual{,
+@Misc{,
   title = {piamValidation: Validation Tools for PIK-PIAM},
   author = {Pascal Weigmann and Oliver Richters},
-  year = {2024},
-  note = {R package version 0.4.2},
+  date = {2025-01-09},
+  year = {2025},
   url = {https://github.com/pik-piam/piamValidation},
+  note = {Version: 0.5.0},
 }
 ```

@@ -1,8 +1,8 @@
 Type: Package
 Package: piamValidation
 Title: Validation Tools for PIK-PIAM
-Version: 0.4.2
-Date: 2024-11-22
+Version: 0.5.0
+Date: 2025-01-09
 Authors@R:
     c(person("Pascal", "Weigmann",, "pascal.weigmann@pik-potsdam.de", role = c("aut", "cre")),
       person("Oliver", "Richters",, role = "aut"))
@@ -24,7 +24,7 @@ Imports:
     tibble,
     tidyr
 Suggests:
-    testthat,
+    testthat (>= 3.0.0),
     remind2,
     rmarkdown
 Encoding: UTF-8
@@ -32,3 +32,4 @@ RoxygenNote: 7.3.2
 Depends: 
     R (>= 2.10)
 VignetteBuilder: knitr
+Config/testthat/edition: 3

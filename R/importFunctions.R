@@ -18,29 +18,41 @@ importScenarioData <- function(scenarioPath) {
 
 
 # get a validation config file either from "inst/config" (.csv) or by providing
-# a full path (.csv or .xlsx)
-# see README for rules on how to fill the config
-getConfig <- function(configName) {
-  path <- system.file(paste0("config/validationConfig_", configName, ".csv"),
-                      package = "piamValidation")
-  # if a full path is given instead of a configName in inst/config
-  if (!file.exists(path) && file.exists(normalizePath(configName))) {
-    path <- normalizePath(configName)
-  }
-  if (path == "") stop("Config not found, please provide either full path to a
-  config file or select a config from 'inst/config' by choosing its
-  name ('validationConfig_<name>.csv').\n")
+# a full path (.csv or .xlsx) or a tibble with the necessary columns
+# see README or vignette for rules on how to fill the config
+getConfig <- function(config) {
+  # config can be a data object...
+  if (tibble::is_tibble(config)) {
+    cfg <- config
+  # ...or a string
+  } else if (is.character(config)) {
+    # look for config in package
+    path <- system.file(paste0("config/validationConfig_", config, ".csv"),
+                        package = "piamValidation")
+    # if a full path is given instead of a config in inst/config
+    if (!file.exists(path) && file.exists(normalizePath(config))) {
+      path <- normalizePath(config)
+    }
+    if (path == "") stop("Config not found, please provide either full path to a
+    config file or select a config from 'inst/config' by choosing its
+    name ('validationConfig_<name>.csv').\n")
 
-  # config can be .xlsx or .csv, use "config" sheet in .xlsx if available
-  if (grepl("\\.xlsx$", path)) {
-    cfg <- read_excel(
-      path = path,
-      sheet = if ("config" %in% excel_sheets(path)) "config" else 1
-      )
-    cfg <- filter(cfg, ! grepl("^#", cfg[[1]]))
+    # config can be .xlsx or .csv, use "config" sheet in .xlsx if available
+    if (grepl("\\.xlsx$", path)) {
+      cfg <- read_excel(
+        path = path,
+        sheet = if ("config" %in% excel_sheets(path)) "config" else 1
+        )
+      cfg <- filter(cfg, ! grepl("^#", cfg[[1]]))
+    } else {
+      cfg <- tibble::as_tibble(
+        read.csv2(path, na.strings = "", comment.char = "#"))
+    }
+    message("loading config file: ", path, "\n")
+
   } else {
-    cfg <- tibble::as_tibble(
-      read.csv2(path, na.strings = "", comment.char = "#"))
+    stop("Please specify config either as character (file path or name)
+         or as tibble.")
   }
 
   # remove empty (all NA) rows
@@ -63,8 +75,6 @@ getConfig <- function(configName) {
     mutate(max_red = ifelse(grepl("%", max_red),
                             as.numeric(sub("%", "", max_red)) / 100,
                             max_red))
-
-  message("loading config file: ", path, "\n")
   return(cfg)
 }
 
@@ -145,6 +155,10 @@ expandVariables <- function(cfg, data) {
       c$variable <- selected_vars
       cfg_new <- rbind(c, cfg_new)
     }
+  }
+  if (nrow(cfg) == 0) {
+    stop("Empty config returned, check if variable names of config are
+         consistent with those in data.")
   }
   return(cfg_new)
 }
