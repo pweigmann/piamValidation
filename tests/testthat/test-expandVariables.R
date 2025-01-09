@@ -16,7 +16,7 @@ test_that("expandVariables works", {
               ", the following variables are expected but missing:\n",
               paste0(missing, collapse = ", "))
     }
-    expect_true(length(missing) == 0)
+    expect_length(missing, 0)
     toomuch <- setdiff(cfg$variable, expectedvars)
     if (length(toomuch) > 0) {
       warning("For ", varentry,
