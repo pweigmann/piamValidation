@@ -53,6 +53,9 @@ cat(params$cfg, "\n")
 # Save file in rds format for future use
 #saveRDS(df.historical, "data/historical_R10_scenarioMIP_2025-01-14.rds")
 hist <- readRDS("data/historical_R10_scenarioMIP_2025-01-14.rds")
+
+hist[hist$variable == "Capacity|Electricity|Wind" & hist$model == "Ember", "variable"] <- 
+  "Capacity|Electricity|Wind|Onshore"
     
 #dR10 <- quitte::read.snapshot("./data/scenarios_scenariomip_2024-12-28.csv")
 dR10 <- readRDS("data/scenarios_scenariomip_processed_2024-12-28.rds")
@@ -163,7 +166,7 @@ defined boundaries. Hovering over data points offers additional data via tool ti
 - **Emissions|CO2|EIP**: Deviations to CEDS (April 2024).
 
 *Note*: For 2020, the tolerance range includes both the 2020 value and the 2018-2022 average
-to be allow for models to include or exclude a "COVID dip".
+to allow for models to include or exclude a "COVID dip".
 
 #### Near-term emissions
 
@@ -189,8 +192,8 @@ interactiveLinplots_model <- function(modelArg = "AIM") {
   valiData <- df %>%
     #revalue.levels(emi.scen = plot.emi.scen.letter) %>%
     filter(model == modelArg,
-           period %in% c(2020, 2030),
-           variable != "Emissions|CO2|Energy and Industrial Processes")
+           period %in% c(2010, 2015, 2020, 2030))
+           #variable != "Emissions|CO2|Energy and Industrial Processes")
   
   vars <- unique(valiData$variable)
   
@@ -246,8 +249,8 @@ interactiveLinplots_emiScen <- function(emiScen = "VL") {
   valiData <- df %>%
     revalue.levels(emi.scen = plot.emi.scen.letter) %>%
     filter(emi.scen == emiScen,
-           period %in% c(2020, 2030),
-           variable != "Emissions|CO2|Energy and Industrial Processes")
+           period %in% c(2010, 2015, 2020, 2030))
+           #variable != "Emissions|CO2|Energy and Industrial Processes")
   
   vars <- unique(valiData$variable)
   
@@ -688,8 +691,9 @@ Take a look at individual heat maps above to see where exactly bound violations 
 Priority should be given to eliminating ``red`` and ``blue`` data points.
 
 ```{r}
+df_summary <- filter(df, period >= 2020)
 # find "critical == yes" data points of each color
-summary <- filter(df, region == "World") %>%
+summary <- filter(df_summary, region == "World") %>%
   dplyr::count(model, check) %>%
   mutate(model = substr(model, 1, 5)) %>%
   group_by(model) %>%
@@ -741,7 +745,7 @@ p2
 
 ```{r}
 # find "critical == yes" data points of each color
-summary <- filter(df, region != "World") %>%
+summary <- filter(df_summary, region != "World") %>%
   dplyr::count(model, check) %>%
   mutate(model = substr(model, 1, 5)) %>%
   group_by(model) %>%

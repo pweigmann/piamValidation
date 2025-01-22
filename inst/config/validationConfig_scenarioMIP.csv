@@ -1,15 +1,15 @@
 metric;critical;variable;unit;model;scenario;region;period;min_red;min_yel;max_yel;max_red;ref_model;ref_scenario;ref_period;source/link to discussion
 Historical Vetting;;;;;;;;;;;;;;;
-relative;yes;Final Energy;EJ/yr;;;;2020;-30%;-20%;20%;30%;IEA;historical;;
-relative;yes;Final Energy;EJ/yr;;;World;2020;-20%;-10%;10%;20%;IEA;historical;;
-relative;yes;Primary Energy|Coal;EJ/yr;;;;2020;-30%;-20%;20%;30%;IEA;historical;;
-relative;yes;Primary Energy|Coal;EJ/yr;;;World;2020;-20%;-10%;10%;20%;IEA;historical;;
-relative;yes;Primary Energy|Oil;EJ/yr;;;;2020;-30%;-20%;20%;30%;IEA;historical;;
-relative;yes;Primary Energy|Oil;EJ/yr;;;World;2020;-20%;-10%;10%;20%;IEA;historical;;
-relative;yes;Primary Energy|Gas;EJ/yr;;;;2020;-30%;-20%;20%;30%;IEA;historical;;
-relative;yes;Primary Energy|Gas;EJ/yr;;;World;2020;-20%;-10%;10%;20%;IEA;historical;;
-relative;yes;Emissions|CO2|Energy and Industrial Processes;Mt CO2/yr;;;;2020;-30%;-20%;20%;30%;CEDS;historical;;
-relative;yes;Emissions|CO2|Energy and Industrial Processes;Mt CO2/yr;;;World;2020;-20%;-10%;10%;20%;CEDS;historical;;
+relative;yes;Final Energy;EJ/yr;;;;2010-2020;-30%;-20%;20%;30%;IEA;historical;;
+relative;yes;Final Energy;EJ/yr;;;World;2010-2020;-20%;-10%;10%;20%;IEA;historical;;
+relative;yes;Primary Energy|Coal;EJ/yr;;;;2010-2020;-30%;-20%;20%;30%;IEA;historical;;
+relative;yes;Primary Energy|Coal;EJ/yr;;;World;2010-2020;-20%;-10%;10%;20%;IEA;historical;;
+relative;yes;Primary Energy|Oil;EJ/yr;;;;2010-2020;-30%;-20%;20%;30%;IEA;historical;;
+relative;yes;Primary Energy|Oil;EJ/yr;;;World;2010-2020;-20%;-10%;10%;20%;IEA;historical;;
+relative;yes;Primary Energy|Gas;EJ/yr;;;;2010-2020;-30%;-20%;20%;30%;IEA;historical;;
+relative;yes;Primary Energy|Gas;EJ/yr;;;World;2010-2020;-20%;-10%;10%;20%;IEA;historical;;
+relative;yes;Emissions|CO2|Energy and Industrial Processes;Mt CO2/yr;;;;2010-2020;-30%;-20%;20%;30%;CEDS;historical;;
+relative;yes;Emissions|CO2|Energy and Industrial Processes;Mt CO2/yr;;;World;2010-2020;-20%;-10%;10%;20%;CEDS;historical;;
 Near-Term Trends;;;;;;;;;;;;;;;
 relative to 2030;;;;;;;;;;;;;;;
 relative;yes;Emissions|CO2|Energy and Industrial Processes;Mt CO2/yr;;SSP1 - High Emissions, SSP1 - Very Low Emissions, SSP1 - Low Overshoot, SSP1 - Low Emissions, SSP1 - Low Emissions_a, SSP1 - Medium Emissions_a, SSP1 - Medium-Low Emissions, SSP1 - Very Low Emissions_a;;2030;-20%;-10%;10%;20%;;SSP1 - Medium Emissions;;
@@ -64,14 +64,14 @@ absolute;yes;Capacity|Electricity|Solar;GW;;;China+ (R10);2030;1343.34;1952.84;;
 absolute;yes;Capacity|Electricity|Solar;GW;;;Europe (R10);2030;601.22;522.72;;;;;;
 absolute;yes;Capacity|Electricity|Solar;GW;;;India+ (R10);2030;185.11;170.11;;;;;;
 Wind;;;;;;;;;;;;;;;
-absolute;yes;Capacity|Electricity|Wind;GW;;;World;2025;1160.139;1299.639;;;GWEC;;;Near-term vetting: Wind
-absolute;yes;Capacity|Electricity|Wind;GW;;;Europe (R10);2025;295.397;318.447;;;GWEC;;;https://github.com/pik-piam/mrremind/discussions/543
-absolute;yes;Capacity|Electricity|Wind;GW;;;China+ (R10);2025;;;;;GWEC;;;
-absolute;yes;Capacity|Electricity|Wind;GW;;;India+ (R10);2025;;;;;GWEC;;;
-absolute;yes;Capacity|Electricity|Wind;GW;;;World;2030;1737.639;2175.639;2800;;GWEC;;;
-absolute;yes;Capacity|Electricity|Wind;GW;;;Europe (R10);2030;413.747;509.047;;;GWEC;;;
-absolute;yes;Capacity|Electricity|Wind;GW;;;China+ (R10);2030;;;;;GWEC;;;
-absolute;yes;Capacity|Electricity|Wind;GW;;;India+ (R10);2030;;;;;GWEC;;;
+absolute;yes;Capacity|Electricity|Wind|Onshore;GW;;;World;2025;1063.977;1182.477;;3040.00;;;;Near-term vetting: Wind
+absolute;yes;Capacity|Electricity|Wind|Onshore;GW;;;Europe (R10);2025;256.815;275.315;;;;;;https://github.com/pik-piam/mrremind/discussions/543
+absolute;yes;Capacity|Electricity|Wind|Onshore;GW;;;China+ (R10);2025;473.325;543.325;;;;;;
+absolute;yes;Capacity|Electricity|Wind|Onshore;GW;;;India+ (R10);2025;49.136;53.536;;;;;;
+absolute;yes;Capacity|Electricity|Wind|Onshore;GW;;;World;2030;1534.977;1887.477;;;;;;
+absolute;yes;Capacity|Electricity|Wind|Onshore;GW;;;Europe (R10);2030;339.665;404.015;;;;;;
+absolute;yes;Capacity|Electricity|Wind|Onshore;GW;;;China+ (R10);2030;728.325;913.325;;;;;;
+absolute;yes;Capacity|Electricity|Wind|Onshore;GW;;;India+ (R10);2030;65.536;77.536;;;;;;
 ;;;;;;;;;;;;;;;
 post 2030;;;;;;;;;;;;;;;
 absolute;yes;Capacity|Electricity|Nuclear;GW;;;World;2050;;;;991;;;;IAEA high case
