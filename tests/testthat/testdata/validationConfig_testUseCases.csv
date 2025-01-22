@@ -1,0 +1,12 @@
+metric;critical;variable;unit;model;scenario;region;period;min_red;min_yel;max_yel;max_red;ref_model;ref_scenario;ref_period;source/link to discussion
+relative;yes;Emi|CO2|Energy;Mt CO2/yr;;;;2010;-20%;-10%;15%;30%;CEDS;historical;;
+difference;yes;Emi|CO2|Energy;Mt CO2/yr;;;;2010;-2000;-1000;2000;4000;CEDS;historical;;
+relative;yes;Emi|CO2|Energy;Mt CO2/yr;Model1;;;2010;-50%;-10%;10%;50%;Model2;;;
+relative;yes;Emi|CO2|Energy;Mt CO2/yr;;Scen1;;2010;;;10%;50%;;Scen2;;
+relative;yes;Emi|CO2|Energy;Mt CO2/yr;;;;2010;-12%;-6%;;;;;2020;
+difference;yes;Emi|CO2|Energy;Mt CO2/yr;Model1;;;2010;-2000;-1000;2000;4000;Model2;;;
+difference;yes;Emi|CO2|Energy;Mt CO2/yr;;Scen1;;2010;;;2000;4000;;Scen2;;
+difference;yes;Emi|CO2|Energy;Mt CO2/yr;;;;2010;500;1000;;;;;2020;
+absolute;yes;Emi|CO2|Energy;Mt CO2/yr;;;;2010;25000;26000;31000;33000;;;;
+growthrate;yes;Emi|CO2|Energy;Mt CO2/yr;;;;2010;1%;2%;5%;10%;;;;
+growthrate;yes;Emi|CO2|Energy;Mt CO2/yr;;;;2015;1%;2%;5%;10%;;;;
