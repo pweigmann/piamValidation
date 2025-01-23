@@ -1,11 +1,12 @@
 Type: Package
 Package: piamValidation
 Title: Validation Tools for PIK-PIAM
-Version: 0.5.2
+Version: 0.5.3
 Date: 2025-01-23
 Authors@R:
     c(person("Pascal", "Weigmann",, "pascal.weigmann@pik-potsdam.de", role = c("aut", "cre")),
-      person("Oliver", "Richters",, role = "aut"))
+      person("Oliver", "Richters",, role = "aut"),
+      person("Fabrice", "Lécuyer",, role = "aut"))
 Description: The piamValidation package provides validation tools for the Potsdam Integrated Assessment Modelling environment.
 License: LGPL-3
 URL: https://github.com/pik-piam/piamValidation
