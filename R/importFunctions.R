@@ -47,6 +47,11 @@ getConfig <- function(config) {
     } else {
       cfg <- tibble::as_tibble(
         read.csv2(path, na.strings = "", comment.char = "#"))
+      # in case of "," being used as separator change import function
+      if (any(grepl(",", cfg[1, ]))) {
+      cfg <- tibble::as_tibble(
+        read.csv(path, na.strings = "", comment.char = "#"))
+      }
     }
     message("loading config file: ", path, "\n")
 
@@ -75,16 +80,24 @@ getConfig <- function(config) {
     mutate(max_red = ifelse(grepl("%", max_red),
                             as.numeric(sub("%", "", max_red)) / 100,
                             max_red))
+
+  # convert thresholds to numeric
+  cfg <- cfg %>%
+    mutate(min_red = as.numeric(min_red),
+           min_yel = as.numeric(min_yel),
+           max_yel = as.numeric(max_yel),
+           max_red = as.numeric(max_red)
+           )
   return(cfg)
 }
 
 # fill empty and NA threshold columns with Infinity for easier evaluation
 fillInf <- function(cfg) {
   cfg <- cfg %>%
-    mutate(min_red = as.numeric(ifelse(is.na(min_red) | min_red == "NA", -Inf, min_red)),
-           min_yel = as.numeric(ifelse(is.na(min_yel) | min_yel == "NA", -Inf, min_yel)),
-           max_yel = as.numeric(ifelse(is.na(max_yel) | max_yel == "NA",  Inf, max_yel)),
-           max_red = as.numeric(ifelse(is.na(max_red) | max_red == "NA",  Inf, max_red))
+    mutate(min_red = ifelse(is.na(min_red) | min_red == "NA", -Inf, min_red),
+           min_yel = ifelse(is.na(min_yel) | min_yel == "NA", -Inf, min_yel),
+           max_yel = ifelse(is.na(max_yel) | max_yel == "NA",  Inf, max_yel),
+           max_red = ifelse(is.na(max_red) | max_red == "NA",  Inf, max_red)
            )
 
   return(cfg)
