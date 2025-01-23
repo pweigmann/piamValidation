@@ -65,6 +65,13 @@ being the result in form of a traffic-light color.
 
 ![Traffic-light threshold check results.](./thresholds.png){width=80%}
 
+Using ``piamValidation::validateScenarios()`` with the argument 
+``extraColors = TRUE`` (default: ``TRUE``) enables a differentiation between 
+violating lower vs. upper bounds (note that the threshold names ``min_red`` and 
+``min_yel`` do not change).
+
+![Traffic-light threshold check results.](./thresholds_extracolors.png){width=80%}
+
 Optionally, you can save the resulting data.frame to a .csv file by providing
 an ``outputFile``.
 
