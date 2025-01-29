@@ -9,7 +9,7 @@ Authors@R:
       person("Fabrice", "Lécuyer",, role = "aut"))
 Description: The piamValidation package provides validation tools for the Potsdam Integrated Assessment Modelling environment.
 License: LGPL-3
-URL: https://github.com/pik-piam/piamValidation
+URL: https://github.com/pik-piam/piamValidation, https://pik-piam.github.io/piamValidation
 Imports:
     devtools,
     dplyr (>= 1.1.1),
