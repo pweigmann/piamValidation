@@ -12,6 +12,7 @@ The piamValidation package provides validation tools for the Potsdam Integrated 
 Useful links:
 \itemize{
   \item \url{https://github.com/pik-piam/piamValidation}
+  \item \url{https://pik-piam.github.io/piamValidation}
 }
 
 }
