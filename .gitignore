@@ -3,6 +3,7 @@
 *.RData
 *.Ruserdata
 *.html
+*.Rproj
 .Rproj.user
 inst/doc
 output
