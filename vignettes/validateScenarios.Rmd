@@ -135,7 +135,7 @@ performed, different columns can or need to be filled.
 
 - one set of thresholds per row is allowed
 - empty rows and rows without "variable" are ignored and can be used to structure the config
-- later rows overwrite earlier rows if there is a data overlap
+- later rows overwrite earlier rows if there is a data overlap (within one metric)
 - only one reference period/model/scenario per data-slice (e.g. don't compare the same data against ref_model1 and ref_model2)
 
 
