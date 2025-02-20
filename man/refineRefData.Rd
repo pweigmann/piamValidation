@@ -3,12 +3,13 @@
 \name{refineRefData}
 \alias{refineRefData}
 \title{evaluate the content of the "ref_<type>" column and filter
-reference data accordingly. not ready for "historical"
+reference data accordingly.
 cases:
  - mode chosen
    - range
    - mean
- - no mode chosen}
+ - no mode chosen
+   - use mean if multiple references}
 \usage{
 refineRefData(ref_data, cfgRow, ref_type = "ref_model")
 }
@@ -20,6 +21,6 @@ refineRefData(ref_data, cfgRow, ref_type = "ref_model")
 \item{ref_type}{historical, model, scenario, period}
 }
 \description{
-output without variable, unit and ref_type columns
-output with ref_value_min/max, ref_model, ref_scenario, ref_period
+returns df without variable, unit and <type> columns (see below)
+returns df with ref_value_min/max, ref_model, ref_scenario, ref_period
 }
