@@ -45,13 +45,9 @@ getConfig <- function(config) {
         )
       cfg <- filter(cfg, ! grepl("^#", cfg[[1]]))
     } else {
+      # only support ";" as separator for config as "," might be used in cells
       cfg <- tibble::as_tibble(
         read.csv2(path, na.strings = "", comment.char = "#"))
-      # in case of "," being used as separator change import function
-      if (any(grepl(",", cfg[1, ]))) {
-      cfg <- tibble::as_tibble(
-        read.csv(path, na.strings = "", comment.char = "#"))
-      }
     }
     message("loading config file: ", path, "\n")
 

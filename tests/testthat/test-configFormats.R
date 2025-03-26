@@ -12,10 +12,6 @@ test_that(
         2000, 5000, 20000, 40000, NA, NA, NA
         )
     # test config
-    config_csv_comma <- getConfig(
-      testthat::test_path("testdata", "validationConfig_testCSVcomma.csv"))
-    expect_equal(config_csv_comma, config)
-
     config_csv_semicolon <- getConfig(
       testthat::test_path("testdata", "validationConfig_testCSVsemicolon.csv"))
     expect_equal(config_csv_semicolon, config)

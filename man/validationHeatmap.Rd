@@ -5,7 +5,7 @@
 \title{takes the output of "validateScenarios()" and plots heat maps per variable}
 \usage{
 validationHeatmap(
-  df,
+  valiData,
   main_dim = "variable",
   x_plot = NULL,
   y_plot = NULL,
@@ -15,7 +15,7 @@ validationHeatmap(
 )
 }
 \arguments{
-\item{df}{data.frame to be plotted, as returned by ``validateScenarios()``
+\item{valiData}{data to be plotted, as returned by ``validateScenarios()``
 (and ``appendTooltips()`` if interactive), plus optional filtering.
 Needs to have at least one dimension with only one unique element.}
 

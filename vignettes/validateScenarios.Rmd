@@ -135,8 +135,8 @@ performed, different columns can or need to be filled.
 
 - one set of thresholds per row is allowed
 - empty rows and rows without "variable" are ignored and can be used to structure the config
-- later rows overwrite earlier rows if there is a data overlap
-- only one reference period/model/scenario per data-slice (e.g. don't compare the same data against ref_model1 and ref_model2)
+- later rows overwrite earlier rows if there is a data overlap (within one metric)
+- only choose one of the ``ref_`` columns per row.
 
 
 ### Columns
@@ -191,12 +191,31 @@ one or multiple external sources.
 
 It is recommended to choose a historical reference source explicitly in the 
 "ref_model" column for historical comparisons. Otherwise, all available 
-historical sources will be averaged and the tooltip of a heat map will show
-``ref_model = "multiple"``.
+historical sources will be used.
 
 **ref_period**: compare data between different periods, set the reference period
-here
+here.
 
+
+### Using multiple references
+
+Scenario data can not only be compared to a single reference value but 
+alternatively to a range of references. When performing checks against 
+historical or scenario reference data (metrics ``relative`` and ``difference``) 
+it is possible to specify ``range(ref1, ref2, ..., refx)`` in the 
+``ref_model``, ``ref_scenario`` or ``ref_period`` column. 
+This results in the upper thresholds being evaluated 
+against the maximum of the respective references, while the lower thresholds 
+are compared to the minimum.
+
+Internally, this means splitting up the ref_value column into ref_value_min and ref_value_max, similarly check_value.
+
+The default behavior when specifying multiple references in the validation 
+config without specifying a mode, is the calculation of the arithmetic mean of 
+all references. This can be specified explicitly via ``mean(ref1, ...)``. 
+In this case the min/max columns will contain equal values.
+
+Examples are available as part of the testing routine in ``tests/testthat/test-referenceRange.R``.
 
 
 ### Units

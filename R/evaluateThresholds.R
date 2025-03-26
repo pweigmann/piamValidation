@@ -7,41 +7,48 @@ evaluateThresholds <- function(df, cleanInf = TRUE, extraColors = TRUE) {
   # first calculate values that will be compared to thresholds for each category
   # ("check_value") and metric separately, then perform evaluation for all together
 
-  # relative ####
+  # get check_values ####
+
+  ## relative ####
   rel <- df[df$metric == "relative", ] %>%
-    mutate(check_value = ifelse(
-      is.na(ref_value),
-      NA,
-      # relative deviation above/below reference
-      (value - ref_value) / ref_value
-      )
-    ) %>%
-    # special case: ref_value and value are both zero should show as 0 deviation
-    mutate(check_value = ifelse(value == 0 & ref_value == 0,
-                                0,
-                                check_value)
+    mutate(
+      # ref_value and value are equal should show as 0 deviation
+      # relative deviation above/below min reference
+      check_value_min = ifelse(
+        value == ref_value_min,
+        0,
+        (value - ref_value_min) / ref_value_min),
+
+      # relative deviation above/below max reference
+      check_value_max = ifelse(
+        value == ref_value_max,
+        0,
+        (value - ref_value_max) / ref_value_max)
     )
 
-  # difference ####
+  ## difference ####
   dif <- df[df$metric == "difference", ] %>%
     # difference to reference
-    mutate(check_value = value - ref_value)
+    mutate(check_value_min = value - ref_value_min,
+           check_value_max = value - ref_value_max)
 
-  # absolute ####
+  ## absolute ####
   abs <- df[df$metric == "absolute", ] %>%
-    mutate(check_value = value)
+    mutate(check_value_min = value,
+           check_value_max = value)
 
-  # growthrate ####
+  ## growthrate ####
   # calculate average growth rate between periods
   gro <- df %>%
     filter(.data$metric == "growthrate") %>%
     group_by(.data$model, .data$scenario, .data$region, .data$variable) %>%
     arrange(.data$period) %>%
     mutate(diffyear = .data$period - lag(.data$period),
-           check_value =
+           check_value_min =
              ifelse(lag(.data$value) %in% c(0, NA),
                     NA,
-                    (.data$value/lag(.data$value))^(1/.data$diffyear) - 1)) %>%
+                    (.data$value/lag(.data$value))^(1/.data$diffyear) - 1),
+           check_value_max = check_value_min) %>%
     select(-"diffyear") %>%
     ungroup()
 
@@ -50,22 +57,26 @@ evaluateThresholds <- function(df, cleanInf = TRUE, extraColors = TRUE) {
                 list(rel, dif, abs, gro))
 
   # color evaluation ####
+  # compare "check_value" to thresholds
   df <- df %>%
     mutate(check = dplyr::case_when(
-      is.na(check_value) | is.infinite(check_value) ~ "grey",
+      (is.na(check_value_min) | is.na(check_value_max) |
+       is.infinite(check_value_min) | is.infinite(check_value_max)) ~ "grey",
       # below min red
-      !is.na(min_red) & check_value < min_red ~ ifelse(extraColors, "blue", "red"),
+      !is.na(min_red) & check_value_min < min_red ~ ifelse(
+        extraColors, "blue", "red"),
       # below min yellow
-      !is.na(min_yel) & check_value < min_yel ~ ifelse(extraColors, "cyan", "yellow"),
+      !is.na(min_yel) & check_value_min < min_yel ~ ifelse(
+        extraColors, "cyan", "yellow"),
       # above max red
-      !is.na(max_red) & check_value > max_red ~ "red",
+      !is.na(max_red) & check_value_max > max_red ~ "red",
       # above max yellow
-      !is.na(max_yel) & check_value > max_yel ~ "yellow",
+      !is.na(max_yel) & check_value_max > max_yel ~ "yellow",
       # everything else is green
       TRUE ~ "green"
       ))
 
-  if (any(is.infinite(df$check_value))) {
+  if (any(is.infinite(c(df$check_value_min, df$check_value_max)))) {
     cat(
     "A relative check to a reference value of zero was performed. Make sure you
     use the right reference data or try checking for a difference instead. \n")

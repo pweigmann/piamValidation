@@ -37,8 +37,6 @@ validateScenarios <- function(dataPath, config,
 
   # combine scenario data (and reference data if needed) with the respective
   # thresholds for each row of the config and bind all into one data.frame
-  # TODO: parallelization works but makes development harder, likely not needed
-  # future::plan(future::multisession, workers = parallel::detectCores())
   valiData <- bind_rows(
     lapply(1:nrow(cfg), function(i) {
       combineData(

@@ -7,7 +7,7 @@
 combineData(scenData, cfgRow, histData = NULL)
 }
 \arguments{
-\item{scenData}{scenario data}
+\item{scenData}{scenario data for one variable}
 
 \item{cfgRow}{one row of a config file}
 
