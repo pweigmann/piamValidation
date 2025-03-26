@@ -22,6 +22,8 @@ all available data.}
 \item{refData}{hand over additional reference data to be plotted alongside
 the validation data. Will use the same variable and region, otherwise
 all available data.}
+
+\item{xlim}{set limits for the x axis}
 }
 \description{
 takes the output of "validateScenarios()" and plots heat maps per variable
