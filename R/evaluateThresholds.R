@@ -12,26 +12,18 @@ evaluateThresholds <- function(df, cleanInf = TRUE, extraColors = TRUE) {
   ## relative ####
   rel <- df[df$metric == "relative", ] %>%
     mutate(
+      # ref_value and value are equal should show as 0 deviation
+      # relative deviation above/below min reference
       check_value_min = ifelse(
-        is.na(ref_value_min),
-        NA,
-        # relative deviation above/below min reference
-        (value - ref_value_min) / ref_value_min
-        ),
+        value == ref_value_min,
+        0,
+        (value - ref_value_min) / ref_value_min),
+
+      # relative deviation above/below max reference
       check_value_max = ifelse(
-        is.na(ref_value_max),
-        NA,
-        # relative deviation above/below max reference
-        (value - ref_value_max) / ref_value_max
-        )
-    ) %>%
-    # special case: ref_value and value are both zero should show as 0 deviation
-    mutate(check_value_min = ifelse(value == 0 & ref_value_min == 0,
-                                    0,
-                                    check_value_min),
-           check_value_max = ifelse(value == 0 & ref_value_max == 0,
-                                    0,
-                                    check_value_max)
+        value == ref_value_max,
+        0,
+        (value - ref_value_max) / ref_value_max)
     )
 
   ## difference ####
