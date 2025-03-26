@@ -4,19 +4,24 @@
 \alias{linePlotThresholds}
 \title{takes the output of "validateScenarios()" and plots heat maps per variable}
 \usage{
-linePlotThresholds(df, var, reg, scenData = FALSE, refData = FALSE)
+linePlotThresholds(
+  valiData,
+  scenData = NULL,
+  refData = NULL,
+  xlim = c(2010, 2030)
+)
 }
 \arguments{
-\item{df}{data.frame to be plotted, as returned by ``validateScenarios()``
-plus optional filtering. Only works for data point with "reference"}
+\item{valiData}{data to be plotted, as returned by ``validateScenarios()``
+and after filtering for one variable and one region.}
 
-\item{var}{choose variable to plot}
+\item{scenData}{hand over additional scenario data to be plotted alongside
+the validation data. Will use the same variable and region, otherwise
+all available data.}
 
-\item{reg}{choose region to plot}
-
-\item{scenData}{decide whether scenario data should be part of the plot}
-
-\item{refData}{decide whether reference data should be part of the plot}
+\item{refData}{hand over additional reference data to be plotted alongside
+the validation data. Will use the same variable and region, otherwise
+all available data.}
 }
 \description{
 takes the output of "validateScenarios()" and plots heat maps per variable
