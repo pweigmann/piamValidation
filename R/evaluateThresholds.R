@@ -7,7 +7,9 @@ evaluateThresholds <- function(df, cleanInf = TRUE, extraColors = TRUE) {
   # first calculate values that will be compared to thresholds for each category
   # ("check_value") and metric separately, then perform evaluation for all together
 
-  # relative ####
+  # get check_values ####
+
+  ## relative ####
   rel <- df[df$metric == "relative", ] %>%
     mutate(
       check_value_min = ifelse(
@@ -32,18 +34,18 @@ evaluateThresholds <- function(df, cleanInf = TRUE, extraColors = TRUE) {
                                     check_value_max)
     )
 
-  # difference ####
+  ## difference ####
   dif <- df[df$metric == "difference", ] %>%
     # difference to reference
     mutate(check_value_min = value - ref_value_min,
            check_value_max = value - ref_value_max)
 
-  # absolute ####
+  ## absolute ####
   abs <- df[df$metric == "absolute", ] %>%
     mutate(check_value_min = value,
            check_value_max = value)
 
-  # growthrate ####
+  ## growthrate ####
   # calculate average growth rate between periods
   gro <- df %>%
     filter(.data$metric == "growthrate") %>%
@@ -63,6 +65,7 @@ evaluateThresholds <- function(df, cleanInf = TRUE, extraColors = TRUE) {
                 list(rel, dif, abs, gro))
 
   # color evaluation ####
+  # compare "check_value" to thresholds
   df <- df %>%
     mutate(check = dplyr::case_when(
       (is.na(check_value_min) | is.na(check_value_max) |

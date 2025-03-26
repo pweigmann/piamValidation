@@ -1,6 +1,6 @@
 #' takes the output of "validateScenarios()" and plots heat maps per variable
 #'
-#' @param df data.frame to be plotted, as returned by ``validateScenarios()``
+#' @param valiData data to be plotted, as returned by ``validateScenarios()``
 #'        (and ``appendTooltips()`` if interactive), plus optional filtering.
 #'        Needs to have at least one dimension with only one unique element.
 #' @param main_dim out of the 5-dim df, 1 dim has to contain only on element,
@@ -17,14 +17,14 @@
 #' @importFrom ggthemes theme_tufte
 #' @export
 
-validationHeatmap <- function(df,
+validationHeatmap <- function(valiData,
                               main_dim = "variable",
                               x_plot  = NULL, y_plot  = NULL,
                               x_facet = NULL, y_facet = NULL,
                               interactive = TRUE) {
 
   # setup ####
-
+  df <- valiData
   plot_title <- paste0(df[1, main_dim])
 
   # prepare data
@@ -46,23 +46,24 @@ validationHeatmap <- function(df,
   }
 
   # check if data.frame has at least one dimension of only one element
-  if (length(unique(df[, main_dim])) > 1) {
-    cat("Data dimensions: \n")
-    print(lengths(lapply(df[, standard_dims], unique)))
-    stop(main_dim, " (main_dim) can only contain one unique element,
-  Please filter data before plotting or select a different main_dim.\n")
-  }
+  # TODO: doesnt work because factor
+  # if (length(unique(df[, main_dim])) > 1) {
+  #   cat("Data dimensions: \n")
+  #   print(lengths(lapply(df[, standard_dims], unique)))
+  #   stop(main_dim, " (main_dim) can only contain one unique element,
+  # Please filter data before plotting or select a different main_dim.\n")
+  # }
 
   # check validation categories, only one per plot allowed
   # TODO: ref_scenario is not checked, but important as "historical" signals a
   # different type of check. Problem: how to deal with "regular" scenario
   # comparison to multiple different scenarios
-  if (length(unique(df[, c("metric")])) > 1) {
-    cat("Validation types: \n")
-    print(unique(df[, c("metric")]))
-    stop("Multiple categories of checks found in data, please filter the data
-  object to contain only one metric.\n")
-  }
+  # if (length(unique(df[, c("metric")])) > 1) {
+  #   cat("Validation types: \n")
+  #   print(unique(df[, c("metric")]))
+  #   stop("Multiple categories of checks found in data, please filter the data
+  # object to contain only one metric.\n")
+  # }
 
   # check if an incomplete set of x/y_plot/facet arguments is passed
   null_args <- sum(sapply(list(x_plot, y_plot, x_facet, y_facet), is.null))

@@ -203,7 +203,7 @@ refineRefData <- function(ref_data, cfgRow, ref_type = "ref_model") {
 
     # filter out data of references specified in cfgRow
     ref_data <- ref_data %>%
-      filter(ref_data[, type][[1]] %in% refs[2:length(refs)]) %>%
+      filter(!!as.symbol(type) %in% refs[2:length(refs)]) %>%
       select(-all_of(type))
 
     if (refs[1] == "range") {
@@ -237,7 +237,8 @@ refineRefData <- function(ref_data, cfgRow, ref_type = "ref_model") {
     # if comma separated list of ref_models, use mean of all (min = max)
     # will work for a single reference as well
     ref_data <- ref_data %>%
-      filter(ref_data[, type][[1]] %in% refs) %>%
+      filter(!!as.symbol(type) %in% refs) %>%
+
       # grouping across all dimensions except the one chosen as reference
       group_by(across(setdiff(group_columns, type))) %>%
       summarise(ref_value_min = mean(value, na.rm = TRUE),
@@ -249,7 +250,7 @@ refineRefData <- function(ref_data, cfgRow, ref_type = "ref_model") {
   ref_data <- ref_data %>%
     mutate(ref_model    = cfgRow$ref_model,
            ref_scenario = cfgRow$ref_scenario,
-           ref_period   = cfgRow$ref_period)
+           ref_period   = as.character(cfgRow$ref_period))
 
   return(ref_data)
 }
