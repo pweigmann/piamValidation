@@ -1,54 +1,111 @@
 #' takes the output of "validateScenarios()" and plots heat maps per variable
 #'
-#' @param df data.frame to be plotted, as returned by ``validateScenarios()``
-#'        plus optional filtering. Only works for data point with "reference"
-#' @param var choose variable to plot
-#' @param reg choose region to plot
-#' @param scenData decide whether scenario data should be part of the plot
-#' @param refData decide whether reference data should be part of the plot
-#' @importFrom dplyr filter mutate %>%
+#' @param valiData data to be plotted, as returned by ``validateScenarios()``
+#'        and after filtering for one variable and one region.
+#' @param scenData hand over additional scenario data to be plotted alongside
+#'        the validation data. Will use the same variable and region, otherwise
+#'        all available data.
+#' @param refData hand over additional reference data to be plotted alongside
+#'        the validation data. Will use the same variable and region, otherwise
+#'        all available data.
+#' @param xlim set limits for the x axis
+#' @importFrom dplyr filter mutate group_by reframe %>%
 #' @import ggplot2
 #' @export
 
-linePlotThresholds <- function(df, var, reg, scenData = FALSE, refData = FALSE) {
-  # for now just for relative - historical checks
-  # TODO extend to other categories, probably checking if is.na(ref_value) will be useful
-  d <- filter(df, variable == var, region == reg,
-              metric == "relative", ref_scenario == "historical")
+linePlotThresholds <- function(valiData, scenData = NULL, refData = NULL,
+                                   xlim = c(2010, 2030)) {
+
+  if (length(unique(valiData$variable)) > 1) {
+    stop("Multiple variables are present in validation data, filter data to
+         contain only one before plotting.")
+  } else {
+    var <- as.character(unique(valiData$variable))
+    unit <- as.character(unique(valiData$unit))
+  }
+
+  if (length(unique(vvaliData$region)) > 1) {
+    stop("Multiple regions are present in validation data, filter data to
+         contain only one before plotting.")
+  } else {
+    reg <- as.character(unique(valiData$region))
+  }
+
+  # it is possible to combine data from relative and absolute checks
+  # care is advised when using data from multiple metrics to avoid overlaps
+  # TODO: warn if overlap between metrics
 
   # convert relative to absolute thresholds
-  d <- d %>%
-    mutate(min_red = (1 + min_red) * ref_value,
-           min_yel = (1 + min_yel) * ref_value,
-           max_yel = (1 + max_yel) * ref_value,
-           max_red = (1 + max_red) * ref_value)
+  d_background_rel <- valiData %>%
+    filter(valiData$metric == "relative") %>%
+    group_by(period) %>%  # thresholds only vary across periods
+    reframe(
+      min_red = ((1+min_red) * ref_value_min),
+      min_yel = ((1+min_yel) * ref_value_min),
+      max_yel = ((1+max_yel) * ref_value_max),
+      max_red = ((1+max_red) * ref_value_max)
+    )
+
+  # convert difference to absolute thresholds
+  d_background_dif <- valiData %>%
+    filter(valiData$metric == "difference") %>%
+    group_by(period) %>%
+    reframe(
+      min_red = (min_red + ref_value_min),
+      min_yel = (min_yel + ref_value_min),
+      max_yel = (max_yel + ref_value_max),
+      max_red = (max_red + ref_value_max)
+    )
+
+  # same data structure for absolute thresholds
+  d_background_abs <- valiData %>%
+    filter(valiData$metric == "absolute") %>%
+    group_by(period) %>%
+    reframe(min_red, min_yel, max_yel, max_red)
+
+  d_background <- rbind(d_background_rel, d_background_dif, d_background_abs)
+
+  # remove duplicates
+  d_background <- d_background[duplicated(d_background) == FALSE, ]
+
+  # TODO: different type of plot if thresholds are only available for one period
 
   # plot thresholds as colored background areas
   p <- ggplot() +
-    geom_ribbon(data = d, aes(x = period, ymin = min_yel, ymax = max_yel),
-                fill = "lightgreen", alpha = 0.2, color = NA, inherit.aes = FALSE) +
-    geom_ribbon(data = d, aes(x = period, ymin = max_yel, ymax = max_red),
-                fill = "orange", alpha = 0.2, color = NA, inherit.aes = FALSE) +
-    geom_ribbon(data = d, aes(x = period, ymin = min_red, ymax = min_yel),
-                fill = "lightblue", alpha = 0.3, color = NA, inherit.aes = FALSE)
+    geom_ribbon(data = d_background, aes(x = period, ymin = min_yel, ymax = max_yel),
+                fill = "#008450", alpha = 0.2, color = NA, inherit.aes = FALSE) +
+    geom_ribbon(data = d_background, aes(x = period, ymin = max_yel, ymax = max_red),
+                fill = "#EFB700", alpha = 0.2, color = NA, inherit.aes = FALSE) +
+    geom_ribbon(data = d_background, aes(x = period, ymin = min_red, ymax = min_yel),
+                fill = "#66ccee", alpha = 0.3, color = NA, inherit.aes = FALSE) +
+    xlab("Period") +
+    ylab(paste0(var, " [", unit, "]")) +
+    theme_bw()
 
   # add scenario data as lines
-  if (scenData) {
+  if (!is.null(scenData)) {
+    d <- scenData %>%
+      filter(variable == var, region == reg,
+             period >= min(xlim) & period <= max(xlim))
     p <- p +
-      geom_line(data = d, aes(x = period, y = value, color = model, linetype = scenario)) +
-      ylab(var)
+      geom_line(data = d,
+                aes(x = period, y = value, color = model, linetype = scenario))
   }
 
   # add reference data as points
-  if (refData) {
+  if (!is.null(refData)) {
+    h <- refData %>%
+      filter(variable == var, region == reg,
+             period >= min(xlim) & period <= max(xlim))
     p <- p +
-      geom_point(data = d, aes(x = period, y = ref_value, shape = ref_model),
+      geom_point(data = h, aes(x = period, y = value, shape = model),
                  size = 1, color = "black")
   }
 
   # layout
   p <- p +
-    ggtitle(paste(var, "-", reg))
+    ggtitle(paste0(var, " - ", reg)) +
+    scale_x_continuous(limits = xlim)
 
   p
 }
