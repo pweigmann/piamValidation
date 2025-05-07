@@ -24,7 +24,7 @@ linePlotThresholds <- function(valiData, scenData = NULL, refData = NULL,
     unit <- as.character(unique(valiData$unit))
   }
 
-  if (length(unique(vvaliData$region)) > 1) {
+  if (length(unique(valiData$region)) > 1) {
     stop("Multiple regions are present in validation data, filter data to
          contain only one before plotting.")
   } else {
