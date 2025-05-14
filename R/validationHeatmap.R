@@ -148,7 +148,9 @@ validationHeatmap <- function(valiData,
     scale_fill_manual(values = colors, breaks = colors) +
     facet_grid(.data[[y_facet, ]] ~ .data[[x_facet, ]]) +
     labs(x = NULL, y = NULL, title = plot_title) +
-    theme_tufte(base_family = "Arial") +
+    #theme_tufte(base_family = "Arial") +
+    theme_minimal() +
+    theme(panel.grid.major = element_blank()) +
     theme(axis.ticks = element_blank()) +     # remove ticks
     theme(axis.text  = element_text(size = 8)) +  # font size plot labels
     theme(strip.text = element_text(size = 8)) +  # font size facet labels
