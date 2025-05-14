@@ -30,12 +30,13 @@ validationHeatmap <- function(valiData,
   # prepare data
   df$period <- as.character(df$period)
   standard_dims <- c("model", "scenario", "variable", "region", "period")
-  colors <- c(green     = "#008450",
-              yellow    = "#EFB700",
-              red       = "#B81D13",
-              cyan      = "#66ccee",
-              blue      = "#4477aa",
-              grey      = "#808080")
+
+  colors <-  c(green     = "#008450",
+               yellow    = "#EFBB0F",
+               red       = "#AA0014",
+               cyan      = "#7BD5F3",
+               blue      = "#4477AA",
+               grey      = "#808080")
 
   # check arguments ####
 
