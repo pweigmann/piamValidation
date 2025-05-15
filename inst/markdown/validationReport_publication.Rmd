@@ -54,11 +54,11 @@ cat("validationConfig_publication.csv\n")
 ## Validation
 
 ```{r, message = FALSE, warning = TRUE}
-hist <- readRDS("data/reference_data_publication.rds")
-scen <- readRDS("data/scenario_data_publication.rds")
+hist <- readRDS("./data/reference_data_publication.rds")
+scen <- readRDS("./data/scenario_data_publication.rds")
 data <- rbind(hist, scen)
 
-df <- validateScenarios(data, "paper", extraColors = FALSE)
+df <- validateScenarios(data, "publication", extraColors = FALSE)
 df <- appendTooltips(df)
 ```
 

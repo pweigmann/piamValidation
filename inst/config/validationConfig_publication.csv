@@ -1,7 +1,7 @@
 metric;critical;variable;unit;model;scenario;region;period;min_red;min_yel;max_yel;max_red;ref_model;ref_scenario;ref_period;source/link to discussion
 EVs;;;;;;;;;;;;;;;
 difference;yes;Stock|Transport|Pass|Road|BEV;;;;;2010-2020;-2.5;-1.25;1.25;2.5;range(IEA GEVO Historical, IEA GEVO Historical_smoothed);historical;;Based on historical data and projections from IEA GEVO 2024
-difference;yes;Stock|Transport|Pass|Road|BEV;;;;World;2010-2020;-5;-2.5;2.5;5;range(IEA GEVO Historical, IEA GEVO Historical_smoothed);historical;;
+difference;yes;Stock|Transport|Pass|Road|BEV;;;;World;2010-2020;-5;-2.5;2.5;5;range(IEA GEVO Historical, IEA GEVO Historical_smoothed);historical;;COVID smoothing: additional tolerance for 2020 by using the range of 2020 value and average of 2018-2022 as reference to allow for models to include or exclude COVID dip
 relative;yes;Stock|Transport|Pass|Road|BEV;;;;;2025-2030;-40%;-20%;20%;40%;range(IEA GEVO APS, IEA GEVO STEPS);historical;;
 difference;yes;Sales|Transport|Pass|Road|BEV;;;;;2010-2020;-0.5;-0.25;0.25;0.5;range(IEA GEVO Historical, IEA GEVO Historical_smoothed);historical;;
 difference;yes;Sales|Transport|Pass|Road|BEV;;;;World;2010-2020;-1;-0.5;0.5;1;range(IEA GEVO Historical, IEA GEVO Historical_smoothed);historical;;
@@ -9,7 +9,7 @@ relative;yes;Sales|Transport|Pass|Road|BEV;;;;;2025-2030;-40%;-20%;20%;40%;range
 Wind;;;;;;;;;;;;;;;
 difference;yes;Cap|Electricity|Wind|Offshore;;;;USA, EUR, IND, CHA;2010-2015;-2;-1;1;2;range(IRENA, IRENA_smoothed);historical;;Based on projections from GWEC and own assumptions:
 difference;yes;Cap|Electricity|Wind|Offshore;;;;World;2010-2015;-4;-2;2;4;range(IRENA, IRENA_smoothed);historical;;https://github.com/pik-piam/mrremind/discussions/543
-relative;yes;Cap|Electricity|Wind|Offshore;;;;World, USA, EUR, IND, CHA;2020;-40%;-20%;20%;40%;range(IRENA, IRENA_smoothed);historical;;
+relative;yes;Cap|Electricity|Wind|Offshore;;;;World, USA, EUR, IND, CHA;2020;-40%;-20%;20%;40%;range(IRENA, IRENA_smoothed);historical;;COVID smoothing: additional tolerance for 2020 by using the range of 2020 value and average of 2018-2022 as reference to allow for models to include or exclude COVID dip
 absolute;yes;Cap|Electricity|Wind|Offshore;GW;;;EUR;2025;22.3;33.5;61.5;80.6;;;;
 absolute;yes;Cap|Electricity|Wind|Offshore;GW;;;USA;2025;0.6;1.5;4.5;7.1;;;;
 absolute;yes;Cap|Electricity|Wind|Offshore;GW;;;EUR;2030;33.3;62.8;149.5;217.4;;;;
@@ -17,7 +17,7 @@ absolute;yes;Cap|Electricity|Wind|Offshore;GW;;;USA;2030;3.1;8.3;24.8;38.5;;;;
 CCS;;;;;;;;;;;;;;;
 difference;yes;CO2|Transport and Storage;;;;;2010-2020;-10;-5;5;10;range(IEA CCUS, IEA CCUS_smoothed);historical;;Based on projections from IEA CCUS and own assumptions:
 difference;yes;CO2|Transport and Storage;;;;World;2010-2020;-20;-10;10;20;range(IEA CCUS, IEA CCUS_smoothed);historical;;https://gitlab.pik-potsdam.de/REMIND/committed/-/issues/1 
-absolute;yes;CO2|Transport and Storage;;;;World;2025;39.6207;49.49215;83.5611;152.4457;;;;
+absolute;yes;CO2|Transport and Storage;;;;World;2025;39.6207;49.49215;83.5611;152.4457;;;;COVID smoothing: additional tolerance for 2020 by using the range of 2020 value and average of 2018-2022 as reference to allow for models to include or exclude COVID dip
 absolute;yes;CO2|Transport and Storage;;;;LAM;2025;;5.724;17.64;;;;;
 absolute;yes;CO2|Transport and Storage;;;;OAS;2025;;0;7.602;;;;;
 absolute;yes;CO2|Transport and Storage;;;;SSA;2025;;0;0.0014;;;;;
