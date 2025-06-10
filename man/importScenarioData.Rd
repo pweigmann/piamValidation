@@ -7,7 +7,7 @@
 importScenarioData(scenarioPath)
 }
 \arguments{
-\item{scenarioPath}{one or multiple paths to .mif, .csv, .rds or .xlsx file(s) 
+\item{scenarioPath}{one or multiple paths to .mif, .csv, .rds or .xlsx file(s)
 or a data.frame containing scenario data in IAM format}
 }
 \description{

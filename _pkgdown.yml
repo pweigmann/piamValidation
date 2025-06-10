@@ -4,3 +4,35 @@ template:
   bslib:
     base_font: {google: "Source Sans Pro"}
 
+navbar:
+  structure:
+    left:
+      - home
+      - reference
+      - articles
+      - configs
+  components:
+    articles:
+        text: "Articles"
+        menu:
+          - text: "validateScenarios"
+            href: articles/validateScenarios.html
+    configs:
+      text: "Config Tables"
+      menu:
+        - text: "REMIND"
+          href: articles/configs/validationConfig_REMIND.html
+        - text: "ScenarioMIP AIM"
+          href: articles/configs/validationConfig_ScenarioMIP_AIM.html
+        - text: "ScenarioMIP COFFEE"
+          href: articles/configs/validationConfig_ScenarioMIP_COFFEE.html
+        - text: "ScenarioMIP GCAM"
+          href: articles/configs/validationConfig_ScenarioMIP_GCAM.html
+        - text: "ScenarioMIP IMAGE"
+          href: articles/configs/validationConfig_ScenarioMIP_IMAGE.html
+        - text: "ScenarioMIP MESSAGE"
+          href: articles/configs/validationConfig_ScenarioMIP_MESSAGE.html
+        - text: "ScenarioMIP REMIND"
+          href: articles/configs/validationConfig_ScenarioMIP_REMIND.html
+        - text: "ScenarioMIP WITCH"
+          href: articles/configs/validationConfig_ScenarioMIP_WITCH.html
