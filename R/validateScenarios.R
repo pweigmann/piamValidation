@@ -27,6 +27,7 @@ validateScenarios <- function(dataPath, config,
     fillInf() %>%
     expandPeriods(scen) %>%
     expandVariables(scen)
+  cfg[cfg == "NA"] <- NA
 
   # TODO: check if all variables from config are in scenario data,
   # currently fails only with unit check

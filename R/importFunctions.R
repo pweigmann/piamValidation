@@ -1,13 +1,13 @@
 #' import IAM data for validation
-#' 
+#'
 #' @importFrom dplyr filter select mutate %>%
 #' @importFrom readxl read_excel excel_sheets
 #' @importFrom utils read.csv2
-#' 
-#' @param scenarioPath one or multiple paths to .mif, .csv, .rds or .xlsx file(s) 
+#'
+#' @param scenarioPath one or multiple paths to .mif, .csv, .rds or .xlsx file(s)
 #'        or a data.frame containing scenario data in IAM format
 importScenarioData <- function(scenarioPath) {
-  data <- piamutils::deletePlus(quitte::as.quitte(scenarioPath, na.rm = TRUE)) %>%
+  data <- quitte::as.quitte(scenarioPath, na.rm = TRUE) %>%
     filter(period >= 1990)
 
   # change ordering of factors, global elements first
@@ -18,10 +18,14 @@ importScenarioData <- function(scenarioPath) {
   return(data)
 }
 
-
-# get a validation config file either from "inst/config" (.csv) or by providing
-# a full path (.csv or .xlsx) or a tibble with the necessary columns
-# see README or vignette for rules on how to fill the config
+#' import a config shipped with the package
+#'
+#' get a validation config file either from "inst/config" (.csv) or by providing
+#' a full path (.csv or .xlsx) or a tibble with the necessary columns
+#' see README or vignette for rules on how to fill the config
+#' @param config name of validation config from "inst/config"
+#'
+#' @export
 getConfig <- function(config) {
   # config can be a data object...
   if (tibble::is_tibble(config)) {
@@ -49,7 +53,7 @@ getConfig <- function(config) {
     } else {
       # only support ";" as separator for config as "," might be used in cells
       cfg <- tibble::as_tibble(
-        read.csv2(path, na.strings = "", comment.char = "#"))
+        read.csv2(path, na.strings = c("", "NA"), comment.char = "#"))
     }
     message("loading config file: ", path, "\n")
 

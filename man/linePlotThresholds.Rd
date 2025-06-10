@@ -8,7 +8,8 @@ linePlotThresholds(
   valiData,
   scenData = NULL,
   refData = NULL,
-  xlim = c(2010, 2030)
+  xlim = c(2010, 2030),
+  interactive = TRUE
 )
 }
 \arguments{
@@ -24,6 +25,8 @@ the validation data. Will use the same variable and region, otherwise
 all available data.}
 
 \item{xlim}{set limits for the x axis}
+
+\item{interactive}{decide if an interactive ggploty object should be returned}
 }
 \description{
 takes the output of "validateScenarios()" and plots heat maps per variable

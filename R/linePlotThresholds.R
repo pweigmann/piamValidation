@@ -9,12 +9,16 @@
 #'        the validation data. Will use the same variable and region, otherwise
 #'        all available data.
 #' @param xlim set limits for the x axis
+#' @param interactive decide if an interactive ggploty object should be returned
 #' @importFrom dplyr filter mutate group_by reframe %>%
 #' @import ggplot2
 #' @export
 
-linePlotThresholds <- function(valiData, scenData = NULL, refData = NULL,
-                                   xlim = c(2010, 2030)) {
+linePlotThresholds <- function(valiData,
+                               scenData = NULL,
+                               refData = NULL,
+                               xlim = c(2010, 2030),
+                               interactive = TRUE) {
 
   if (length(unique(valiData$variable)) > 1) {
     stop("Multiple variables are present in validation data, filter data to
@@ -107,5 +111,10 @@ linePlotThresholds <- function(valiData, scenData = NULL, refData = NULL,
     ggtitle(paste0(var, " - ", reg)) +
     scale_x_continuous(limits = xlim)
 
-  p
+  if (interactive) {
+    plotly::ggplotly(p) #%>%
+      #layout(legend = list(title=list(text='Model, Scenario')))
+  } else {
+    p
+  }
 }

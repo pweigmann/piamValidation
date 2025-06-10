@@ -1,0 +1,29 @@
+---
+title: "validationConfig_REMIND"
+output: html_document
+---
+
+Default configuration file for validating REMIND scenarios.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(readr)
+library(DT)
+
+# Load the CSV from inst/config
+df <- piamValidation::getConfig("AMT")
+
+font.size <- "9pt"
+
+df %>%
+   DT::datatable(
+     options = list(
+       pageLength = 100,
+       initComplete = htmlwidgets::JS(
+          "function(settings, json) {",
+          paste0("$(this.api().table().container()).css({'font-size': '", font.size, "'});"),
+          "}"),
+      filter = 'top'  # This enables the column filters
+      )
+    )
+
+```
