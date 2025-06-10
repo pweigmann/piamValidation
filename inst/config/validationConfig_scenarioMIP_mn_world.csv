@@ -1,0 +1,29 @@
+metric;critical;variable;unit;model;scenario;region;period;min_red;min_yel;max_yel;max_red;ref_model;ref_scenario;ref_period;source.link.to.discussion
+relative;yes;Final Energy;EJ/yr;;;World;2010-2020;-0.2;-0.1;0.1;0.2;range(IEA-EB-directSum, IEA-EB-directSum_smoothed);historical;;
+relative;yes;Primary Energy|Coal;EJ/yr;;;World;2010-2020;-0.2;-0.1;0.1;0.2;range(BP, IEA-EB-directSum, BP_smoothed, IEA-EB-directSum_smoothed);historical;;
+relative;yes;Primary Energy|Oil;EJ/yr;;;World;2010-2020;-0.2;-0.1;0.1;0.2;range(BP, IEA-EB-directSum, BP_smoothed, IEA-EB-directSum_smoothed);historical;;
+relative;yes;Primary Energy|Gas;EJ/yr;;;World;2010-2020;-0.2;-0.1;0.1;0.2;range(BP, IEA-EB-directSum, BP_smoothed, IEA-EB-directSum_smoothed);historical;;
+relative;yes;Capacity|Electricity|Nuclear;GW;;;World;2010-2020;-0.2;-0.1;0.1;0.2;range(Ember, Ember_smoothed);historical;;
+relative;yes;Capacity|Electricity|Hydro;GW;;;World;2010-2020;-0.2;-0.1;0.1;0.2;range(IRENA, Ember, IRENA_smoothed, Ember_smoothed);historical;;
+relative;yes;Capacity|Electricity|Solar;GW;;;World;2010-2020;-0.2;-0.1;0.1;0.2;range(IRENA, Ember, IRENA_smoothed, Ember_smoothed);historical;;
+relative;yes;Capacity|Electricity|Wind|Onshore;GW;;;World;2010-2020;-0.2;-0.1;0.1;0.2;range(IRENA, Ember, IRENA_smoothed, Ember_smoothed);historical;;
+relative;yes;Emissions|CO2|Energy and Industrial Processes;Mt CO2/yr;;;World;2010-2020;-0.2;-0.1;0.1;0.2;range(CEDS, CEDS_smoothed);historical;;
+relative;yes;Emissions|CH4|Waste;Mt CH4/yr;;;World;2010-2020;-0.2;-0.1;0.1;0.2;range(CEDS, CEDS_smoothed);historical;;
+relative;yes;Emissions|CO2|Energy and Industrial Processes;Mt CO2/yr;;SSP1 - Very Low with Limited Overshoot, SSP1 - Very Low after High Overshoot, SSP1 - Low Emissions, SSP1 - Medium-Low Emissions, SSP1 - Very Low with Limited Overshoot_a, SSP1 - Very Low with Limited Overshoot_c;World;2030;-0.2;-0.1;0.1;0.2;;SSP1 - Medium Emissions;;
+relative;yes;Emissions|CO2|Energy and Industrial Processes;Mt CO2/yr;;SSP2 - Low Emissions, SSP2 - Very Low after High Overshoot, SSP2 - Medium-Low Emissions, SSP2 - Very Low with Limited Overshoot, SSP2 - High Emissions, SSP2 - Low Emissions_c, SSP2 - Low Emissions_d, SSP2 - Very Low after High Overshoot_b, SSP2 - Very Low after High Overshoot_c, SSP2 - Very Low after High Overshoot_d, SSP2 - Very Low with Limited Overshoot_a, SSP2 - Very Low with Limited Overshoot_c;World;2030;-0.2;-0.1;0.1;0.2;;SSP2 - Medium Emissions;;
+relative;yes;Emissions|CO2|Energy and Industrial Processes;Mt CO2/yr;;SSP3 - High Emissions, SSP3 - High Emissions_a;World;2030;-0.2;-0.1;0.1;0.2;;SSP3 - Medium Emissions;;
+relative;yes;Emissions|CO2|Energy and Industrial Processes;Mt CO2/yr;;SSP4 - Very Low after High Overshoot;World;2030;-0.2;-0.1;0.1;0.2;;SSP4 - Medium Emissions;;
+relative;yes;Emissions|CO2|Energy and Industrial Processes;Mt CO2/yr;;SSP5 - High Emissions, SSP5 - High Emissions_a, SSP5 - Very Low after High Overshoot;World;2030;-0.2;-0.1;0.1;0.2;;SSP5 - Medium Emissions;;IAEA high case
+absolute;yes;Capacity|Electricity|Nuclear;GW;;;World;2050;;;;991;;;;Kazlou et al. (https://www.nature.com/articles/s41558-024-02104-0)
+absolute;yes;Carbon Capture|Geological Storage;Mt CO2/yr;;;World;2035;;;;1300;;;;Kazlou et al. (https://www.nature.com/articles/s41558-024-02104-0)
+absolute;yes;Carbon Capture|Geological Storage;Mt CO2/yr;;;World;2040;;;;4300;;;;Grant et al.
+absolute;yes;Carbon Capture|Geological Storage;Mt CO2/yr;;;World;2050;;;;8600;;;;Creutzig et al. 2015: https://onlinelibrary.wiley.com/doi/10.1111/gcbb.12205
+absolute;yes;Primary Energy|Biomass;EJ/yr;;;World;2030-2100;;;100;300;;;;
+absolute;yes;Capacity|Electricity|Hydro;GW;;;World;2030;1051.2;1265.78;1727.775;2278.98;;;;
+absolute;yes;Capacity|Electricity|Nuclear;GW;;;World;2030;269.7507;320.32955;463.58865;507.1;;;;
+absolute;yes;Carbon Capture|Geological Storage;Mt CO2/yr;;;World;2025;39.6207;49.49215;83.5611;152.4457;;;;
+absolute;yes;Carbon Capture|Geological Storage;Mt CO2/yr;;;World;2030;44.0226;60.01815;152.4663;457.8915;;;;
+absolute;yes;Capacity|Electricity|Solar;GW;;;World;2025;1609;2083;3152;3896;;;;
+absolute;yes;Capacity|Electricity|Solar;GW;;;World;2030;2683;4350;8164;10896;;;;
+absolute;yes;Capacity|Electricity|Wind|Onshore;GW;;;World;2025;930;1066;1365;1560;;;;
+absolute;yes;Capacity|Electricity|Wind|Onshore;GW;;;World;2030;1155;1542;2417;3029;;;;
