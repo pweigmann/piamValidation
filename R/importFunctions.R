@@ -1,9 +1,11 @@
+#' import IAM data for validation
+#' 
 #' @importFrom dplyr filter select mutate %>%
 #' @importFrom readxl read_excel excel_sheets
 #' @importFrom utils read.csv2
-
-# scenarioPath: one or multiple paths to .mif or .csv file(s) containing
-#               scenario data in IAM format
+#' 
+#' @param scenarioPath one or multiple paths to .mif, .csv, .rds or .xlsx file(s) 
+#'        or a data.frame containing scenario data in IAM format
 importScenarioData <- function(scenarioPath) {
   data <- quitte::as.quitte(scenarioPath, na.rm = TRUE) %>%
     filter(period >= 1990)

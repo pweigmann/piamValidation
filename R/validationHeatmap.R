@@ -30,12 +30,13 @@ validationHeatmap <- function(valiData,
   # prepare data
   df$period <- as.character(df$period)
   standard_dims <- c("model", "scenario", "variable", "region", "period")
-  colors <- c(green     = "#008450",
-              yellow    = "#EFB700",
-              red       = "#B81D13",
-              cyan      = "#66ccee",
-              blue      = "#4477aa",
-              grey      = "#808080")
+
+  colors <-  c(green     = "#008450",
+               yellow    = "#EFBB0F",
+               red       = "#AA0014",
+               cyan      = "#7BD5F3",
+               blue      = "#4477AA",
+               grey      = "#808080")
 
   # check arguments ####
 
@@ -147,7 +148,9 @@ validationHeatmap <- function(valiData,
     scale_fill_manual(values = colors, breaks = colors) +
     facet_grid(.data[[y_facet, ]] ~ .data[[x_facet, ]]) +
     labs(x = NULL, y = NULL, title = plot_title) +
-    theme_tufte(base_family = "Arial") +
+    #theme_tufte(base_family = "Arial") +
+    theme_minimal() +
+    theme(panel.grid.major = element_blank()) +
     theme(axis.ticks = element_blank()) +     # remove ticks
     theme(axis.text  = element_text(size = 8)) +  # font size plot labels
     theme(strip.text = element_text(size = 8)) +  # font size facet labels
