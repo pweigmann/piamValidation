@@ -5,7 +5,7 @@
 # scenarioPath: one or multiple paths to .mif or .csv file(s) containing
 #               scenario data in IAM format
 importScenarioData <- function(scenarioPath) {
-  data <- remind2::deletePlus(quitte::as.quitte(scenarioPath, na.rm = TRUE)) %>%
+  data <- quitte::as.quitte(scenarioPath, na.rm = TRUE) %>%
     filter(period >= 1990)
 
   # change ordering of factors, global elements first
@@ -47,7 +47,7 @@ getConfig <- function(config) {
     } else {
       # only support ";" as separator for config as "," might be used in cells
       cfg <- tibble::as_tibble(
-        read.csv2(path, na.strings = "", comment.char = "#"))
+        read.csv2(path, na.strings = c("", "NA"), comment.char = "#"))
     }
     message("loading config file: ", path, "\n")
 

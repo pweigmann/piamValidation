@@ -85,7 +85,7 @@ evaluateThresholds <- function(df, cleanInf = TRUE, extraColors = TRUE) {
       ))
 
   if (any(is.infinite(c(df$check_value_min, df$check_value_max)))) {
-    cat(
+    warning(
     "A relative check to a reference value of zero was performed. Make sure you
     use the right reference data or try checking for a difference instead. \n")
   }
