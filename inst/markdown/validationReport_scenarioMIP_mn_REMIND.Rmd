@@ -1,0 +1,764 @@
+---
+title: "REMIND-MAgPIE35-410 Scenario MIP Validation Report"
+date: "`r format(Sys.Date())`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: hide
+    toc_depth: 4
+params:
+  mif: ""
+  cfg: ""
+  extraColors: true
+  warning: false
+  message: false
+  figWidth: 8
+---
+
+```{r include=FALSE}
+# Setup
+library(piamValidation)
+devtools::load_all(".")
+library(knitr)
+library(dplyr)
+library(ggplot2)
+library(ggthemes)
+library(plotly)
+library(madrat)
+library(piamInterfaces)
+library(tidyr)
+library(stringr)
+library(ggpubr)
+
+knitr::opts_chunk$set(
+  echo = FALSE,
+  error = TRUE,
+  message = params$message,
+  warning = params$warning
+)
+# ensure that the working directory is the project root
+knitr::opts_knit$set(root.dir = rprojroot::find_rstudio_root_file())
+
+# data revision
+snapshot_date <- "2025-05-27"
+historical_date <- "2025-05-09"
+config_date <- "2025-06-06"
+```
+
+```{r}
+# MODEL SPECIFICS
+# this is a model-specific report
+model <- "REMIND-MAgPIE35-410"
+
+# model-specific shorter region names
+regs.short <- c(
+  "Canada Australia New Zealand" = "CAZ",
+  "China and Taiwan" = "CHA",
+  "Latin America and the Caribbean" = "LAM",
+  "Middle East and North Africa" = "MENA",
+  "Non-EU28 Europe" = "NEU",
+  "Russia and Reforming Economies" = "REF",
+  "Sub-Saharan Africa" = "SSA",
+  "United States of America" = "USA"
+)
+```
+
+```{r}
+# copy-pasted from REMIND multi-model analysis scripts
+emi.scen.letter <- c(
+  "High Emissions" = "H",
+  "Medium Emissions" = "M",
+  "Medium-Low Emissions" = "ML",
+  "Low Emissions" = "L",
+  "Very Low after High Overshoot" = "VLHO",
+  "Very Low with Limited Overshoot" = "VLLO"
+)
+
+plot.emi.scen.colors <- c(
+    "High Emissions" = "darkred",
+    "Medium Emissions" = "#FF6F6F",
+    "Medium-Low Emissions" = "#B282AE",
+    "Low Emissions" = "#6495ED",
+    "Very Low after High Overshoot" = "#FF8C00",
+    "Very Low with Limited Overshoot" = "#6B8E23"
+)
+
+
+plot.model.colors <- c(
+  # scenario models
+  "AIM" = "#4D5CAD",
+  "COFFEE" = "#69BA7F",
+  "GCAM" = "#759EA8",
+  "IMAGE" = "#868367",
+  "MESSAGEix-GLOBIOM" = "#892F71",
+  "REMIND-MAgPIE" = "#facb1e",
+  "WITCH" = "#fb6a4a"
+)
+
+validationHeatmap.colors <- 
+  c(green     = "#008450",
+    yellow    = "#EFB700",
+    red       = "#B81D13",
+    cyan      = "#66ccee",
+    blue      = "#4477aa",
+    grey      = "#808080")
+
+plot.model.letters <- c(
+  "AIM" = "A",
+  "COFFEE" = "C",
+  "MESSAGEix-GLOBIOM" = "M",
+  "GCAM" = "G",
+  "REMIND-MAgPIE" = "R",
+  "IMAGE" = "I",
+  "WITCH" = "W"
+)
+
+plot.SSP.linetype <- c(
+    "SSP1"   = "dashed",
+    "SSP1 a" = "dashed",
+    "SSP1 b" = "dashed",
+    "SSP1 c" = "dashed",
+    "SSP2"   = "solid",
+    "SSP2 a" = "solid",
+    "SSP2 b" = "solid",
+    "SSP2 c" = "solid",
+    "SSP2 d" = "solid",
+    "SSP3"   = "dotted",
+    "SSP3 a" = "dotted",
+    "SSP4"   = "longdash",
+    "SSP5"   = "dotdash",
+    "SSP5 a" = "dotdash"
+  )
+
+vars.short <- c(
+  "Final Energy" = "FE",
+  "Primary Energy|Coal" = "PE|Coal",
+  "Primary Energy|Oil" = "PE|Oil",
+  "Primary Energy|Gas" = "PE|Gas",
+  "Primary Energy|Biomass" = "PE|Biomass",
+  "Emissions|CO2|Energy and Industrial Processes" = "Emi|CO2|EIP",
+  "Capacity|Electricity|Nuclear" = "Cap|Nuclear",
+  "Capacity|Electricity|Hydro" = "Cap|Hydro",
+  "Capacity|Electricity|Solar" = "Cap|Solar",
+  "Capacity|Electricity|Wind|Onshore" = "Cap|Wind|Onshore",
+  "Carbon Capture|Geological Storage" = "CCS",
+  "Emissions|CH4|Energy and Industrial Processes" = "Emi|CH4|EIP",
+  "Emissions|CH4|Waste" = "Emi|CH4|Waste"
+)
+```
+
+```{r, message = FALSE, warning = FALSE}
+# Data Preparation
+config <- paste0("scenarioMIP_", model, "_", config_date)
+
+# Scenario Data 
+data <- readRDS(paste0("scenario_all_", snapshot_date, ".rds")) %>%
+  mutate(model = gsub("\\.| ", "", model),
+         region = gsub("\\.|", "", region)) %>%
+  filter(
+    model == !!model,
+    value != 0) %>%
+  mutate(scenario = str_replace(scenario, "SSP([1-5]) - Very Low Emissions", "SSP\\1 - Very Low with Limited Overshoot")) %>%
+  mutate(scenario = str_replace(scenario, "SSP([1-5]) - Low Overshoot", "SSP\\1 - Very Low after High Overshoot"))
+
+
+# meta data, from setupNotebook.R
+data <- data %>% 
+  mutate(temp.scenario.name.a = scenario)
+data <- data %>% 
+  separate_wider_delim(temp.scenario.name.a, 
+                       delim = " - ", 
+                       names = c("ssp", "temp.scenario.name.b"), 
+                       names_repair = "unique", 
+                       too_few = "error", 
+                       cols_remove = TRUE)
+data <- data %>%
+  separate_wider_delim(temp.scenario.name.b, 
+                       delim = "_", 
+                       names = c("emi.scen", "def.var"), 
+                       names_repair = "unique", 
+                       too_few = "align_start", 
+                       cols_remove = TRUE) %>%
+    mutate(def.var = case_match(
+      def.var, NA ~ "Default", .default = paste0("Variant ", def.var))) %>%
+    mutate(ssp = as.factor(ssp), 
+           emi.scen = as.factor(emi.scen), 
+           def.var = as.factor(def.var))
+
+# Historical Data
+# import from .rds 
+# - convert to ScenarioMIP variable template
+# - filter for current model and remove model name from region
+hist <- readRDS(paste0("historical_all_", historical_date, ".rds")) %>%
+  filter(grepl(!!model, region) | region == "World") 
+
+# remove model name from region and commas to be compatible with other data
+hist$region <- gsub(".*\\|", "", hist$region)
+hist$region <- gsub(",", "", hist$region)
+#hist$region <- gsub(" ", "", hist$region)
+
+# rename Wind variable
+# TODO: better way?
+hist[hist$variable == "Capacity|Electricity|Wind" & hist$model == "Ember", "variable"] <- 
+  "Capacity|Electricity|Wind|Onshore"
+hist <- hist %>%
+  filter(period >= 2005)
+
+# average 2020 values over 5 year period to even out Covid shock
+hist_m <- hist %>%
+ filter(period %in% seq(2018, 2022)) %>%
+ as.magpie(spatial = "region")
+hist_m[, 2020, ] <- dimSums(hist_m, dim = 2)/5
+hist_smoothed <- quitte::as.quitte(hist_m[, , ]) %>% 
+  filter(period == 2020) %>%
+  mutate(model = paste0(model, "_smoothed"))
+
+hist <- rbind(hist, hist_smoothed)
+
+# for validation just use the standard columns of scenario data
+data_reduced <- data %>%
+  select(-c(ssp, emi.scen, def.var))
+
+# combine scenario and historical data
+df <- rbind(hist, data_reduced)
+
+# Validation
+valiData <- validateScenarios(df, config, extraColors = TRUE)
+valiData <- appendTooltips(valiData)
+```
+
+```{r}
+# Before Plotting
+
+# three data objects are used in the following sections:
+# - valiData: contains validated data as returned by validateScenarios, 
+#             needed for heat maps and line plots 
+# - data: contains all relevant scenario data and meta data also outside of 
+#         validation scope, needed for line plots
+# - hist: contains all historical reference data, also outside of 
+#         validation scope, needed for line plots
+
+# shorten variable names
+valiData <- quitte::revalue.levels(valiData, variable = vars.short)
+hist <- quitte::revalue.levels(hist, variable = vars.short)
+data <- quitte::revalue.levels(data, variable = vars.short) %>%
+  # add variant information to ssp column
+  mutate(ssp = paste0(ssp, gsub("Default|Variant", "", def.var)))
+
+# shorten scenario names
+for (i in 1:length(emi.scen.letter)) {
+  data$scenario <- gsub(names(emi.scen.letter[i]), 
+                            emi.scen.letter[i], 
+                            data$scenario)
+  valiData$scenario <- gsub(names(emi.scen.letter[i]), 
+                            emi.scen.letter[i], 
+                            valiData$scenario)
+}
+
+# shorten model-specific region names
+# shorten variable names
+valiData <- quitte::revalue.levels(valiData, region = regs.short)
+hist <- quitte::revalue.levels(hist, region = regs.short)
+data <- quitte::revalue.levels(data, region = regs.short)
+
+# reorder scenario names alphabetically
+valiData$scenario <- factor(valiData$scenario, 
+                            levels = sort(unique(valiData$scenario)))
+# reorder regions to World is first
+new_order <- unique(intersect(c("World", "GLO",
+                                levels(valiData$region)), levels(valiData$region)))
+valiData$region <- factor(valiData$region, levels = new_order)
+```
+
+## Model-Native Validation
+
+This validation document uses the R-package [piamValidation](https://github.com/pik-piam/piamValidation)
+to perform a series of different checks on a snapshot of the Scenario MIP modeling results.
+
+These checks are based on the [vetting criteria google doc](https://docs.google.com/document/d/11oLs7xfe5aJsgchip6JwzYc3v2hcGCFvRrHHK72ApZs/edit?tab=t.0)
+and reformulated to be machine-readable bounds, with the exact values listed in a [**validationConfig**](https://docs.google.com/spreadsheets/d/1qYqdC13377HHgCcO_eMq4TJemdLZjsYCM9gzYqD-r8o/edit?gid=596205375#gid=596205375) file (R10 only, model-native thresholds coming soon). For further information on the validation tool, consult the [ documentation](https://pik-piam.r-universe.dev/articles/piamValidation/validateScenarios.html).
+
+Scenario Snapshot: ``r snapshot_date``
+
+Historical data: ``r historical_date``
+
+Using config: ``r config``
+
+
+### Visualization
+
+Interactive line plots and heat maps demonstrate how models stay within the 
+defined boundaries. Hovering over data points offers additional data via tool tips 
+(e.g. what is the exact reference value). Two levels of "strictness" are used:
+
+![Thresholds](C:/Users/pascalwe/Code/scenarioMIP/piamValidation/inst/figures/thresholds_extracolors.png){#id .class width=70% height=70%}
+
+### Data sources
+
+#### 2020 vetting
+
+- **Primary Energy**: Deviation to IEA and BP data.
+- **Final Energy**: Deviation to IEA data.
+- **Capacities**: Deviation to Ember (2024).
+- **Emissions|CO2|EIP**: Deviations to CEDS (2025) 
+  -> only for World due to bunkers data availability
+
+*Note*: For 2020, the tolerance range includes both the 2020 value and the 2018-2022 average
+to allow for models to include or exclude a "COVID dip". In the configuration file
+this is specified by comparing to the `range` of a model and its `_smoothed` copy.
+
+#### Near-term emissions
+
+Deviation to "Medium" Scenario of the respective SSP in 2030.
+
+#### Near-term capacities
+
+Tested against thresholds based on 
+
+- **Hydro**: [IEA HSMR project pipelines](https://github.com/pik-piam/mrremind/discussions/540)
+- **Nuclear**: [IAEA PRIS project pipelines](https://github.com/pik-piam/mrremind/discussions/541)
+- **Solar**: [BloombergNEF projections](https://github.com/pik-piam/mrremind/discussions/542) (only World available)
+- **Wind**: [GWEC Global Wind Report](https://github.com/pik-piam/mrremind/discussions/543) (only World available)
+
+#### Near-term Carbon Capture
+
+Tested against thresholds based on [IEA CCUS project pipelines](https://github.com/pik-piam/mrremind/discussions/544).
+
+### Scenario Categories
+
+```{r plot.emi.scen.letter}
+emi.scen.letter
+```
+
+### Regional Abbreviations
+
+```{r}
+regs.short
+```
+
+```{r}
+# lineplot wrapper
+model_lineplots <- function(var, 
+                            vD = valiData,
+                            hD = hist,
+                            sD = data, 
+                            hist_models = NULL,
+                            xlimits = c(2010, 2030)) {
+  
+    plot_list <- htmltools::tagList()
+    for (i in 1:length(unique(valiData$region))) {
+  
+      reg <- levels(valiData$region)[i]
+      line_data <- vD %>%
+            filter(variable == var,
+                   region == reg)
+          
+      scen_data <- sD %>%
+        filter(scenario != "historical",
+               variable == var,
+               region == reg,
+               model == !!model)
+          
+      hist_data <- hD %>%
+        filter(scenario == "historical",
+               variable == var,
+               region == reg)
+    
+      if (!is.null(hist_models)) {
+        hist_data <- hist_data %>% 
+          filter(model %in% hist_models)
+      }
+      
+      p <- linePlotThresholds(line_data,
+                              refData = hist_data,
+                              scenData = scen_data,
+                              xlim = xlimits,
+                              interactive = FALSE) +
+        guides(linetype = guide_legend(ncol=2))
+
+      print(p)
+    }
+}
+```
+
+# Validation
+
+## Energy
+
+### PE Coal {.tabset}
+
+#### Heat Map
+```{r, fig.width=9, fig.height=6}
+var <- "PE|Coal"
+validationHeatmap(valiData[valiData$variable == var & valiData$period == 2020, ], 
+                  main_dim = "model",
+                  x_plot ="region",
+                  y_plot ="period",
+                  x_facet ="variable",
+                  y_facet ="scenario")
+```
+
+#### Line Plots
+```{r, fig.width=9, fig.height=5}
+model_lineplots(var, hist_models = c("BP", "IEA-EB-directSum", "BP_smoothed", "IEA-EB-directSum_smoothed"))
+```
+
+
+### PE Gas {.tabset}
+
+#### Heat Map
+```{r, fig.width=9, fig.height=6}
+var <- "PE|Gas"
+validationHeatmap(valiData[valiData$variable == var & valiData$period == 2020, ], 
+                  main_dim = "model",
+                  x_plot ="region",
+                  y_plot ="period",
+                  x_facet ="variable",
+                  y_facet ="scenario")
+```
+
+#### Line Plots
+```{r, fig.width=9, fig.height=5}
+model_lineplots(var, hist_models = c("BP", "IEA-EB-directSum", "BP_smoothed", "IEA-EB-directSum_smoothed"))
+```
+
+
+### PE Oil {.tabset}
+
+#### Heat Map
+```{r, fig.width=9, fig.height=6}
+var <- "PE|Oil"
+validationHeatmap(valiData[valiData$variable == var & valiData$period == 2020, ], 
+                  main_dim = "model",
+                  x_plot ="region",
+                  y_plot ="period",
+                  x_facet ="variable",
+                  y_facet ="scenario")
+```
+
+#### Line Plots
+```{r, fig.width=9, fig.height=5}
+model_lineplots(var, hist_models = c("BP", "IEA-EB-directSum", "BP_smoothed", "IEA-EB-directSum_smoothed"))
+```
+
+### PE Biomass {.tabset}
+
+#### Heat Map
+```{r, fig.width=9, fig.height=6}
+var <- "PE|Biomass"
+validationHeatmap(valiData[valiData$variable == var, ], 
+                  main_dim = "model",
+                  x_plot ="period",
+                  y_plot ="region",
+                  x_facet ="variable",
+                  y_facet ="scenario")
+```
+
+
+
+### Final Energy {.tabset}
+
+#### Heat Map
+```{r, fig.width=9, fig.height=6}
+var <- "FE"
+validationHeatmap(valiData[valiData$variable == var & valiData$period == 2020, ], 
+                  main_dim = "model",
+                  x_plot ="region",
+                  y_plot ="period",
+                  x_facet ="variable",
+                  y_facet ="scenario")
+```
+
+#### Line Plots
+```{r, fig.width=9, fig.height=5}
+model_lineplots(var, hist_models = c("IEA-EB-directSum", "IEA-EB-directSum_smoothed"))
+```
+
+## Capacities
+
+### Solar {.tabset}
+
+#### Heat Map
+```{r, fig.width=9, fig.height=6}
+var <- "Cap|Solar"
+validationHeatmap(valiData[valiData$variable == var & valiData$period == 2020, ], 
+                  main_dim = "model",
+                  x_plot ="region",
+                  y_plot ="period",
+                  x_facet ="variable",
+                  y_facet ="scenario")
+```
+
+#### Line Plots
+```{r, fig.width=9, fig.height=5}
+model_lineplots(var, hist_models = c("Ember", "Ember_smoothed"))
+```
+
+### Wind {.tabset}
+
+#### Heat Map
+```{r, fig.width=9, fig.height=6}
+var <- "Cap|Wind|Onshore"
+validationHeatmap(valiData[valiData$variable == var & valiData$period == 2020, ], 
+                  main_dim = "model",
+                  x_plot ="region",
+                  y_plot ="period",
+                  x_facet ="variable",
+                  y_facet ="scenario")
+```
+
+#### Line Plots
+```{r, fig.width=9, fig.height=5}
+model_lineplots(var, hist_models = c("Ember", "Ember_smoothed"))
+```
+
+### Hydro {.tabset}
+
+#### Heat Map
+```{r, fig.width=9, fig.height=6}
+var <- "Cap|Hydro"
+validationHeatmap(valiData[valiData$variable == var & valiData$period == 2020, ], 
+                  main_dim = "model",
+                  x_plot ="region",
+                  y_plot ="period",
+                  x_facet ="variable",
+                  y_facet ="scenario")
+```
+
+#### Line Plots
+```{r, fig.width=9, fig.height=5}
+model_lineplots(var, hist_models = c("Ember", "Ember_smoothed"))
+```
+
+### Nuclear {.tabset}
+
+#### Heat Map
+```{r, fig.width=9, fig.height=6}
+var <- "Cap|Nuclear"
+validationHeatmap(valiData[valiData$variable == var & valiData$period == 2020, ], 
+                  main_dim = "model",
+                  x_plot ="region",
+                  y_plot ="period",
+                  x_facet ="variable",
+                  y_facet ="scenario")
+```
+
+#### Line Plots
+```{r, fig.width=9, fig.height=5}
+model_lineplots(var, hist_models = c("Ember", "Ember_smoothed"))
+```
+
+
+## Carbon
+
+### CCS {.tabset}
+
+#### Heat Map
+```{r, fig.width=9, fig.height=5}
+var <- "CCS"
+validationHeatmap(valiData[valiData$variable == var, ], 
+                  main_dim = "model")
+```
+
+
+### Emi CO2 EIP {.tabset}
+
+#### Heat Map
+```{r, fig.width=9, fig.height=6}
+var <- "Emi|CO2|EIP"
+validationHeatmap(valiData[valiData$variable == var & 
+                             valiData$region == "World" &
+                             valiData$period %in% c(2010, 2015, 2020), ], 
+                  main_dim = "model")
+validationHeatmap(valiData[valiData$variable == var & valiData$period == 2030, ], 
+                  main_dim = "model")
+```
+
+#### Line Plots
+```{r, fig.width=9, fig.height=5}
+model_lineplots(var, hist_models = c("CEDS", "CEDS_smoothed"))
+```
+
+### Emi CH4 Waste {.tabset}
+
+#### Heat Map
+```{r, fig.width=9, fig.height=6}
+var <- "Emi|CH4|Waste"
+validationHeatmap(valiData[valiData$variable == var & valiData$period == 2020, ], 
+                  main_dim = "model",
+                  x_plot ="region",
+                  y_plot ="period",
+                  x_facet ="variable",
+                  y_facet ="scenario")
+```
+
+#### Line Plots
+```{r, fig.width=9, fig.height=5}
+model_lineplots(var, hist_models = c("CEDS", "CEDS_smoothed"))
+```
+
+## Summary
+
+### All Data
+
+Counting all checks per model can give teams rough hints towards overall vetting progress.
+Take a look at individual heat maps above to see where exactly bound violations happen.
+Priority should be given to eliminating ``red`` and ``blue`` data points.
+
+```{r}
+df_summary <- filter(valiData, period >= 2020)
+
+# find "critical == yes" data points of each color
+summary <- filter(df_summary, region == "World") %>%
+  dplyr::count(model, check) %>%
+  mutate(model = substr(model, 1, 5)) %>%
+  group_by(model) %>%
+  mutate(percent = n / sum(n) * 100)
+
+# change order of colors
+summary$check <- factor(
+  summary$check, 
+  levels = rev(c("green", "yellow", "cyan", "red", "blue", "grey"))
+  )
+
+# stacking order and midpoints
+summary <- summary %>%
+  arrange(model, desc(check)) %>%
+  group_by(model) %>%
+  mutate(
+    cumulative = cumsum(n),
+    midpoint = cumulative - (n / 2)
+  )
+
+
+# stacked bar plot in absolute numbers of checks
+p1 <- ggplot(summary, aes(x = model, y = n, fill = check)) +
+  geom_bar(stat = "identity") + # Absolute stacked bars
+  scale_fill_manual(values = validationHeatmap.colors) + # Custom colors
+  theme(axis.text.x = element_text(angle = 0, vjust = 0.5, hjust = 0.5)) +
+  geom_text(aes(label = n, y = midpoint), color = "white", size = 3.5) +
+  labs(y = "Count", x = "", title = "World")+
+  theme_minimal()+ theme(legend.position="none")
+
+# normalized
+p2 <- ggplot(summary, aes(x = model, y = n, fill = check)) +
+  geom_bar(position = "fill", stat = "identity") +
+  scale_fill_manual(values = validationHeatmap.colors) +
+  theme(axis.text.x = element_text(angle = 0, vjust = 0, hjust=0.5)) +
+  geom_text(aes(label = paste0(round(percent, 1), "%"),
+                group = check),
+            position = position_fill(vjust = 0.5),
+            color = "white",
+            size = 3.5) +
+  scale_y_continuous(labels = scales::percent) +
+  coord_polar("y", start = 0) +
+  labs(y = "Percentage", x = "")+
+  theme_void()+ theme(legend.position="none")
+
+# find "critical == yes" data points of each color
+summary <- filter(df_summary, region != "World") %>%
+  dplyr::count(model, check) %>%
+  mutate(model = substr(model, 1, 5)) %>%
+  group_by(model) %>%
+  mutate(percent = n / sum(n) * 100)
+
+# change order of colors
+summary$check <- factor(
+  summary$check, 
+  levels = rev(c("green", "yellow", "cyan", "red", "blue", "grey"))
+  )
+
+# stacking order and midpoints
+summary <- summary %>%
+  arrange(model, desc(check)) %>%
+  group_by(model) %>%
+  mutate(
+    cumulative = cumsum(n),
+    midpoint = cumulative - (n / 2)
+  )
+
+
+# stacked bar plot in absolute numbers of checks
+p3 <- ggplot(summary, aes(x = model, y = n, fill = check)) +
+  geom_bar(stat = "identity") + # Absolute stacked bars
+  scale_fill_manual(values = validationHeatmap.colors) + # Custom colors
+  theme(axis.text.x = element_text(angle = 0, vjust = 0.5, hjust = 0.5)) +
+  geom_text(aes(label = n, y = midpoint), color = "white", size = 3.5) +
+  labs(y = "Count", x = "", title = "Regions")+
+  theme_minimal() + theme(legend.position="none")
+
+# normalized
+p4 <- ggplot(summary, aes(x = model, y = n, fill = check)) +
+  geom_bar(position = "fill", stat = "identity") +
+  scale_fill_manual(values = validationHeatmap.colors) +
+  theme(axis.text.x = element_text(angle = 0, vjust = 0, hjust=0.5)) +
+  geom_text(aes(label = paste0(round(percent, 1), "%"),
+                group = check),
+            position = position_fill(vjust = 0.5),
+            color = "white",
+            size = 3.5) +
+  scale_y_continuous(labels = scales::percent) +
+  labs(y = "Percentage", x = "") +
+  coord_polar("y", start = 0) +
+  theme_void()+ theme(legend.position="none")
+
+ggarrange(p1, p3, p2, p4)
+
+summary[c("check", "n", "percent")]
+```
+
+
+### Capacities only
+
+```{r}
+df_summary_scen <- valiData %>% 
+  filter(period >= 2020, 
+         grepl("Cap", valiData$variable), 
+         model == model)
+# find "critical == yes" data points of each color
+summary_scen <- filter(df_summary_scen) %>%
+  dplyr::count(model, scenario, check) %>%
+  mutate(model = substr(model, 1, 5)) %>%
+  group_by(model, scenario) %>%
+  mutate(percent = n / sum(n) * 100)
+
+# change order of colors
+summary_scen$check <- factor(
+  summary_scen$check, 
+  levels = rev(c("green", "yellow", "cyan", "red", "blue", "grey"))
+  )
+
+# stacking order and midpoints
+summary_scen <- summary_scen %>%
+  arrange(model, desc(check)) %>%
+  group_by(model) %>%
+  mutate(
+    cumulative = cumsum(n),
+    midpoint = cumulative - (n / 2)
+  )
+
+# stacked bar plot in absolute numbers of checks
+p1 <- ggplot(summary_scen, aes(x = scenario, y = n, fill = check)) +
+  geom_bar(stat = "identity") + # Absolute stacked bars
+  scale_fill_manual(values = validationHeatmap.colors) + # Custom colors
+  theme(axis.text.x = element_text(angle = 90, vjust = 0, hjust = 0), legend.position="none") +
+  #geom_text(aes(label = n, y = midpoint), color = "white", size = 3.5) +
+  labs(y = "Count", x = "Scenario")
+
+# normalized
+p2 <- ggplot(summary_scen, aes(x = scenario, y = n, fill = check)) +
+  geom_bar(position = "fill", stat = "identity") +
+  scale_fill_manual(values = validationHeatmap.colors) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0, hjust=0)) +
+  #geom_text(aes(label = paste0(round(percent, 1), "%"),
+  #              group = check),
+  #          position = position_fill(vjust = 0.5),
+  #          color = "white",
+  #          size = 3.5) +
+  scale_y_continuous(labels = scales::percent) +
+  labs(y = "Percentage", x = "Scenario") +
+  theme(legend.position="none")
+
+print(ggarrange(p1, p2, nrow = 1))
+```
