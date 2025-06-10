@@ -112,8 +112,8 @@ linePlotThresholds <- function(valiData,
     scale_x_continuous(limits = xlim)
 
   if (interactive) {
-    plotly::ggplotly(p) %>%
-      layout(legend = list(title=list(text='Model, Scenario')))
+    plotly::ggplotly(p) #%>%
+      #layout(legend = list(title=list(text='Model, Scenario')))
   } else {
     p
   }
