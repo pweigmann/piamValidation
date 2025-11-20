@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">piamValidation</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.10.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -24,6 +24,9 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-config-tables" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Config Tables</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-config-tables"><li><a class="dropdown-item" href="../articles/configs/validationConfig_REMIND.html">REMIND</a></li>
     <li><a class="dropdown-item" href="../articles/configs/validationConfig_NGFS.html">NGFS</a></li>
+    <li><a class="dropdown-item" href="../articles/configs/validationConfig_NGFS_GCAM.html">NGFS GCAM</a></li>
+    <li><a class="dropdown-item" href="../articles/configs/validationConfig_NGFS_MESSAGE.html">NGFS MESSAGE</a></li>
+    <li><a class="dropdown-item" href="../articles/configs/validationConfig_NGFS_REMIND.html">NGFS REMIND</a></li>
     <li><a class="dropdown-item" href="../articles/configs/validationConfig_ScenarioMIP_AIM.html">ScenarioMIP AIM</a></li>
     <li><a class="dropdown-item" href="../articles/configs/validationConfig_ScenarioMIP_COFFEE.html">ScenarioMIP COFFEE</a></li>
     <li><a class="dropdown-item" href="../articles/configs/validationConfig_ScenarioMIP_GCAM.html">ScenarioMIP GCAM</a></li>
@@ -31,6 +34,12 @@
     <li><a class="dropdown-item" href="../articles/configs/validationConfig_ScenarioMIP_MESSAGE.html">ScenarioMIP MESSAGE</a></li>
     <li><a class="dropdown-item" href="../articles/configs/validationConfig_ScenarioMIP_REMIND.html">ScenarioMIP REMIND</a></li>
     <li><a class="dropdown-item" href="../articles/configs/validationConfig_ScenarioMIP_WITCH.html">ScenarioMIP WITCH</a></li>
+  </ul></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-publication" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Publication</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-publication"><li><a class="dropdown-item" href="../articles/publication.html">Reproduce Plots</a></li>
+    <li><a class="dropdown-item" href="../articles/configs/validationConfig_publication.html">Config REMIND validation</a></li>
+    <li><a class="dropdown-item" href="../articles/configs/validationConfig_publication_NGFS.html">Config NGFS validation</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -51,8 +60,7 @@
 
 
 
-
-    </div><div class="section level2">
+      <dl></dl></div><div class="section level2">
 
 
 
@@ -63,67 +71,85 @@
 
         </dt>
         <dd>construct tooltips for interactive plots</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="checkUnits.html">checkUnits()</a></code>
 
         </dt>
         <dd>Check variable consistency</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="combineData.html">combineData()</a></code>
 
         </dt>
         <dd>Combine scenario and reference data with thresholds</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="getConfig.html">getConfig()</a></code>
 
         </dt>
         <dd>import a config shipped with the package</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="importScenarioData.html">importScenarioData()</a></code>
 
         </dt>
         <dd>import IAM data for validation</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="linePlotThresholds.html">linePlotThresholds()</a></code>
 
         </dt>
-        <dd>takes the output of "validateScenarios()" and plots heat maps per variable</dd>
-      </dl><dl><dt>
+        <dd>takes the output of "validateScenarios()" creates a line plot</dd>
+
+        <dt>
+
+          <code><a href="listConfigs.html">listConfigs()</a></code>
+
+        </dt>
+        <dd>List available configs</dd>
+
+        <dt>
 
           <code><a href="piamValidation-package.html">piamValidation-package</a></code> <code><a href="piamValidation-package.html">piamValidation</a></code>
 
         </dt>
         <dd>Validation Tools for PIK-PIAM</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="refineRefData.html">refineRefData()</a></code>
 
         </dt>
         <dd>evaluate the content of the "ref_&lt;type&gt;" column and filter reference data accordingly. cases: - mode chosen - range - mean - no mode chosen - use mean if multiple references</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="validateScenarios.html">validateScenarios()</a></code>
 
         </dt>
         <dd>performs the validation checks from a config on a scenario data set</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="validationHeatmap.html">validationHeatmap()</a></code>
 
         </dt>
         <dd>takes the output of "validateScenarios()" and plots heat maps per variable</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="validationPass.html">validationPass()</a></code>
 
         </dt>
         <dd>returns information on whether scenarios passed critical validation checks</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="validationReport.html">validationReport()</a></code>
 
@@ -138,7 +164,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

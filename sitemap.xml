@@ -1,6 +1,9 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://pik-piam.github.io/piamValidation/404.html</loc></url>
 <url><loc>https://pik-piam.github.io/piamValidation/articles/configs/validationConfig_NGFS.html</loc></url>
+<url><loc>https://pik-piam.github.io/piamValidation/articles/configs/validationConfig_NGFS_GCAM.html</loc></url>
+<url><loc>https://pik-piam.github.io/piamValidation/articles/configs/validationConfig_NGFS_MESSAGE.html</loc></url>
+<url><loc>https://pik-piam.github.io/piamValidation/articles/configs/validationConfig_NGFS_REMIND.html</loc></url>
 <url><loc>https://pik-piam.github.io/piamValidation/articles/configs/validationConfig_REMIND.html</loc></url>
 <url><loc>https://pik-piam.github.io/piamValidation/articles/configs/validationConfig_ScenarioMIP_AIM.html</loc></url>
 <url><loc>https://pik-piam.github.io/piamValidation/articles/configs/validationConfig_ScenarioMIP_COFFEE.html</loc></url>
@@ -9,7 +12,10 @@
 <url><loc>https://pik-piam.github.io/piamValidation/articles/configs/validationConfig_ScenarioMIP_MESSAGE.html</loc></url>
 <url><loc>https://pik-piam.github.io/piamValidation/articles/configs/validationConfig_ScenarioMIP_REMIND.html</loc></url>
 <url><loc>https://pik-piam.github.io/piamValidation/articles/configs/validationConfig_ScenarioMIP_WITCH.html</loc></url>
+<url><loc>https://pik-piam.github.io/piamValidation/articles/configs/validationConfig_publication.html</loc></url>
+<url><loc>https://pik-piam.github.io/piamValidation/articles/configs/validationConfig_publication_NGFS.html</loc></url>
 <url><loc>https://pik-piam.github.io/piamValidation/articles/index.html</loc></url>
+<url><loc>https://pik-piam.github.io/piamValidation/articles/publication.html</loc></url>
 <url><loc>https://pik-piam.github.io/piamValidation/articles/validateScenarios.html</loc></url>
 <url><loc>https://pik-piam.github.io/piamValidation/authors.html</loc></url>
 <url><loc>https://pik-piam.github.io/piamValidation/index.html</loc></url>
@@ -20,6 +26,7 @@
 <url><loc>https://pik-piam.github.io/piamValidation/reference/importScenarioData.html</loc></url>
 <url><loc>https://pik-piam.github.io/piamValidation/reference/index.html</loc></url>
 <url><loc>https://pik-piam.github.io/piamValidation/reference/linePlotThresholds.html</loc></url>
+<url><loc>https://pik-piam.github.io/piamValidation/reference/listConfigs.html</loc></url>
 <url><loc>https://pik-piam.github.io/piamValidation/reference/piamValidation-package.html</loc></url>
 <url><loc>https://pik-piam.github.io/piamValidation/reference/refineRefData.html</loc></url>
 <url><loc>https://pik-piam.github.io/piamValidation/reference/validateScenarios.html</loc></url>

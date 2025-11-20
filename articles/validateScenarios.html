@@ -21,7 +21,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">piamValidation</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.10.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,6 +42,9 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-config-tables">
 <li><a class="dropdown-item" href="../articles/configs/validationConfig_REMIND.html">REMIND</a></li>
     <li><a class="dropdown-item" href="../articles/configs/validationConfig_NGFS.html">NGFS</a></li>
+    <li><a class="dropdown-item" href="../articles/configs/validationConfig_NGFS_GCAM.html">NGFS GCAM</a></li>
+    <li><a class="dropdown-item" href="../articles/configs/validationConfig_NGFS_MESSAGE.html">NGFS MESSAGE</a></li>
+    <li><a class="dropdown-item" href="../articles/configs/validationConfig_NGFS_REMIND.html">NGFS REMIND</a></li>
     <li><a class="dropdown-item" href="../articles/configs/validationConfig_ScenarioMIP_AIM.html">ScenarioMIP AIM</a></li>
     <li><a class="dropdown-item" href="../articles/configs/validationConfig_ScenarioMIP_COFFEE.html">ScenarioMIP COFFEE</a></li>
     <li><a class="dropdown-item" href="../articles/configs/validationConfig_ScenarioMIP_GCAM.html">ScenarioMIP GCAM</a></li>
@@ -49,6 +52,14 @@
     <li><a class="dropdown-item" href="../articles/configs/validationConfig_ScenarioMIP_MESSAGE.html">ScenarioMIP MESSAGE</a></li>
     <li><a class="dropdown-item" href="../articles/configs/validationConfig_ScenarioMIP_REMIND.html">ScenarioMIP REMIND</a></li>
     <li><a class="dropdown-item" href="../articles/configs/validationConfig_ScenarioMIP_WITCH.html">ScenarioMIP WITCH</a></li>
+  </ul>
+</li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-publication" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Publication</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-publication">
+<li><a class="dropdown-item" href="../articles/publication.html">Reproduce Plots</a></li>
+    <li><a class="dropdown-item" href="../articles/configs/validationConfig_publication.html">Config REMIND validation</a></li>
+    <li><a class="dropdown-item" href="../articles/configs/validationConfig_publication_NGFS.html">Config NGFS validation</a></li>
   </ul>
 </li>
       </ul>
@@ -292,6 +303,15 @@ file.</p>
 will be performed. This is the recommended approach when selecting
 multiple variables in one go via <code>**</code>, which don’t all share
 the same unit.</p>
+</div>
+<div class="section level4">
+<h4 id="available-configs">Available Configs<a class="anchor" aria-label="anchor" href="#available-configs"></a>
+</h4>
+<p>The package comes with a number of configuration files which can be
+found in the <code>inst/config</code> folder. The utility function
+<code><a href="../reference/listConfigs.html">listConfigs()</a></code> can be used to get a quick overview over the
+names of the config files and <code><a href="../reference/getConfig.html">getConfig()</a></code> will show their
+content if one of those names is handed over as an argument.</p>
 </div>
 </div>
 <div class="section level3">
@@ -862,7 +882,7 @@ never leave a certain range or you have expert guesses on
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>
