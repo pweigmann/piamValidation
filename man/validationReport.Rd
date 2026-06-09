@@ -9,7 +9,8 @@ validationReport(
   config,
   report = "default",
   outputDir = "output",
-  extraColors = TRUE
+  extraColors = TRUE,
+  giveSummary = FALSE
 )
 }
 \arguments{

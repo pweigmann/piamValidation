@@ -13,7 +13,9 @@
 #'
 #' @export
 validateScenarios <- function(dataPath, config,
-                              outputFile = NULL, extraColors = TRUE) {
+                              outputFile = NULL,
+                              extraColors = TRUE,
+                              giveSummary = FALSE) {
 
   data <- importScenarioData(dataPath)
 
@@ -29,8 +31,7 @@ validateScenarios <- function(dataPath, config,
     expandVariables(scen)
   cfg[cfg == "NA"] <- NA
 
-  # TODO: check if all variables from config are in scenario data,
-  # currently fails only with unit check
+  if (giveSummary) showInputSummary(scen, hist, cfg)
 
   # filter data for variables from config
   hist <- filter(hist, variable %in% unique(cfg$variable))
