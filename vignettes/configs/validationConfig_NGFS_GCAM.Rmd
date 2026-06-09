@@ -10,7 +10,7 @@ library(readr)
 library(DT)
 
 # Load the CSV from inst/config
-df <- piamValidation::getConfig("NGFS_GCAM71_2025-10-14")
+df <- piamValidation::getConfig("NGFS_GCAM_Phase6")
 
 font.size <- "9pt"
 

@@ -23,7 +23,7 @@ Authors:
 \itemize{
   \item Pascal Weigmann \email{pascal.weigmann@pik-potsdam.de} (\href{https://orcid.org/0000-0001-8801-173X}{ORCID}) (affiliation: Potsdam Institute for Climate Impact Research)
   \item Oliver Richters (\href{https://orcid.org/0000-0001-8253-4716}{ORCID}) (affiliation: Potsdam Institute for Climate Impact Research)
-  \item Fabrice LC)cuyer (\href{https://orcid.org/0000-0002-7364-999X}{ORCID}) (affiliation: Potsdam Institute for Climate Impact Research)
+  \item Fabrice Lécuyer (\href{https://orcid.org/0000-0002-7364-999X}{ORCID}) (affiliation: Potsdam Institute for Climate Impact Research)
   \item Johannes Koch (\href{https://orcid.org/0000-0003-2920-8086}{ORCID}) (affiliation: Potsdam Institute for Climate Impact Research)
 }
 

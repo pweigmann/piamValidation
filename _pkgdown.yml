@@ -23,8 +23,6 @@ navbar:
       menu:
         - text: "REMIND"
           href: articles/configs/validationConfig_REMIND.html
-        - text: "NGFS"
-          href: articles/configs/validationConfig_NGFS.html
         - text: "NGFS GCAM"
           href: articles/configs/validationConfig_NGFS_GCAM.html
         - text: "NGFS MESSAGE"
