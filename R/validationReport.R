@@ -14,8 +14,11 @@
 #'
 #' @export
 
-validationReport <- function(dataPath, config, report = "default",
-                             outputDir = "output", extraColors = TRUE) {
+validationReport <- function(dataPath, config,
+                             report = "default",
+                             outputDir = "output",
+                             extraColors = TRUE,
+                             giveSummary = FALSE) {
 
   # detect if dataPath is file path or R object
   if (is.character(dataPath)) {
