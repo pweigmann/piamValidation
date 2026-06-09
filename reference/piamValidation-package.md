@@ -14,9 +14,20 @@ Useful links:
 ## Author
 
 **Maintainer**: Pascal Weigmann <pascal.weigmann@pik-potsdam.de>
+([ORCID](https://orcid.org/0000-0001-8801-173X)) (affiliation: Potsdam
+Institute for Climate Impact Research)
 
 Authors:
 
-- Oliver Richters
+- Pascal Weigmann <pascal.weigmann@pik-potsdam.de>
+  ([ORCID](https://orcid.org/0000-0001-8801-173X)) (affiliation: Potsdam
+  Institute for Climate Impact Research)
 
-- Fabrice Lécuyer
+- Oliver Richters ([ORCID](https://orcid.org/0000-0001-8253-4716))
+  (affiliation: Potsdam Institute for Climate Impact Research)
+
+- Fabrice LC)cuyer ([ORCID](https://orcid.org/0000-0002-7364-999X))
+  (affiliation: Potsdam Institute for Climate Impact Research)
+
+- Johannes Koch ([ORCID](https://orcid.org/0000-0003-2920-8086))
+  (affiliation: Potsdam Institute for Climate Impact Research)
