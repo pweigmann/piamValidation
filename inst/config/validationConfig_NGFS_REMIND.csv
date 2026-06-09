@@ -15,10 +15,6 @@ relative;yes;Cap|Electricity|Solar;GW;;;;2005-2020;-40%;-20%;20%;40%;range(Ember
 relative;yes;Cap|Electricity|Wind;GW;;;;2005-2020;-40%;-20%;20%;40%;range(Ember, IRENA);historical;;
 relative;yes;Cap|Electricity|Hydro;GW;;;;2005-2020;-40%;-20%;20%;40%;range(Ember, IRENA);historical;;
 relative;yes;Cap|Electricity|Nuclear;GW;;;;2005-2015;-40%;-20%;20%;40%;Ember;historical;;
-difference;yes;Stock|Transport|Pass|Road|BEV;;;;;2010-2020;-2.5;-1.25;1.25;2.5;range(IEA GEVO Historical, IEA GEVO Historical_smoothed);historical;;
-difference;yes;Stock|Transport|Pass|Road|BEV;;;;World;2010-2020;-5;-2.5;2.5;5;range(IEA GEVO Historical, IEA GEVO Historical_smoothed);historical;;
-difference;yes;Sales|Transport|Pass|Road|BEV;;;;;2010-2020;-0.5;-0.25;0.25;0.5;range(IEA GEVO Historical, IEA GEVO Historical_smoothed);historical;;
-difference;yes;Sales|Transport|Pass|Road|BEV;;;;World;2010-2020;-1;-0.5;0.5;1;range(IEA GEVO Historical, IEA GEVO Historical_smoothed);historical;;
 ;;;;;;;;;;;;;;;
 Near-term realism;;;;;;;;;;;;;;;
 from fullThresholds;;;;;;;;;;;;;;;
@@ -124,16 +120,17 @@ absolute;yes;Cap|Electricity|Wind;GW;;;CHA;2030;;436.32408;2243.85952;;;;;
 absolute;yes;Cap|Electricity|Wind;GW;;;IND;2030;;38.05542;181.38848;;;;;
 absolute;yes;Cap|Electricity|Wind;GW;;;USA;2030;;106.93662;404.67378;;;;;
 ;;;;;;;;;;;;;;;
-absolute;yes;Stock|Transport|Pass|Road|BEV;GW;;;World;2035;238;289;414;450;;;;15/30% above + below range of CPS and STEPS values of 2026
-absolute;yes;Sales|Transport|Pass|Road|BEV;GW;;;World;2035;29.4;35.7;52.9;59.8;;;;
-absolute;yes;Stock|Transport|Pass|Road|BEV;GW;;;CHA;2035;126;153;207;234;;;;
-absolute;yes;Sales|Transport|Pass|Road|BEV;GW;;;CHA;2035;14;17;23;26;;;;
-;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;
 post 2030;;;;;;;;;;;;;;;
 absolute;yes;Cap|Electricity|Nuclear;GW;;;World;2050;;;;991;;;;IAEA high case
 absolute;yes;Carbon Management|Storage;Mt CO2/yr;;;World;2035;;;;1300;;;;Kazlou et al. (https://www.nature.com/articles/s41558-024-02104-0)
 absolute;yes;Carbon Management|Storage;Mt CO2/yr;;;World;2040;;;;4300;;;;Kazlou et al. (https://www.nature.com/articles/s41558-024-02104-0)
-absolute;yes;Carbon Management|Storage;Mt CO2/yr;;;World;2050;;;;8600;;;;Grant et al.
-absolute;yes;PE|Biomass;EJ/yr;;;World;2030-2100;;;100;300;;;;Creutzig et al. 2015: https://onlinelibrary.wiley.com/doi/10.1111/gcbb.12205
+;;;;;;;;;;;;;;;
+NGFS Scenario Narratives;;;;;;;;;;;;;;;
+absolute;yes;PE|Biomass;EJ/yr;;;World;2020-2100;0;40;100;120;;;;
+absolute;yes;Carbon Management|Storage;Mt CO2/yr;;;World;2020-2100;0;0;5000;6000;;;;
+absolute;yes;PE|Fossil;EJ/yr;;;World;2060-2100;0;;100;150;;;;
+;;;;;;;;;;;;;;;
+absolute;yes;Emi|CO2;Mt CO2/yr;;C_o_1p5c;World;2045;;0;;;;;;
+absolute;yes;Emi|CO2;Mt CO2/yr;;C_o_1p5c;World;2055;;;0;;;;;
+absolute;yes;Emi|CO2;Mt CO2/yr;;C_o_1p5c;World;2060-2100;;;;0;;;;
+absolute;yes;Emi|GHG;Mt CO2eq/yr;;C_o_1p5c;World;2100;;;;0;;;;

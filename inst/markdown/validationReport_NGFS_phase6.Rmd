@@ -1,0 +1,755 @@
+---
+title: "NGFS Validation Phase 6 c2"
+date: "`r format(Sys.Date())`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: hide
+params:
+  mif: ""
+  cfg: ""
+  extraColors: true
+  warning: false
+  message: false
+  figWidth: 8
+---
+
+```{r include=FALSE}
+#library(piamValidation)
+devtools::load_all(".")
+library(knitr)
+library(dplyr)
+library(ggplot2)
+library(ggthemes)
+library(plotly)
+library(gridExtra)
+
+knitr::opts_chunk$set(
+  echo = FALSE,
+  error = TRUE,
+  message = params$message,
+  warning = params$warning
+)
+```
+
+# Data
+Loading runs from: `ngfs_phase_6_snapshot_C2_29_05_2026`.
+
+Configs (not yet fully updated online):
+
+[Scenario Boundaries Google Doc](https://docs.google.com/spreadsheets/d/1_2KVFXLJBaGYZ4VZrb-IJsyquutEvCfR/edit?gid=1397127163#gid=1397127163)
+
+[GCAM](https://pik-piam.github.io/piamValidation/articles/configs/validationConfig_NGFS_GCAM.html)
+
+[MESSAGE](https://pik-piam.github.io/piamValidation/articles/configs/validationConfig_NGFS_MESSAGE.html)
+
+[REMIND](https://pik-piam.github.io/piamValidation/articles/configs/validationConfig_NGFS_REMIND.html)
+
+```{r, message = FALSE, warning = FALSE}
+# Data Preparation
+
+data_dir <- "C:/Users/pascalwe/Data/NGFS/phase6/c2/ngfs_phase_6_snapshot_C2_29_05_2026/"
+
+scen_gcm <- "ngfs_phase_6_snapshot_gcam_2026-05-21 19_00_22.807966.xlsx"
+scen_msg <- "ngfs_phase_6_snapshot_message_2026-05-29 10_09_23.052160.xlsx"
+scen_rmd <- "ngfs_phase_6_snapshot_remind_2026-05-29 13_57_57.070735.xlsx"
+
+# read and save data as rds
+# data_gcm <- quitte::as.quitte(paste0(data_dir, scen_gcm))
+# data_msg <- quitte::as.quitte(paste0(data_dir, scen_msg))
+# data_rmd <- quitte::as.quitte(paste0(data_dir, scen_rmd))
+
+# saveRDS(rbind(data_gcm, data_msg, data_rmd), 
+#   file = paste0(data_dir, "scenario_all_2026-05-29.rds"))
+
+# # use World data of GCAM has more periods than the others, because of finer regions?
+hist_gcm <- readRDS(paste0(data_dir, "historical_GCAM82_2026-06-04.rds"))
+hist_msg <- readRDS(paste0(data_dir, "historical_MESSAGEix-GLOBIOM-GAINS21-R12_2026-06-04.rds"))
+hist_rmd <- readRDS(paste0(data_dir, "historical_REMIND-MAgPIE36-414_2026-06-04.rds"))
+
+hist_gcm <- hist_gcm[hist_gcm$region != "CHN", ]
+hist_msg <- hist_msg[hist_msg$region != "CHN", ]
+hist_rmd <- hist_rmd[hist_rmd$region != "CHN", ]
+
+scen <- readRDS(paste0(data_dir, "scenario_all_2026-05-29.rds"))
+
+# remove all regions from scenario data except model-native and World
+scen <- scen %>%
+  filter(grepl("\\||World", region)) %>%
+  filter(!is.na(value)) %>%
+  filter(period %in% c(seq(2020, 2060, 5), seq(2070, 2100, 10))) %>%
+  mutate(region = gsub(",", "", region))  # removes "," from REMIND region CAZ
+
+scen_gcm <- scen %>%
+  filter(model == "GCAM 8.2") %>%
+  mutate(region = gsub("GCAM 8.2\\|", "", region),
+         model = "GCAM")
+scen_msg <- scen %>%
+  filter(model == "MESSAGEix-GLOBIOM-GAINS 2.1-BMT-R12") %>%
+  mutate(region = gsub("MESSAGEix-GLOBIOM-GAINS 2.1-R12\\|", "", region),
+         model = "MESSAGE")
+scen_rmd <- scen %>%
+  filter(model == "REMIND-MAgPIE 3.6-4.14") %>%
+  mutate(region = gsub("REMIND-MAgPIE 3.6-4.14\\|", "", region),
+         model = "REMIND")
+
+# average 2020 values over 5 year period to even out Covid shock
+hist_gcm <- average_2020(hist_gcm)
+hist_msg <- average_2020(hist_msg)
+hist_rmd <- average_2020(hist_rmd) %>%
+  mutate(region = gsub(",", "", region))  # removes "," from REMIND region CAZ
+
+vd_gcm <- validateScenarios(rbind(scen_gcm, hist_gcm), "NGFS_GCAM_Phase6")
+vd_gcm <- appendTooltips(vd_gcm)
+
+vd_msg <- validateScenarios(rbind(scen_msg, hist_msg), "NGFS_MESSAGE_Phase6")
+vd_msg <- appendTooltips(vd_msg)
+
+vd_rmd <- validateScenarios(rbind(scen_rmd, hist_rmd), "NGFS_REMIND_Phase6")
+vd_rmd <- appendTooltips(vd_rmd)
+
+valiData <- rbind(vd_gcm, vd_msg, vd_rmd)
+
+# reorder regions to World is first
+new_order <- unique(intersect(c("World", "GLO",
+                                levels(valiData$region)), levels(valiData$region)))
+new_order_gcm <- unique(intersect(c("World", "GLO",
+                                levels(vd_gcm$region)), levels(vd_gcm$region)))
+new_order_msg <- unique(intersect(c("World", "GLO",
+                                levels(vd_msg$region)), levels(vd_msg$region)))
+new_order_rmd <- unique(intersect(c("World", "GLO",
+                                levels(vd_rmd$region)), levels(vd_rmd$region)))
+valiData$region <- factor(valiData$region, levels = new_order)
+vd_gcm$region <- factor(vd_gcm$region, levels = new_order_gcm)
+vd_msg$region <- factor(vd_msg$region, levels = new_order_msg)
+vd_rmd$region <- factor(vd_rmd$region, levels = new_order_rmd)
+
+```
+
+# Validation
+
+```{r}
+# lineplot wrapper
+modelLineplots <- function(var, 
+                            reg = "World",
+                            vD = valiData,
+                            df = data,
+                            hist_models = NULL,
+                            xlim = c(2005, 2035)) {
+
+  if (reg == "all") {
+    plot_list <- htmltools::tagList()
+    for (i in 1:length(unique(vD$region))) {
+  
+      reg <- unique(vD$region)[i]
+      line_data <- vD %>%
+            filter(variable == var,
+                   region == reg)
+          
+      scen_data <- df %>%
+        filter(scenario != "historical",
+               variable == var,
+               region == reg)
+          
+      hist_data <- df %>%
+        filter(scenario == "historical",
+               variable == var,
+               region == reg)
+    
+      if (!is.null(hist_models)) {
+        hist_data <- hist_data %>% 
+          filter(model %in% hist_models)
+      }
+      
+      plot_list[[i]] <- linePlotThresholds(line_data,
+                                           refData = hist_data,
+                                           scenData = scen_data,
+                                           xlim = xlim)
+    }
+    plot_list
+  
+  } else {
+  
+    line_data <- vD %>%
+      filter(variable == var,
+             region == reg)
+    
+    scen_data <- df %>%
+      filter(scenario != "historical",
+             variable == var,
+             region == reg)
+    
+    hist_data <- df %>%
+      filter(scenario == "historical",
+             variable == var,
+             region == reg)
+    
+    if (!is.null(hist_models)) {
+      hist_data <- hist_data %>% 
+        filter(model %in% hist_models)
+    }
+    
+    linePlotThresholds(line_data,
+                       refData = hist_data,
+                       scenData = scen_data,
+                       xlim = xlim)
+    }
+  }
+```
+
+
+## Scenario Boundaries
+
+### Biomass {.tabset}
+
+Global Biomass between 40 and 100 (max 120) EJ/yr for all years.
+
+#### Heat Map
+
+```{r, fig.width=9, fig.height=9}
+var <- "Primary Energy|Biomass"
+validationHeatmap(valiData[valiData$variable == var, ],
+                  x_plot = "period",
+                  y_plot = "scenario",
+                  x_facet = "region",
+                  y_facet = "model")
+```
+
+#### Line Plot
+```{r, fig.width=9, fig.height=5}
+modelLineplots(var, vD = valiData, reg = "World", df = rbind(scen_gcm, scen_msg, scen_rmd, hist_gcm), xlim = c(2010, 2100), hist_models = "IEA")
+```
+
+### PE Fossil {.tabset}
+
+Global PE Fossil below 100 (max 150) EJ/yr for all years including and after 2060 in
+net-zero scenario.
+
+#### Heat Map
+
+```{r, fig.width=9, fig.height=9}
+var <- "Primary Energy|Fossil"
+validationHeatmap(valiData[valiData$variable == var, ],
+                  x_plot = "period",
+                  y_plot = "scenario",
+                  x_facet = "region",
+                  y_facet = "model")
+```
+
+#### Line Plots
+```{r, fig.width=9, fig.height=5}
+d <- rbind(scen_gcm, scen_msg, scen_rmd, hist_gcm) %>%
+  filter(scenario == "o_1p5c")
+modelLineplots(var, vD = valiData, reg = "World", df = d, xlim = c(2010, 2100))
+```
+
+### Carbon Capture {.tabset}
+
+#### Heat Maps
+
+```{r, fig.width=10, fig.height=10}
+var <- "Carbon Capture|Geological Storage"
+validationHeatmap(vd_gcm[vd_gcm$variable == var, ],
+                  x_plot = "period",
+                  y_plot = "region",
+                  x_facet = "scenario",
+                  y_facet = "model")
+```
+
+```{r, fig.width=10, fig.height=7}
+validationHeatmap(vd_msg[vd_msg$variable == var, ],
+                  x_plot = "period",
+                  y_plot = "region",
+                  x_facet = "scenario",
+                  y_facet = "model")
+```
+
+```{r, fig.width=10, fig.height=7}
+validationHeatmap(vd_rmd[vd_rmd$variable == var, ],
+                  x_plot = "period",
+                  y_plot = "region",
+                  x_facet = "scenario",
+                  y_facet = "model")
+```
+
+#### Line Plot World
+```{r, fig.width=9, fig.height=5}
+d <- rbind(scen_gcm, scen_msg, scen_rmd, hist_gcm)
+modelLineplots(var, vD = valiData, reg = "World", df = d, xlim = c(2010, 2100))
+```
+
+#### Line Plots GCAM
+```{r, fig.width=9, fig.height=5}
+d <- rbind(scen_gcm, hist_gcm)
+modelLineplots(var, vD = filter(vd_gcm, period < 2035), reg = "all", df = d, xlim = c(2015, 2030))
+```
+
+#### Line Plots MESSAGE
+```{r, fig.width=9, fig.height=5}
+d <- rbind(scen_msg, hist_msg)
+modelLineplots(var, vD = filter(vd_msg, period < 2035), reg = "all", df = d, xlim = c(2015, 2030))
+```
+#### Line Plots REMIND
+```{r, fig.width=9, fig.height=5}
+d <- rbind(scen_rmd, hist_rmd)
+modelLineplots(var, vD = filter(vd_rmd, period < 2035), reg = "all", df = d, xlim = c(2015, 2030))
+```
+
+
+### Emissions CO2 {.tabset}
+
+#### Heat Map
+
+```{r, fig.width=9, fig.height=5}
+var <- "Emissions|CO2"
+validationHeatmap(valiData[valiData$variable == var, ],
+                  x_plot = "period",
+                  y_plot = "scenario",
+                  x_facet = "region",
+                  y_facet = "model")
+```
+
+#### Line Plots
+```{r, fig.width=9, fig.height=5}
+d <- rbind(scen_gcm, scen_msg, scen_rmd, hist_gcm) %>%
+  filter(scenario == "o_1p5c")
+modelLineplots(var, vD = vd_rmd, reg = "World", df = d, xlim = c(2010, 2100))
+```
+
+### Emissions Kyoto Gases {.tabset}
+
+#### Heat Map
+
+```{r, fig.width=9, fig.height=5}
+var <- "Emissions|Kyoto Gases"
+validationHeatmap(valiData[valiData$variable == var, ],
+                  x_plot = "period",
+                  y_plot = "scenario",
+                  x_facet = "model",
+                  y_facet = "region")
+```
+
+#### Line Plots
+```{r, fig.width=9, fig.height=5}
+d <- rbind(scen_gcm, scen_msg, scen_rmd, hist_gcm) %>%
+  filter(scenario == "o_1p5c")
+modelLineplots(var, vD = valiData, reg = "World", df = d, xlim = c(2010, 2100))
+```
+
+### Temp 50th {.tabset}
+
+#### Heat Map
+
+```{r, fig.width=9, fig.height=5}
+var <- "AR6 climate diagnostics|Surface Temperature (GSAT)|MAGICCv7.5.3|50.0th Percentile"
+validationHeatmap(valiData[valiData$variable == var, ],
+                  x_plot = "period",
+                  y_plot = "scenario",
+                  x_facet = "region",
+                  y_facet = "model")
+```
+
+#### Line Plots
+```{r, fig.width=9, fig.height=5}
+d <- rbind(scen_gcm, scen_msg, scen_rmd, hist_gcm) %>%
+  filter(scenario == "o_1p5c")
+modelLineplots(var, vD = valiData %>% filter(scenario == "o_1p5c"), 
+               reg = "World", df = d, xlim = c(2010, 2100))
+```
+
+### Temp 67th {.tabset}
+
+#### Heat Map
+
+```{r, fig.width=8, fig.height=5}
+var <- "AR6 climate diagnostics|Surface Temperature (GSAT)|MAGICCv7.5.3|67.0th Percentile"
+validationHeatmap(valiData[valiData$variable == var, ],
+                  x_plot = "period",
+                  y_plot = "scenario",
+                  x_facet = "region",
+                  y_facet = "model")
+```
+
+#### Line Plots
+```{r, fig.width=9, fig.height=5}
+d <- rbind(scen_gcm, scen_msg, scen_rmd, hist_gcm) %>%
+  filter(scenario %in% c("o_1p5c"))
+modelLineplots(var, vD = filter(valiData, scenario == "o_1p5c"), reg = "World", df = d, xlim = c(2010, 2100))
+
+d <- rbind(scen_gcm, scen_msg, scen_rmd, hist_gcm) %>%
+  filter(scenario %in% c("o_2c"))
+modelLineplots(var, vD = filter(valiData, scenario == "o_2c"), reg = "World", df = d, xlim = c(2010, 2100))
+
+d <- rbind(scen_gcm, scen_msg, scen_rmd, hist_gcm) %>%
+  filter(scenario %in% c("d_delfrag"))
+modelLineplots(var, vD = filter(valiData, scenario == "d_delfrag"), reg = "World", df = d, xlim = c(2010, 2100))
+
+d <- rbind(scen_gcm, scen_msg, scen_rmd, hist_gcm) %>%
+  filter(scenario %in% c("d_strain"))
+modelLineplots(var, vD = filter(valiData, scenario == "d_strain"), reg = "World", df = d, xlim = c(2010, 2100))
+```
+
+## Historical + Near-Term Vetting
+
+### FE  {.tabset}
+
+#### Heat Map
+```{r, fig.width=9, fig.height=6}
+var <- "Final Energy"
+validationHeatmap(vd_gcm[vd_gcm$variable == var, ],
+                  x_plot = "period",
+                  y_plot = "region",
+                  x_facet = "scenario",
+                  y_facet = "model")
+validationHeatmap(vd_msg[vd_msg$variable == var, ],
+                  x_plot = "period",
+                  y_plot = "region",
+                  x_facet = "scenario",
+                  y_facet = "model")
+validationHeatmap(vd_rmd[vd_rmd$variable == var, ],
+                  x_plot = "period",
+                  y_plot = "region",
+                  x_facet = "scenario",
+                  y_facet = "model")
+```
+
+#### Line Plots GCAM
+```{r, fig.width=9, fig.height=5}
+data <- rbind(scen_gcm, hist_gcm)
+modelLineplots(var, vD = vd_gcm, reg = "all", df = data,
+                hist_models = c("IEA-EB-directSum", "IEA-EB-directSum_smoothed"))
+```
+
+#### Line Plots MESSAGE
+```{r, fig.width=9, fig.height=5}
+data <- rbind(scen_msg, hist_msg)
+modelLineplots(var, vD = vd_msg, reg = "all", df = data,
+                hist_models = c("IEA-EB-directSum", "IEA-EB-directSum_smoothed"))
+```
+#### Line Plots REMIND
+```{r, fig.width=9, fig.height=5}
+data <- rbind(scen_rmd, hist_rmd)
+modelLineplots(var, vD = vd_rmd, reg = "all", df = data,
+                hist_models = c("IEA-EB-directSum", "IEA-EB-directSum_smoothed"))
+```
+
+### CO2 Energy and IP  {.tabset}
+
+#### Heat Map
+```{r, fig.width=9, fig.height=6}
+var <- "Emissions|CO2|Energy and Industrial Processes"
+validationHeatmap(valiData[valiData$variable == var, ],
+                  x_plot = "period",
+                  y_plot = "region",
+                  x_facet = "scenario",
+                  y_facet = "model")
+```
+
+### CO2 Supply  {.tabset}
+
+#### Heat Map
+```{r, fig.width=9, fig.height=6}
+var <- "Emissions|CO2|Energy|Supply"
+validationHeatmap(valiData[valiData$variable == var, ],
+                  x_plot = "period",
+                  y_plot = "region",
+                  x_facet = "scenario",
+                  y_facet = "model")
+```
+
+
+## Capacities
+
+### Nuclear  {.tabset}
+
+#### Heat Map
+```{r, fig.width=9, fig.height=9}
+var <- "Capacity|Electricity|Nuclear"
+validationHeatmap(vd_gcm[vd_gcm$variable == var, ],
+                  x_plot = "period",
+                  y_plot = "region",
+                  x_facet = "scenario",
+                  y_facet = "model")
+validationHeatmap(vd_msg[vd_msg$variable == var, ],
+                  x_plot = "period",
+                  y_plot = "region",
+                  x_facet = "scenario",
+                  y_facet = "model")
+validationHeatmap(vd_rmd[vd_rmd$variable == var, ],
+                  x_plot = "period",
+                  y_plot = "region",
+                  x_facet = "scenario",
+                  y_facet = "model")
+```
+
+#### Line Plots GCAM
+```{r, fig.width=9, fig.height=5, warning=FALSE}
+data <- rbind(scen_gcm, hist_gcm)
+modelLineplots(var, vD = vd_gcm, reg = "all", df = data,
+                hist_models = c("Ember", "IRENA", "Ember_smoothed", "IRENA_smoothed"))
+```
+
+#### Line Plots MESSAGE
+```{r, fig.width=9, fig.height=5, warning=FALSE}
+data <- rbind(scen_msg, hist_msg)
+modelLineplots(var, vD = vd_msg, reg = "all", df = data,
+                hist_models = c("Ember", "IRENA", "Ember_smoothed", "IRENA_smoothed"))
+```
+
+#### Line Plots REMIND
+```{r, fig.width=9, fig.height=5, warning=FALSE}
+data <- rbind(scen_rmd, hist_rmd)
+modelLineplots(var, vD = vd_rmd, reg = "all", df = data,
+                hist_models = c("Ember", "IRENA", "Ember_smoothed", "IRENA_smoothed"))
+```
+
+
+### Hydro  {.tabset}
+
+#### Heat Map
+```{r, fig.width=9, fig.height=9}
+var <- "Capacity|Electricity|Hydro"
+validationHeatmap(vd_gcm[vd_gcm$variable == var, ],
+                  x_plot = "period",
+                  y_plot = "region",
+                  x_facet = "scenario",
+                  y_facet = "model")
+validationHeatmap(vd_msg[vd_msg$variable == var, ],
+                  x_plot = "period",
+                  y_plot = "region",
+                  x_facet = "scenario",
+                  y_facet = "model")
+validationHeatmap(vd_rmd[vd_rmd$variable == var, ],
+                  x_plot = "period",
+                  y_plot = "region",
+                  x_facet = "scenario",
+                  y_facet = "model")
+```
+
+#### Line Plots GCAM
+```{r, fig.width=9, fig.height=5, warning=FALSE}
+data <- rbind(scen_gcm, hist_gcm)
+modelLineplots(var, vD = vd_gcm, reg = "all", df = data,
+                hist_models = c("Ember", "IRENA", "Ember_smoothed", "IRENA_smoothed"))
+```
+
+#### Line Plots MESSAGE
+```{r, fig.width=9, fig.height=5, warning=FALSE}
+data <- rbind(scen_msg, hist_msg)
+modelLineplots(var, vD = vd_msg, reg = "all", df = data,
+                hist_models = c("Ember", "IRENA", "Ember_smoothed", "IRENA_smoothed"))
+```
+
+#### Line Plots REMIND
+```{r, fig.width=9, fig.height=5, warning=FALSE}
+data <- rbind(scen_rmd, hist_rmd)
+modelLineplots(var, vD = vd_rmd, reg = "all", df = data,
+                hist_models = c("Ember", "IRENA", "Ember_smoothed", "IRENA_smoothed"))
+```
+
+### Solar  {.tabset}
+
+#### Heat Map
+```{r, fig.width=9, fig.height=9}
+var <- "Capacity|Electricity|Solar"
+validationHeatmap(vd_gcm[vd_gcm$variable == var, ],
+                  x_plot = "period",
+                  y_plot = "region",
+                  x_facet = "scenario",
+                  y_facet = "model")
+validationHeatmap(vd_msg[vd_msg$variable == var, ],
+                  x_plot = "period",
+                  y_plot = "region",
+                  x_facet = "scenario",
+                  y_facet = "model")
+validationHeatmap(vd_rmd[vd_rmd$variable == var, ],
+                  x_plot = "period",
+                  y_plot = "region",
+                  x_facet = "scenario",
+                  y_facet = "model")
+```
+
+#### Line Plots GCAM
+```{r, fig.width=9, fig.height=5, warning=FALSE}
+data <- rbind(scen_gcm, hist_gcm)
+modelLineplots(var, vD = vd_gcm, reg = "all", df = data,
+                hist_models = c("Ember", "IRENA", "Ember_smoothed", "IRENA_smoothed"))
+```
+
+#### Line Plots MESSAGE
+```{r, fig.width=9, fig.height=5, warning=FALSE}
+data <- rbind(scen_msg, hist_msg)
+modelLineplots(var, vD = vd_msg, reg = "all", df = data,
+                hist_models = c("Ember", "IRENA", "Ember_smoothed", "IRENA_smoothed"))
+```
+
+#### Line Plots REMIND
+```{r, fig.width=9, fig.height=5, warning=FALSE}
+data <- rbind(scen_rmd, hist_rmd)
+modelLineplots(var, vD = vd_rmd, reg = "all", df = data,
+                hist_models = c("Ember", "IRENA", "Ember_smoothed", "IRENA_smoothed"))
+```
+
+
+### Wind  {.tabset}
+
+#### Heat Map
+```{r, fig.width=9, fig.height=9}
+var <- "Capacity|Electricity|Wind"
+validationHeatmap(vd_gcm[vd_gcm$variable == var, ],
+                  x_plot = "period",
+                  y_plot = "region",
+                  x_facet = "scenario",
+                  y_facet = "model")
+validationHeatmap(vd_msg[vd_msg$variable == var, ],
+                  x_plot = "period",
+                  y_plot = "region",
+                  x_facet = "scenario",
+                  y_facet = "model")
+validationHeatmap(vd_rmd[vd_rmd$variable == var, ],
+                  x_plot = "period",
+                  y_plot = "region",
+                  x_facet = "scenario",
+                  y_facet = "model")
+```
+
+#### Line Plots GCAM
+```{r, fig.width=9, fig.height=5, warning=FALSE}
+data <- rbind(scen_gcm, hist_gcm)
+modelLineplots(var, vD = vd_gcm, reg = "all", df = data,
+                hist_models = c("Ember", "IRENA", "Ember_smoothed", "IRENA_smoothed"))
+```
+
+#### Line Plots MESSAGE
+```{r, fig.width=9, fig.height=5, warning=FALSE}
+data <- rbind(scen_msg, hist_msg)
+modelLineplots(var, vD = vd_msg, reg = "all", df = data,
+                hist_models = c("Ember", "IRENA", "Ember_smoothed", "IRENA_smoothed"))
+```
+
+#### Line Plots REMIND
+```{r, fig.width=9, fig.height=5, warning=FALSE}
+data <- rbind(scen_rmd, hist_rmd)
+modelLineplots(var, vD = vd_rmd, reg = "all", df = data,
+                hist_models = c("Ember", "IRENA", "Ember_smoothed", "IRENA_smoothed"))
+```
+
+## Summary {.tabset}
+
+```{r}
+df_summary <- valiData
+
+colors <- c(green     = "#008450",
+            yellow    = "#EFB700",
+            red       = "#B81D13",
+            cyan      = "#66ccee",
+            blue      = "#4477aa",
+            grey      = "#808080")
+
+# find "critical == yes" data points of each color
+summary <- filter(df_summary, region == "World") %>%
+  dplyr::count(model, check) %>%
+  group_by(model) %>%
+  mutate(percent = n / sum(n) * 100)
+
+# change order of colors
+summary$check <- factor(
+  summary$check, 
+  levels = rev(c("green", "yellow", "cyan", "red", "blue", "grey"))
+  )
+
+# stacking order and midpoints
+summary <- summary %>%
+  arrange(model, desc(check)) %>%
+  group_by(model) %>%
+  mutate(
+    cumulative = cumsum(n),
+    midpoint = cumulative - (n / 2)
+  )
+
+
+# stacked bar plot in absolute numbers of checks
+p1 <- ggplot(summary, aes(x = model, y = n, fill = check)) +
+  geom_bar(stat = "identity") + # Absolute stacked bars
+  scale_fill_manual(values = colors) + # Custom colors
+  theme(axis.text.x = element_text(angle = 0, vjust = 0.5, hjust = 0.5)) +
+  geom_text(aes(label = n, y = midpoint), color = "white", size = 3.5) +
+  labs(y = "Count", x = "Model") +
+  ggtitle("World") + 
+  theme(legend.position = "none")
+
+# normalized
+p2 <- ggplot(summary, aes(x = model, y = n, fill = check)) +
+  geom_bar(position = "fill", stat = "identity") +
+  scale_fill_manual(values = colors) +
+  theme(axis.text.x = element_text(angle = 0, vjust = 0, hjust=0.5)) +
+  geom_text(aes(label = paste0(round(percent, 1), "%"),
+                group = check),
+            position = position_fill(vjust = 0.5),
+            color = "white",
+            size = 3.5) +
+  scale_y_continuous(labels = scales::percent) +
+  labs(y = "Percentage", x = "Model") +
+  ggtitle("World") + 
+  theme(legend.position = "none")
+
+
+# find "critical == yes" data points of each color
+summary <- filter(df_summary, region != "World") %>%
+  dplyr::count(model, check) %>%
+  group_by(model) %>%
+  mutate(percent = n / sum(n) * 100)
+
+# change order of colors
+summary$check <- factor(
+  summary$check, 
+  levels = rev(c("green", "yellow", "cyan", "red", "blue", "grey"))
+  )
+
+# stacking order and midpoints
+summary <- summary %>%
+  arrange(model, desc(check)) %>%
+  group_by(model) %>%
+  mutate(
+    cumulative = cumsum(n),
+    midpoint = cumulative - (n / 2)
+  )
+
+# stacked bar plot in absolute numbers of checks
+p3 <- ggplot(summary, aes(x = model, y = n, fill = check)) +
+  geom_bar(stat = "identity") + # Absolute stacked bars
+  scale_fill_manual(values = colors) + # Custom colors
+  theme(axis.text.x = element_text(angle = 0, vjust = 0.5, hjust = 0.5)) +
+  geom_text(aes(label = n, y = midpoint), color = "white", size = 3.5) +
+  labs(y = "Count", x = "Model") +
+  ggtitle("Regions") + 
+  theme(legend.position = "none")
+
+# normalized
+p4 <- ggplot(summary, aes(x = model, y = n, fill = check)) +
+  geom_bar(position = "fill", stat = "identity") +
+  scale_fill_manual(values = colors) +
+  theme(axis.text.x = element_text(angle = 0, vjust = 0, hjust=0.5)) +
+  geom_text(aes(label = paste0(round(percent, 1), "%"),
+                group = check),
+            position = position_fill(vjust = 0.5),
+            color = "white",
+            size = 3.5) +
+  scale_y_continuous(labels = scales::percent) +
+  labs(y = "Percentage", x = "Model") +
+  ggtitle("Regions") + 
+  theme(legend.position = "none")
+```
+
+
+### Percentage
+
+```{r, fig.width=7, fig.height=4}
+grid.arrange(p2, p4, nrow = 1)
+```
+
+### Count
+```{r, fig.width=7, fig.height=4}
+grid.arrange(p1, p3, nrow = 1)
+```
