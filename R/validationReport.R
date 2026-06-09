@@ -9,13 +9,18 @@
 #' @param outputDir choose a directory to save validation reports to
 #' @param extraColors if TRUE, use cyan and blue for violation of min thresholds
 #'        instead of using the same colors as for max thresholds (yel and red)
+#' @param giveSummary print a summary of input data via ``showInputSummary()``
+#'        which allows spotting data inconsistencies
 #'
 #' @importFrom piamutils getSystemFile
 #'
 #' @export
 
-validationReport <- function(dataPath, config, report = "default",
-                             outputDir = "output", extraColors = TRUE) {
+validationReport <- function(dataPath, config,
+                             report = "default",
+                             outputDir = "output",
+                             extraColors = TRUE,
+                             giveSummary = FALSE) {
 
   # detect if dataPath is file path or R object
   if (is.character(dataPath)) {

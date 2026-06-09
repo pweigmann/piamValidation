@@ -8,12 +8,16 @@
 #'        include file extension
 #' @param extraColors if TRUE, use cyan and blue for violation of min thresholds
 #'        instead of using the same colors as for max thresholds (yel and red)
+#' @param giveSummary print a summary of input data via ``showInputSummary()``
+#'        which allows spotting data inconsistencies
 #'
 #' @importFrom dplyr filter select mutate group_by %>% bind_rows
 #'
 #' @export
 validateScenarios <- function(dataPath, config,
-                              outputFile = NULL, extraColors = TRUE) {
+                              outputFile = NULL,
+                              extraColors = TRUE,
+                              giveSummary = FALSE) {
 
   data <- importScenarioData(dataPath)
 
@@ -29,8 +33,7 @@ validateScenarios <- function(dataPath, config,
     expandVariables(scen)
   cfg[cfg == "NA"] <- NA
 
-  # TODO: check if all variables from config are in scenario data,
-  # currently fails only with unit check
+  if (giveSummary) showInputSummary(scen, hist, cfg)
 
   # filter data for variables from config
   hist <- filter(hist, variable %in% unique(cfg$variable))

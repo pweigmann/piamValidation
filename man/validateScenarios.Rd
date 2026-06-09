@@ -4,7 +4,13 @@
 \alias{validateScenarios}
 \title{performs the validation checks from a config on a scenario data set}
 \usage{
-validateScenarios(dataPath, config, outputFile = NULL, extraColors = TRUE)
+validateScenarios(
+  dataPath,
+  config,
+  outputFile = NULL,
+  extraColors = TRUE,
+  giveSummary = FALSE
+)
 }
 \arguments{
 \item{dataPath}{one or multiple path(s) to scenario data in .mif or .csv
@@ -18,6 +24,9 @@ include file extension}
 
 \item{extraColors}{if TRUE, use cyan and blue for violation of min thresholds
 instead of using the same colors as for max thresholds (yel and red)}
+
+\item{giveSummary}{print a summary of input data via ``showInputSummary()``
+which allows spotting data inconsistencies}
 }
 \description{
 performs the validation checks from a config on a scenario data set

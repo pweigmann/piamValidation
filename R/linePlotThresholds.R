@@ -10,7 +10,7 @@
 #'        all available data.
 #' @param xlim set limits for the x axis
 #' @param interactive decide if an interactive ggploty object should be returned
-#' @importFrom dplyr filter mutate group_by reframe %>%
+#' @importFrom dplyr filter mutate group_by reframe bind_rows %>%
 #' @import ggplot2
 #' @export
 
@@ -50,49 +50,169 @@ linePlotThresholds <- function(valiData,
             data overlap.")
   }
 
-  # convert relative to absolute thresholds
+  # Prepare threshold background data
   d_background_rel <- valiData %>%
-    filter(valiData$metric == "relative") %>%
-    group_by(period) %>%  # thresholds only vary across periods
+    filter(metric == "relative") %>%
+    group_by(period) %>%
     reframe(
-      min_red = ((1+min_red) * ref_value_min),
-      min_yel = ((1+min_yel) * ref_value_min),
-      max_yel = ((1+max_yel) * ref_value_max),
-      max_red = ((1+max_red) * ref_value_max)
+      min_red = ((1 + .data$min_red) * .data$ref_value_min),
+      min_yel = ((1 + .data$min_yel) * .data$ref_value_min),
+      max_yel = ((1 + .data$max_yel) * .data$ref_value_max),
+      max_red = ((1 + .data$max_red) * .data$ref_value_max)
     )
 
-  # convert difference to absolute thresholds
   d_background_dif <- valiData %>%
-    filter(valiData$metric == "difference") %>%
+    filter(metric == "difference") %>%
     group_by(period) %>%
     reframe(
-      min_red = (min_red + ref_value_min),
-      min_yel = (min_yel + ref_value_min),
-      max_yel = (max_yel + ref_value_max),
-      max_red = (max_red + ref_value_max)
+      min_red = .data$min_red + .data$ref_value_min,
+      min_yel = .data$min_yel + .data$ref_value_min,
+      max_yel = .data$max_yel + .data$ref_value_max,
+      max_red = .data$max_red + .data$ref_value_max
     )
 
-  # same data structure for absolute thresholds
   d_background_abs <- valiData %>%
-    filter(valiData$metric == "absolute") %>%
+    filter(metric == "absolute") %>%
     group_by(period) %>%
-    reframe(min_red, min_yel, max_yel, max_red)
+    reframe(
+      .data$min_red,
+      .data$min_yel,
+      .data$max_yel,
+      .data$max_red
+    )
 
-  d_background <- rbind(d_background_rel, d_background_dif, d_background_abs)
+  d_background <- bind_rows(
+    d_background_rel,
+    d_background_dif,
+    d_background_abs
+  ) %>%
+    distinct() %>%
+    arrange(period)
 
-  # remove duplicates
-  d_background <- d_background[duplicated(d_background) == FALSE, ]
+  # plot thresholds as colored background areas or whiskers if only one period
+  p <- ggplot()
 
-  # TODO: different type of plot if thresholds are only available for one period
+  # helper for segmented threshold ribbons
+  addThresholdBand <- function(p,
+                               data,
+                               lower,
+                               upper,
+                               fill,
+                               alpha = 0.2) {
 
-  # plot thresholds as colored background areas
-  p <- ggplot() +
-    geom_ribbon(data = d_background, aes(x = period, ymin = min_yel, ymax = max_yel),
-                fill = "#008450", alpha = 0.2, color = NA, inherit.aes = FALSE) +
-    geom_ribbon(data = d_background, aes(x = period, ymin = max_yel, ymax = max_red),
-                fill = "#EFB700", alpha = 0.2, color = NA, inherit.aes = FALSE) +
-    geom_ribbon(data = d_background, aes(x = period, ymin = min_red, ymax = min_yel),
-                fill = "#66ccee", alpha = 0.3, color = NA, inherit.aes = FALSE) +
+    d <- data %>%
+      arrange(period)
+
+    # keep only rows where both limits exist
+    d$valid <- !is.na(d[[lower]]) &
+      !is.na(d[[upper]])
+
+    # identify contiguous valid segments
+    d$group <- cumsum(
+      d$valid != dplyr::lag(
+        d$valid,
+        default = d$valid[1]
+      )
+    )
+
+    d_valid <- d %>%
+      filter(valid)
+
+    if (nrow(d_valid) == 0) {
+      return(p)
+    }
+
+    group_sizes <- d_valid %>%
+      dplyr::count(group, name = "n")
+
+    multi_groups <- group_sizes %>%
+      filter(n > 1) %>%
+      pull(group)
+
+    single_groups <- group_sizes %>%
+      filter(n == 1) %>%
+      pull(group)
+
+    # regular ribbons
+    if (length(multi_groups) > 0) {
+
+      d_multi <- d_valid %>%
+        filter(group %in% multi_groups)
+
+      p <- p +
+        geom_ribbon(
+          data = d_multi,
+          aes(
+            x = period,
+            ymin = .data[[lower]],
+            ymax = .data[[upper]],
+            group = group
+          ),
+          fill = fill,
+          alpha = alpha,
+          color = NA,
+          inherit.aes = FALSE
+        )
+    }
+
+    # single-period fallback
+    if (length(single_groups) > 0) {
+
+      d_single <- d_valid %>%
+        filter(group %in% single_groups)
+
+      p <- p +
+        geom_linerange(
+          data = d_single,
+          aes(
+            x = period,
+            ymin = .data[[lower]],
+            ymax = .data[[upper]]
+          ),
+          linewidth = 6,
+          color = fill,
+          alpha = alpha,
+          inherit.aes = FALSE
+        )
+    }
+
+    p
+  }
+
+  # build plot
+  p <- ggplot()
+
+  # green band
+  p <- addThresholdBand(
+    p = p,
+    data = d_background,
+    lower = "min_yel",
+    upper = "max_yel",
+    fill = "#008450",
+    alpha = 0.20
+  )
+
+  # upper yellow band
+  p <- addThresholdBand(
+    p = p,
+    data = d_background,
+    lower = "max_yel",
+    upper = "max_red",
+    fill = "#EFB700",
+    alpha = 0.20
+  )
+
+  # lower cyan band
+  p <- addThresholdBand(
+    p = p,
+    data = d_background,
+    lower = "min_red",
+    upper = "min_yel",
+    fill = "#66ccee",
+    alpha = 0.30
+  )
+
+  p <- p +
     xlab("Period") +
     ylab(paste0(var, " [", unit, "]")) +
     theme_bw()
@@ -120,7 +240,7 @@ linePlotThresholds <- function(valiData,
   # layout
   p <- p +
     ggtitle(paste0(var, " - ", reg)) +
-    scale_x_continuous(limits = xlim)
+    coord_cartesian(xlim = xlim)
 
   if (interactive) {
     plotly::ggplotly(p) #%>%
