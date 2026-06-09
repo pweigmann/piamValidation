@@ -27,6 +27,9 @@ to be rendered or give a full path to a separate .Rmd file}
 
 \item{extraColors}{if TRUE, use cyan and blue for violation of min thresholds
 instead of using the same colors as for max thresholds (yel and red)}
+
+\item{giveSummary}{print a summary of input data via ``showInputSummary()``
+which allows spotting data inconsistencies}
 }
 \description{
 perform validateScenarios and create an .html report using .Rmd templates
