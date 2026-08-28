@@ -30,6 +30,7 @@ Imports:
     quitte (>= 0.3123.0),
     readr,
     readxl,
+    scenarioevaluationcriteria,
     tibble,
     tidyr
 Suggests:
@@ -47,5 +48,4 @@ Depends:
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 Config/Needs/website: tidyverse/tidytemplate
-Config/roxygen2/version: 8.0.0
-RoxygenNote: 7.3.3
+Config/roxygen2/version: 8.1.0

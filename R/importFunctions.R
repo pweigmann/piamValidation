@@ -8,7 +8,8 @@
 #'        or a data.frame containing scenario data in IAM format
 importScenarioData <- function(scenarioPath) {
   data <- quitte::as.quitte(scenarioPath, na.rm = TRUE) %>%
-    filter(period >= 1990)
+    filter(period >= 1990) %>%
+    mutate(variable = factor(piamutils::deletePlus(variable)))
 
   # change ordering of factors, global elements first
   new_order <- unique(intersect(c("World", "GLO",

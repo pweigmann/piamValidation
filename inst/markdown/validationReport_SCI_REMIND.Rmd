@@ -49,9 +49,51 @@ Based on:
 https://scenario-evaluation-criteria.iamconsortium.org/2026.08.03/
 
 
+```{r, message = FALSE, warning = TRUE, results = 'asis'}
+# import data before validation to check for missing variables
+data <- quitte::as.quitte(params$mif, na.rm = TRUE)
+
+# SCI evaluates cumulated geological carbon storage (2020-2100); if a scenario
+# does not report the variable, calculate it from annual storage
+cumVar <- "Carbon Management|Storage|Cumulated"
+annVar <- "Carbon Management|Storage"
+
+# model-scenario combinations missing the cumulated variable
+missingCum <- data %>%
+  filter(scenario != "historical") %>%
+  distinct(model, scenario) %>%
+  anti_join(filter(data, variable == cumVar), by = c("model", "scenario"))
+
+if (nrow(missingCum) > 0) {
+  cumData <- data %>%
+    semi_join(missingCum, by = c("model", "scenario")) %>%
+    filter(variable == annVar, period >= 2020, period <= 2100) %>%
+    group_by(model, scenario, region) %>%
+    arrange(period, .by_group = TRUE) %>%
+    mutate(
+      # trapezoidal integration of annual storage, starting at 0 in 2020
+      step = (period - lag(period)) * (value + lag(value)) / 2,
+      value = cumsum(ifelse(is.na(step), 0, step)),
+      variable = cumVar,
+      unit = "Mt CO2") %>%
+    ungroup() %>%
+    select(-step)
+
+  if (nrow(cumData) == 0) {
+    warning("Neither ``", cumVar, "`` nor ``", annVar, "`` found for some ",
+            "scenarios, cumulated storage cannot be validated.")
+  } else {
+    cat(paste0("Variable ``", cumVar, "`` not reported by ",
+               nrow(missingCum), " scenario(s), calculating it from ``",
+               annVar, "``.\n"))
+    data <- bind_rows(data, cumData)
+  }
+}
+```
+
 ```{r, message = FALSE, warning = TRUE}
 # Data Preparation
-df <- validateScenarios(params$mif, params$cfg, extraColors = params$extraColors)
+df <- validateScenarios(data, params$cfg, extraColors = params$extraColors)
 df <- appendTooltips(df)
 interact <- TRUE
 ```
