@@ -8,13 +8,15 @@
 #' @export
 validationPass <- function(data, yellowFail = FALSE) {
 
-  fail_color <- ifelse(yellowFail, c("red", "yellow"), "red")
+  fail_color <- if (yellowFail) c("red", "yellow") else "red"
 
   # see if any critical variables have failed per scenario and model
   pass <- data %>%
-    dplyr::filter(check %in% fail_color, critical == "yes") %>%
     dplyr::group_by(model, scenario) %>%
-    dplyr::summarize(pass = dplyr::n() == 0, n_fail = dplyr::n())
+    dplyr::summarise(n_fail = sum(check %in% fail_color & critical == "yes"),
+                     pass   = n_fail == 0,
+                     .groups = "drop")
+
 
   return(pass)
 }
