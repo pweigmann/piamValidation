@@ -1,7 +1,7 @@
 Type: Package
 Package: piamValidation
 Title: Validation Tools for PIK-PIAM
-Version: 0.17.0
+Version: 0.17.1
 Date: 2026-08-28
 Authors@R:
     c(person("Pascal", "Weigmann",, "pascal.weigmann@pik-potsdam.de", role = c("aut", "cre"),
@@ -30,7 +30,6 @@ Imports:
     quitte (>= 0.3123.0),
     readr,
     readxl,
-    scenarioevaluationcriteria,
     tibble,
     tidyr
 Suggests:
@@ -41,7 +40,8 @@ Suggests:
     remind2,
     rmarkdown,
     rprojroot,
-    scales
+    scales,
+    scenarioevaluationcriteria
 Encoding: UTF-8
 Depends: 
     R (>= 2.10)
