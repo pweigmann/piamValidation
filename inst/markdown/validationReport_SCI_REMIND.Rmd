@@ -1,0 +1,240 @@
+---
+title: "piamValidation: SCI evaluation"
+date: "`r format(Sys.Date())`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: hide
+params:
+  mif: ""
+  cfg: ""
+  extraColors: true
+  warning: false
+  message: false
+  figWidth: 8
+---
+
+```{r include=FALSE}
+library(piamValidation)
+library(knitr)
+library(dplyr)
+library(ggplot2)
+library(ggthemes)
+library(plotly)
+
+knitr::opts_chunk$set(
+  echo = FALSE,
+  error = TRUE,
+  message = params$message,
+  warning = params$warning
+)
+```
+
+## Import and Prepare Data
+
+Loading data from:
+
+```{r}
+for (m in params$mif) cat(paste0(normalizePath(m), "\n"))
+```
+
+Using config:
+
+```{r}
+cat(params$cfg, "\n")
+```
+
+Based on:
+https://scenario-evaluation-criteria.iamconsortium.org/2026.08.03/
+
+
+```{r, message = FALSE, warning = TRUE, results = 'asis'}
+# import data before validation to check for missing variables
+data <- quitte::as.quitte(params$mif, na.rm = TRUE)
+
+# SCI evaluates cumulated geological carbon storage (2020-2100); if a scenario
+# does not report the variable, calculate it from annual storage
+cumVar <- "Carbon Management|Storage|Cumulated"
+annVar <- "Carbon Management|Storage"
+
+# model-scenario combinations missing the cumulated variable
+missingCum <- data %>%
+  filter(scenario != "historical") %>%
+  distinct(model, scenario) %>%
+  anti_join(filter(data, variable == cumVar), by = c("model", "scenario"))
+
+if (nrow(missingCum) > 0) {
+  cumData <- data %>%
+    semi_join(missingCum, by = c("model", "scenario")) %>%
+    filter(variable == annVar, period >= 2020, period <= 2100) %>%
+    group_by(model, scenario, region) %>%
+    arrange(period, .by_group = TRUE) %>%
+    mutate(
+      # trapezoidal integration of annual storage, starting at 0 in 2020
+      step = (period - lag(period)) * (value + lag(value)) / 2,
+      value = cumsum(ifelse(is.na(step), 0, step)),
+      variable = cumVar,
+      unit = "Mt CO2") %>%
+    ungroup() %>%
+    select(-step)
+
+  if (nrow(cumData) == 0) {
+    warning("Neither ``", cumVar, "`` nor ``", annVar, "`` found for some ",
+            "scenarios, cumulated storage cannot be validated.")
+  } else {
+    cat(paste0("Variable ``", cumVar, "`` not reported by ",
+               nrow(missingCum), " scenario(s), calculating it from ``",
+               annVar, "``.\n"))
+    data <- bind_rows(data, cumData)
+  }
+}
+```
+
+```{r, message = FALSE, warning = TRUE}
+# Data Preparation
+df <- validateScenarios(data, params$cfg, extraColors = params$extraColors)
+df <- appendTooltips(df)
+interact <- TRUE
+```
+
+## Validation
+
+Currently, only threshold violations that are part of the historical vetting
+lead to a scenario failing the SCI evaluation.
+
+### Summary
+
+```{r}
+worst <- function(check, grey_label) {
+  dplyr::case_when(
+    any(check %in% c("red", "blue"))    ~ "high",
+    any(check %in% c("yellow", "cyan")) ~ "medium",
+    any(check == "grey")                ~ grey_label,
+    TRUE                                ~ "ok")
+}
+
+sciSummary <- df %>%
+  group_by(model, scenario) %>%
+  summarise(
+    `Historical Vetting` = ifelse(
+      any(check %in% c("red", "blue") & critical == "yes"), "failed", "ok"),
+    `Feasibility Concern` =
+      worst(check[critical == "feasibility"], "not assigned"),
+    `Sustainability Concern` =
+      worst(check[critical == "sustainability"], "not assigned"),
+    .groups = "drop") %>%
+  mutate(`SCI Evaluation` = ifelse(
+    `Historical Vetting` == "ok", "passed", "excluded"))
+
+colorCell <- function(x) kableExtra::cell_spec(
+  x, background = dplyr::recode(x,
+    ok = "#00845080", passed = "#00845080", medium = "#EFBB0F80",
+    high = "#AA001480", failed = "#AA001480", excluded = "#AA001480",
+    .default = "#80808080"))
+
+sciSummary %>%
+  mutate(across(-c(model, scenario), colorCell)) %>%
+  kableExtra::kbl(escape = FALSE) %>%
+  kableExtra::kable_styling(full_width = FALSE)
+```
+
+## Heatmaps by Category
+
+```{r, results='asis'}
+legendColors <- c(green = "#008450", yellow = "#EFBB0F", red = "#AA0014",
+                  cyan = "#7BD5F3", blue = "#4477AA", grey = "#808080")
+legendLabels <- c(green =  "within thresholds",
+                  yellow = "above threshold, medium concern",
+                  red =    "above threshold, high concern / historical vetting failed",
+                  cyan =   "below threshold, medium concern",
+                  blue =   "below threshold, high concern / historical vetting failed",
+                  grey =   "missing or infinite value")
+# only show colors that actually appear in the data
+usedColors <- intersect(names(legendColors), unique(df$check))
+legendColors <- legendColors[usedColors]
+items <- paste0(
+  '<span style="display:inline-block;width:14px;height:14px;',
+  'background-color:', legendColors,
+  ';border:1px solid #ccc;margin-right:5px;vertical-align:middle;"></span> ',
+  names(legendColors), " \u2013 ", legendLabels[names(legendColors)]
+)
+cat('<div style="margin-bottom:15px;">\n')
+cat(paste(items, collapse = "<br>\n"))
+cat("\n</div>\n")
+```
+
+```{r}
+plotHeatmaps <- function(data, variables) {
+  if (nrow(data) > 0) {
+    if (interact) {  # interactive plots need to be collected in a tagList
+      plot_list <- htmltools::tagList()
+      for (i in 1:length(variables)) {
+        plot_data <- filter(data, variable == variables[i])
+        plot_list[[i]] <- validationHeatmap(plot_data)
+      }
+      plot_list
+    } else {  # non-interactive plots can simply be printed in a loop
+      for (i in 1:length(variables)) {
+        p <- validationHeatmap(data, variables[i], interactive = interact)
+        print(p)
+      }
+    }
+  }
+}
+```
+
+
+<!-- Historical Vetting -->
+
+```{r, results='asis'}
+# plot one heat map for each variable in this category
+d <- filter(df, critical == "yes")  # SCI has critical variables = historical vetting
+vars <- unique(d$variable)
+
+if (nrow(d) > 0) {
+  cat("### Historical Vetting\n\n")
+  cat("Relative deviation to historical reference data.\n\n")
+}
+```
+
+```{r}
+plotHeatmaps(d, vars)
+```
+
+
+<!-- Feasibility -->
+
+```{r, results='asis'}
+# plot one heat map for each variable in this category
+d <- filter(df, critical == "feasibility")
+vars <- unique(d$variable)
+
+if (nrow(d) > 0) {
+  cat("### Feasibility\n\n")
+  cat("Near-Term feasibility criteria\n\n")
+}
+```
+
+```{r}
+plotHeatmaps(d, vars)
+```
+
+<!-- Sustainability -->
+
+```{r, results='asis'}
+# plot one heat map for each variable in this category
+d <- filter(df, critical == "sustainability")
+vars <- unique(d$variable)
+
+if (nrow(d) > 0) {
+  cat("### Sustainability\n\n")
+  cat("General sustainability concerns\n\n")
+}
+```
+
+Variable ``Food Availability [per capita]`` not reported!
+
+```{r}
+plotHeatmaps(d, vars)
+```
