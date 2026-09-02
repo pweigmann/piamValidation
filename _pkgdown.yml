@@ -43,6 +43,10 @@ navbar:
           href: articles/configs/validationConfig_ScenarioMIP_REMIND.html
         - text: "ScenarioMIP WITCH"
           href: articles/configs/validationConfig_ScenarioMIP_WITCH.html
+        - text: "SCI"
+          href: articles/configs/validationConfig_SCI.html
+        - text: "SCI REMIND"
+          href: articles/configs/validationConfig_SCI_REMIND.html
     publication:
       text: "Publication"
       menu:

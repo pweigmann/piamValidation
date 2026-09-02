@@ -1,0 +1,31 @@
+---
+title: "validationConfig_SCI"
+output: html_document
+---
+
+Configuration file for scenario evaluation based on the criteria of the
+Scenario Compass Initiative (version 2026.8.3), using the original
+variable names of the criteria.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(readr)
+library(DT)
+
+# Load the CSV from inst/config
+df <- piamValidation::getConfig("SCI_2026.8.3")
+
+font.size <- "9pt"
+
+df %>%
+   DT::datatable(
+     options = list(
+       pageLength = 100,
+       initComplete = htmlwidgets::JS(
+          "function(settings, json) {",
+          paste0("$(this.api().table().container()).css({'font-size': '", font.size, "'});"),
+          "}"),
+      filter = 'top'  # This enables the column filters
+      )
+    )
+
+```

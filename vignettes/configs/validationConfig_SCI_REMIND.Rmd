@@ -1,0 +1,30 @@
+---
+title: "validationConfig_SCI_REMIND"
+output: html_document
+---
+
+Configuration file for scenario evaluation based on the criteria of the
+Scenario Compass Initiative (version 2026.8.3), using REMIND variable names.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(readr)
+library(DT)
+
+# Load the CSV from inst/config
+df <- piamValidation::getConfig("SCI_REMIND_2026.8.3")
+
+font.size <- "9pt"
+
+df %>%
+   DT::datatable(
+     options = list(
+       pageLength = 100,
+       initComplete = htmlwidgets::JS(
+          "function(settings, json) {",
+          paste0("$(this.api().table().container()).css({'font-size': '", font.size, "'});"),
+          "}"),
+      filter = 'top'  # This enables the column filters
+      )
+    )
+
+```

@@ -43,7 +43,7 @@ Suggests:
     scales,
     scenarioevaluationcriteria
 Remotes:
-    github::IAMconsortium/scenario-evaluation-criteria
+    scenarioevaluationcriteria=github::IAMconsortium/scenario-evaluation-criteria
 Encoding: UTF-8
 Depends: 
     R (>= 2.10)
