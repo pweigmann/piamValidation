@@ -6,25 +6,35 @@ output: html_document
 Configuration file for scenario evaluation based on the criteria of the
 Scenario Compass Initiative (version 2026.8.3), using REMIND variable names.
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
 library(readr)
 library(DT)
 
 # Load the CSV from inst/config
 df <- piamValidation::getConfig("SCI_REMIND_2026.8.3")
 
-font.size <- "9pt"
+# drop columns that are empty in this config
+empty_cols <- names(df)[colSums(!is.na(df)) == 0]
+df <- df[, colSums(!is.na(df)) > 0, drop = FALSE]
 
-df %>%
-   DT::datatable(
-     options = list(
-       pageLength = 100,
-       initComplete = htmlwidgets::JS(
-          "function(settings, json) {",
-          paste0("$(this.api().table().container()).css({'font-size': '", font.size, "'});"),
-          "}"),
-      filter = 'top'  # This enables the column filters
-      )
+if (length(empty_cols) > 0) {
+  cat("*Columns that are empty in this config and therefore not shown:*",
+      paste0("`", empty_cols, "`", collapse = ", "))
+}
+
+DT::datatable(
+  df,
+  rownames = FALSE,
+  class = "compact stripe hover",
+  filter = "top",
+  options = list(
+    pageLength = 100,
+    scrollX = TRUE,
+    autoWidth = TRUE,
+    columnDefs = list(
+      list(width = "220px", targets = which(names(df) == "variable") - 1)
     )
+  )
+)
 
 ```
