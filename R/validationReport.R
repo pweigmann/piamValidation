@@ -77,9 +77,17 @@ validationReport <- function(dataPath, config,
   if (configName != "default") infix <- paste0(infix, "_cfg-", configName)
   if (reportName != "default") infix <- paste0(infix, "_rep-", reportName)
 
+  # render in a job-specific temporary directory: knitr writes intermediate
+  # files next to the input file, but the package library may be read-only
+  # and parallel renders of the same template would collide
+  tmpDir <- file.path(tempdir(), format(Sys.time(), "render_%Y%m%d%H%M%S"))
+  dir.create(tmpDir, recursive = TRUE, showWarnings = FALSE)
+  tmpReport <- file.path(tmpDir, basename(reportPath))
+  file.copy(reportPath, tmpReport, overwrite = TRUE)
+
   # create specified report for given data and config
   yamlParams <- list(mif = dataPath, cfg = config, extraColors = extraColors)
-  rmarkdown::render(input = reportPath,
+  rmarkdown::render(input = tmpReport,
                     params = yamlParams,
                     output_file = paste0(outputPath, "/validation", infix,
                                          format(Sys.time(), "_%Y%m%d-%H%M%S"),
