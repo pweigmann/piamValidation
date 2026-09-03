@@ -4,14 +4,33 @@
 #' and can be directly imported with ``getConfig()`` or used in
 #' ``validateScenarios()`` and ``validationReport()``.
 #'
+#' @returns character vector of config names
+#'
+#' @importFrom piamutils getSystemFile
+#'
 #' @export
 listConfigs <- function() {
+  configs <- list.files(
+    piamutils::getSystemFile("config", package = "piamValidation"),
+    pattern = "^validationConfig_.*\\.csv$")
+  sort(gsub("^validationConfig_|\\.csv$", "", configs))
+}
 
-  configs <- list.files(system.file("config/", package = "piamValidation"))
-  configs <- gsub("validationConfig_|.csv", "", configs)
-
-  cat("Available configuration files\n")
-  paste(configs)
+#' List available reports
+#'
+#' List all validation report templates (.Rmd) that are delivered with the
+#' package and can be used as ``report`` in ``validationReport()``.
+#'
+#' @returns character vector of report names
+#'
+#' @importFrom piamutils getSystemFile
+#'
+#' @export
+listReports <- function() {
+  reports <- list.files(
+    piamutils::getSystemFile("markdown", package = "piamValidation"),
+    pattern = "^validationReport_.*\\.Rmd$")
+  sort(gsub("^validationReport_|\\.Rmd$", "", reports))
 }
 
 
@@ -67,6 +86,54 @@ showInputSummary <- function(scen, hist, config) {
       paste(head(cfgVars, 5), collapse = ", ")
     ))
   }
+}
+
+#' Warn if reference data required by the config is missing from input data
+#'
+#' Compares the reference models of all historical checks in the config
+#' against the models found in the reference data provided by the user
+#' (scenario "historical") and warns about missing ones. If reference data
+#' files shipped with the package contain the missing models, they are
+#' suggested.
+#'
+#' @param cfg processed config as used in ``validateScenarios()``
+#' @param hist historical/reference data as used in ``validateScenarios()``
+checkRefData <- function(cfg, hist) {
+  histRows <- cfg[!is.na(cfg$ref_scenario) & cfg$ref_scenario == "historical" &
+                    !is.na(cfg$ref_model), ]
+  if (nrow(histRows) == 0) return(invisible(NULL))
+
+  # extract model names from ref_model entries, dropping a possible mode
+  # such as "range(...)" or "mean(...)"
+  refModels <- unlist(lapply(histRows$ref_model, function(x) {
+    refs <- strsplit(x, split = "\\(|\\)|, |,")[[1]]
+    if (grepl("\\(", x)) refs <- refs[-1]
+    refs
+  }))
+  missingModels <- setdiff(unique(refModels), unique(hist$model))
+  if (length(missingModels) == 0) return(invisible(NULL))
+
+  # look for reference data shipped with the package with the missing models
+  extFiles <- list.files(system.file("extdata", package = "piamValidation"),
+                         pattern = "\\.rds$", full.names = TRUE)
+  hints <- Filter(function(f) {
+    ref <- try(readRDS(f), silent = TRUE)
+    is.data.frame(ref) && "model" %in% colnames(ref) &&
+      any(missingModels %in% unique(ref$model))
+  }, extFiles)
+
+  msg <- paste0(
+    "Reference data required by the config was not found in the input data ",
+    "(scenario 'historical') for the following model(s):\n",
+    paste("-", missingModels, collapse = "\n"),
+    "\nThe affected checks can not be performed.")
+  if (length(hints) > 0) {
+    msg <- paste0(
+      msg, "\nReference data shipped with the package contains (some of) ",
+      "these models, consider adding to 'dataPath':\n",
+      paste("-", hints, collapse = "\n"))
+  }
+  warning(msg, call. = FALSE, immediate. = TRUE)
 }
 
 #' Average 2020 to smoothen Covid shock in historical data
