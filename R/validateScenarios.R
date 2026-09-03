@@ -35,6 +35,9 @@ validateScenarios <- function(dataPath, config,
 
   if (giveSummary) showInputSummary(scen, hist, cfg)
 
+  # warn if reference data required by the config is missing from input data
+  checkRefData(cfg, hist)
+
   # filter data for variables from config
   hist <- filter(hist, variable %in% unique(cfg$variable))
   scen <- filter(scen, variable %in% unique(cfg$variable))

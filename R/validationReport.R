@@ -61,11 +61,10 @@ validationReport <- function(dataPath, config,
     if (file.exists(reportPath)) {
       reportName <- report
     } else {
-      available <- list.files(system.file("markdown", package = "piamValidation"))
       stop(paste("Report .Rmd not found!\n",
                  "Requested:", report, "\n\n",
-                 "Available markdown files:\n",
-                 paste(available, collapse = "\n")))
+                 "Available reports:\n",
+                 paste(listReports(), collapse = "\n")))
     }
   }
 

@@ -6,6 +6,9 @@
 \usage{
 listConfigs()
 }
+\value{
+character vector of config names
+}
 \description{
 List all validation configuration files that are delivered with the package
 and can be directly imported with ``getConfig()`` or used in
