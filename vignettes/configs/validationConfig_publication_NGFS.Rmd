@@ -39,3 +39,17 @@ DT::datatable(
 )
 
 ```
+
+```{css, echo=FALSE}
+/* let the config table use the full browser width (pkgdown pages only) */
+.container.template-article {
+  max-width: 95vw;
+}
+.container.template-article main.col-md-9 {
+  width: 100%;
+  max-width: none;
+}
+.container.template-article aside.col-md-3 {
+  display: none;
+}
+```
