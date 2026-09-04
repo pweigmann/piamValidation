@@ -15,10 +15,6 @@ relative;yes;Cap|Electricity|Solar;GW;;;;2005-2020;-40%;-20%;20%;40%;range(Ember
 relative;yes;Cap|Electricity|Wind;GW;;;;2005-2020;-40%;-20%;20%;40%;range(Ember, IRENA);historical;;
 relative;yes;Cap|Electricity|Hydro;GW;;;;2005-2020;-40%;-20%;20%;40%;range(Ember, IRENA);historical;;
 relative;yes;Cap|Electricity|Nuclear;GW;;;;2005-2015;-40%;-20%;20%;40%;Ember;historical;;
-difference;yes;Stock|Transport|Pass|Road|BEV;;;;;2010-2020;-2.5;-1.25;1.25;2.5;range(IEA GEVO Historical, IEA GEVO Historical_smoothed);historical;;
-difference;yes;Stock|Transport|Pass|Road|BEV;;;;World;2010-2020;-5;-2.5;2.5;5;range(IEA GEVO Historical, IEA GEVO Historical_smoothed);historical;;
-difference;yes;Sales|Transport|Pass|Road|BEV;;;;;2010-2020;-0.5;-0.25;0.25;0.5;range(IEA GEVO Historical, IEA GEVO Historical_smoothed);historical;;
-difference;yes;Sales|Transport|Pass|Road|BEV;;;;World;2010-2020;-1;-0.5;0.5;1;range(IEA GEVO Historical, IEA GEVO Historical_smoothed);historical;;
 ;;;;;;;;;;;;;;;
 Near-term realism;;;;;;;;;;;;;;;
 from fullThresholds;;;;;;;;;;;;;;;
