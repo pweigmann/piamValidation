@@ -63,7 +63,7 @@ hist_smoothed <- filter(data, scenario == "historical") %>%
 data <- bind_rows(data, hist_smoothed)
 ```
 
-## Validation
+# Validation
 
 ```{r}
 # heatmap wrapper: report missing validation results instead of failing
