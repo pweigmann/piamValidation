@@ -12,7 +12,6 @@ params:
   extraColors: true
   warning: false
   message: false
-  figWidth: 8
 ---
 
 ```{r include=FALSE}
@@ -30,8 +29,6 @@ knitr::opts_chunk$set(
   message = params$message,
   warning = params$warning
 )
-
-config <- "AMT"
 ```
 
 ## Import and Prepare Data
@@ -50,108 +47,79 @@ cat(params$cfg, "\n")
 
 
 ```{r, message = FALSE, warning = TRUE}
-# Data Preparation
-valiData <- validateScenarios(params$mif, params$cfg, extraColors = params$extraColors)
+# import scenario and reference data once, it is used for the validation and
+# for the line plots; importScenarioData() removes the "+" notation from
+# variable names so that they match the variable names in the validation results
+data <- piamValidation:::importScenarioData(params$mif)
+
+valiData <- validateScenarios(data, params$cfg, extraColors = params$extraColors)
 valiData <- appendTooltips(valiData)
+
+# add "<model>_smoothed" reference data in which the 2020 value is replaced by
+# the 2018-2022 average to dampen the Covid shock; only used in the line plots
+hist_smoothed <- filter(data, scenario == "historical") %>%
+  piamValidation:::average_2020() %>%
+  filter(grepl("_smoothed$", model), !is.na(value))
+data <- bind_rows(data, hist_smoothed)
 ```
 
 ## Validation
 
 ```{r}
-# lineplot wrapper
-REMIND_lineplot <- function(var, 
-                            reg = "World", 
-                            vD = valiData, 
-                            df = data, 
+# heatmap wrapper: report missing validation results instead of failing
+REMIND_heatmap <- function(var, vD = valiData) {
+  d <- filter(vD, variable == var)
+  if (nrow(d) == 0) {
+    cat("No validation results for", var, "\n")
+    return(invisible(NULL))
+  }
+  validationHeatmap(d)
+}
+
+# lineplot wrapper: one plot per region, reg = "all" plots every region in
+# which the variable was validated, regions without results are skipped
+REMIND_lineplot <- function(var,
+                            reg = "World",
+                            vD = valiData,
+                            df = data,
                             hist_models = NULL,
                             xlimits = c(2000, 2035)) {
 
-  if (reg == "all") {
-    plot_list <- htmltools::tagList()
-    for (i in 1:length(unique(valiData$region))) {
-  
-      reg <- levels(valiData$region)[i]
-      line_data <- vD %>%
-            filter(variable == var,
-                   region == reg)
-          
-      scen_data <- df %>%
-        filter(scenario != "historical",
-               variable == var,
-               region == reg)
-          
-      hist_data <- df %>%
-        filter(scenario == "historical",
-               variable == var,
-               region == reg)
-    
-      if (!is.null(hist_models)) {
-        hist_data <- hist_data %>% 
-          filter(model %in% hist_models)
-      }
-      
-      plot_list[[i]] <- linePlotThresholds(line_data,
-                                           refData = hist_data,
-                                           scenData = scen_data,
-                                           xlim = xlimits)
-    }
-    plot_list
-  
-  } else {
-  
-    line_data <- vD %>%
-      filter(variable == var,
-             region == reg)
-    
-    scen_data <- df %>%
-      filter(scenario != "historical",
-             variable == var,
-             region == reg)
-    
-    hist_data <- df %>%
-      filter(scenario == "historical",
-             variable == var,
-             region == reg)
-    
-    if (!is.null(hist_models)) {
-      hist_data <- hist_data %>% 
-        filter(model %in% hist_models)
-    }
-    
-    linePlotThresholds(line_data,
-                       refData = hist_data,
-                       scenData = scen_data,
-                       xlim = xlim)
-    }
+  vD <- filter(vD, variable == var)
+  if (nrow(vD) == 0) {
+    cat("No validation results for", var, "\n")
+    return(invisible(NULL))
   }
-```
 
-## Scenario Specific Temp
+  scen_data <- filter(df, scenario != "historical", variable == var)
+  hist_data <- filter(df, scenario == "historical", variable == var)
+  if (!is.null(hist_models)) {
+    hist_data <- filter(hist_data, model %in% hist_models)
+  }
 
-### Temp 50th {.tabset}
+  # regions with validation results for this variable, World first
+  if (identical(reg, "all")) {
+    regions <- unique(as.character(vD$region))
+    if (is.factor(vD$region)) regions <- intersect(levels(vD$region), regions)
+  } else {
+    regions <- reg
+  }
 
-#### Heat Map
-```{r, fig.width=7, fig.height=6}
-var <- "MAGICC7 AR6|Surface Temperature (GSAT)|50.0th Percentile"
-validationHeatmap(valiData[valiData$variable == var, ])
-```
-
-#### Line Plots
-```{r, fig.width=9, fig.height=5}
-REMIND_lineplot(var, reg = "all", hist_models = c("CEDS", "EDGARghg", "CEDS_smoothed", "EDGARghg_smoothed"))
-```
-
-### Temp 67th {.tabset}
-
-#### Heat Map
-```{r, fig.width=7, fig.height=6}
-var <- "MAGICC7 AR6|Surface Temperature (GSAT)|67.0th Percentile"
-validationHeatmap(valiData[valiData$variable == var, ])
-```
-
-#### Line Plots
-```{r, fig.width=9, fig.height=5}
-REMIND_lineplot(var, reg = "all", hist_models = c("CEDS", "EDGARghg", "CEDS_smoothed", "EDGARghg_smoothed"))
+  plot_list <- htmltools::tagList()
+  for (r in regions) {
+    line_data <- filter(vD, region == r)
+    if (nrow(line_data) == 0) {
+      cat("No validation results for", var, "in region", r, "\n")
+      next
+    }
+    plot_list[[length(plot_list) + 1]] <- linePlotThresholds(
+      line_data,
+      refData  = filter(hist_data, region == r),
+      scenData = filter(scen_data, region == r),
+      xlim = xlimits)
+  }
+  plot_list
+}
 ```
 
 ## Emissions
@@ -161,7 +129,7 @@ REMIND_lineplot(var, reg = "all", hist_models = c("CEDS", "EDGARghg", "CEDS_smoo
 #### Heat Map
 ```{r, fig.width=7, fig.height=6}
 var <- "Emi|CO2|w/o Bunkers|Energy|Demand|Transport"
-validationHeatmap(valiData[valiData$variable == var, ])
+REMIND_heatmap(var)
 ```
 
 #### Line Plots
@@ -174,7 +142,7 @@ REMIND_lineplot(var, reg = "all", hist_models = c("CEDS", "EDGARghg", "CEDS_smoo
 #### Heat Map
 ```{r, fig.width=7, fig.height=6}
 var <- "Emi|CO2|Energy|Demand|Buildings"
-validationHeatmap(valiData[valiData$variable == var, ])
+REMIND_heatmap(var)
 ```
 
 #### Line Plots
@@ -187,7 +155,7 @@ REMIND_lineplot(var, reg = "all", hist_models = c("CEDS", "EDGARghg", "CEDS_smoo
 #### Heat Map
 ```{r, fig.width=7, fig.height=6}
 var <- "Emi|CO2|w/o Bunkers|Energy and Industrial Processes"
-validationHeatmap(valiData[valiData$variable == var, ])
+REMIND_heatmap(var)
 ```
 
 #### Line Plots
@@ -200,7 +168,7 @@ REMIND_lineplot(var, reg = "all", hist_models = c("CEDS", "EDGARghg", "CEDS_smoo
 #### Heat Map
 ```{r, fig.width=7, fig.height=6}
 var <- "Emi|CO2|Energy|Supply"
-validationHeatmap(valiData[valiData$variable == var, ])
+REMIND_heatmap(var)
 ```
 
 #### Line Plots
@@ -217,7 +185,7 @@ REMIND_lineplot(var, reg = "all", hist_models = c("CEDS", "EDGARghg", "CEDS_smoo
 #### Heat Map
 ```{r, fig.width=7, fig.height=6}
 var <- "PE|Coal"
-validationHeatmap(valiData[valiData$variable == var, ])
+REMIND_heatmap(var)
 ```
 
 #### Line Plots
@@ -231,7 +199,7 @@ REMIND_lineplot(var, reg = "all",
 #### Heat Map
 ```{r, fig.width=7, fig.height=6}
 var <- "PE|Gas"
-validationHeatmap(valiData[valiData$variable == var, ])
+REMIND_heatmap(var)
 ```
 
 #### Line Plots
@@ -245,7 +213,7 @@ REMIND_lineplot(var, reg = "all",
 #### Heat Map
 ```{r, fig.width=7, fig.height=6}
 var <- "PE|Oil"
-validationHeatmap(valiData[valiData$variable == var, ])
+REMIND_heatmap(var)
 ```
 
 #### Line Plots
@@ -262,7 +230,7 @@ REMIND_lineplot(var, reg = "all",
 #### Heat Map
 ```{r, fig.width=7, fig.height=6}
 var <- "SE|Electricity"
-validationHeatmap(valiData[valiData$variable == var, ])
+REMIND_heatmap(var)
 ```
 
 #### Line Plots
@@ -277,7 +245,7 @@ REMIND_lineplot(var, reg = "all", hist_models = c("Ember", "BP", "Ember_smoothed
 #### Heat Map
 ```{r, fig.width=7, fig.height=6}
 var <- "FE"
-validationHeatmap(valiData[valiData$variable == var, ])
+REMIND_heatmap(var)
 ```
 
 #### Line Plots
@@ -293,7 +261,7 @@ REMIND_lineplot(var, reg = "all", hist_models = c("IEA-EB-directSum", "IEA-EB-di
 #### Heat Map
 ```{r, fig.width=7, fig.height=6}
 var <- "Cap|Electricity|Coal"
-validationHeatmap(valiData[valiData$variable == var, ])
+REMIND_heatmap(var)
 ```
 
 #### Line Plots
@@ -306,7 +274,7 @@ REMIND_lineplot(var, reg = "all", hist_models = c("Ember", "Ember_smoothed"))
 #### Heat Map
 ```{r, fig.width=7, fig.height=6}
 var <- "Cap|Electricity|Gas"
-validationHeatmap(valiData[valiData$variable == var, ])
+REMIND_heatmap(var)
 ```
 
 #### Line Plots
@@ -319,7 +287,7 @@ REMIND_lineplot(var, reg = "all", hist_models = c("Ember", "Ember_smoothed"))
 #### Heat Map
 ```{r, fig.width=7, fig.height=6}
 var <- "Cap|Electricity|Solar"
-validationHeatmap(valiData[valiData$variable == var, ])
+REMIND_heatmap(var)
 ```
 
 #### Line Plots
@@ -332,7 +300,7 @@ REMIND_lineplot(var, reg = "all", hist_models = c("Ember", "Ember_smoothed"))
 #### Heat Map
 ```{r, fig.width=7, fig.height=6}
 var <- "Cap|Electricity|Wind"
-validationHeatmap(valiData[valiData$variable == var, ])
+REMIND_heatmap(var)
 ```
 
 #### Line Plots
@@ -345,7 +313,7 @@ REMIND_lineplot(var, reg = "all", hist_models = c("Ember", "Ember_smoothed"))
 #### Heat Map
 ```{r, fig.width=7, fig.height=6}
 var <- "Cap|Electricity|Hydro"
-validationHeatmap(valiData[valiData$variable == var, ])
+REMIND_heatmap(var)
 ```
 
 #### Line Plots
@@ -358,7 +326,7 @@ REMIND_lineplot(var, reg = "all", hist_models = c("Ember", "IRENA", "Ember_smoot
 #### Heat Map
 ```{r, fig.width=7, fig.height=6}
 var <- "Cap|Electricity|Nuclear"
-validationHeatmap(valiData[valiData$variable == var, ])
+REMIND_heatmap(var)
 ```
 
 #### Line Plots
@@ -373,7 +341,7 @@ REMIND_lineplot(var, reg = "all", hist_models = c("Ember", "Ember_smoothed"))
 #### Heat Map
 ```{r, fig.width=7, fig.height=6}
 var <- "Stock|Transport|Pass|Road|LDV|Four Wheelers|BEV"
-validationHeatmap(valiData[valiData$variable == var, ])
+REMIND_heatmap(var)
 ```
 
 #### Line Plots
@@ -386,7 +354,7 @@ REMIND_lineplot(var, reg = "all")
 #### Heat Map
 ```{r, fig.width=7, fig.height=6}
 var <- "Sales|Transport|Pass|Road|LDV|Four Wheelers|BEV"
-validationHeatmap(valiData[valiData$variable == var, ])
+REMIND_heatmap(var)
 ```
 
 #### Line Plots
@@ -401,7 +369,7 @@ REMIND_lineplot(var, reg = "all")
 #### Heat Map
 ```{r, fig.width=7, fig.height=6}
 var <- "Carbon Management|Storage"
-validationHeatmap(valiData[valiData$variable == var, ])
+REMIND_heatmap(var)
 ```
 
 #### Line Plots
@@ -414,7 +382,7 @@ REMIND_lineplot(var, reg = "all")
 
 ```{r, fig.width=7, fig.height=6}
 var <- "PE|Biomass"
-validationHeatmap(valiData[valiData$variable == var, ])
+REMIND_heatmap(var)
 ```
 
 ## Summary {.tabset}

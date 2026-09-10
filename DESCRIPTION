@@ -33,6 +33,7 @@ Imports:
     tibble,
     tidyr
 Suggests:
+    gridExtra,
     htmlwidgets,
     kableExtra,
     madrat,
