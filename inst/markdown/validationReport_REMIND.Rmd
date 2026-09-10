@@ -51,8 +51,8 @@ cat(params$cfg, "\n")
 
 ```{r, message = FALSE, warning = TRUE}
 # Data Preparation
-df <- validateScenarios(params$mif, params$cfg, extraColors = params$extraColors)
-df <- appendTooltips(df)
+valiData <- validateScenarios(params$mif, params$cfg, extraColors = params$extraColors)
+valiData <- appendTooltips(valiData)
 ```
 
 ## Validation
